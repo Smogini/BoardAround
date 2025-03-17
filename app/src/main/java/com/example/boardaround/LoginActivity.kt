@@ -5,15 +5,16 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import com.example.boardaround.ui.theme.BoardAroundTheme
 import com.example.boardaround.ui.theme.BoardAroundTheme
 
 class LoginActivity : ComponentActivity() {
@@ -35,74 +36,87 @@ class LoginActivity : ComponentActivity() {
         var loginError by remember { mutableStateOf("") }
         var registerSuccess by remember { mutableStateOf(false) }
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .background(Color(0xFFEDE0D4))
         ) {
-            //Username
-            TextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
-
-            //Password
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 32.dp)
-            )
-
-
-            if (loginError.isNotEmpty()) {
-                Text(text = loginError, color = MaterialTheme.colorScheme.error)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            //Accedi
-            Button(
-                onClick = {
-                    if (username == "user@example.com" && password == "password123") {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Accesso riuscito!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        loginError = ""
-
-                        val intent = Intent(this@LoginActivity, HomepageActivity::class.java)
-                        startActivity(intent)
-                    } else {
-                        loginError = "Username o password errati!"
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Text("Accedi")
-            }
+                //Username
+                TextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 32.dp)
+                )
 
-            //Registrati
-            Button(
-                onClick = {
-                            val intent = Intent(this@LoginActivity, RegisterActivity::class.java)
+                //Password
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 100.dp)
+                )
+
+
+                if (loginError.isNotEmpty()) {
+                    Text(text = loginError, color = MaterialTheme.colorScheme.error)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                //Accedi Button
+                Button(
+                    onClick = {
+                        if (username == "" && password == "") {
+                            Toast.makeText(
+                                this@LoginActivity,
+                                "Accesso riuscito!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            loginError = ""
+                            val intent = Intent(this@LoginActivity, HomepageActivity::class.java)
                             startActivity(intent)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Registrati")
-                    }
+                        } else {
+                            loginError = "Username o password errati!"
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFC107),
+                        contentColor = Color.White //
+                    )
+                ) {
+                    Text("Accedi")
+                }
+
+                //Registrati Button
+                Button(
+                    onClick = {
+                        val intent = Intent(this@LoginActivity, RegisterActivity::class.java)
+                        startActivity(intent)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFC107),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Registrati")
+                }
+            }
         }
     }
 }

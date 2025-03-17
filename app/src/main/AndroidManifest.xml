@@ -7,7 +7,8 @@
 
     <application
         android:label="BoardAround"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.BoardAround">
 
         <activity android:name="com.example.boardaround.LoginActivity"
             android:exported="true">
