@@ -2,27 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.boardaround">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
 
     <application
         android:label="BoardAround"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/Theme.BoardAround">
 
-        <activity android:name="com.example.boardaround.LoginActivity"
+        <activity android:name="com.example.boardaround.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.example.boardaround.HomepageActivity"
-            android:exported="true" />
-
-        <activity android:name="com.example.boardaround.RegisterActivity"
-            android:exported="true" />
 
     </application>
 
