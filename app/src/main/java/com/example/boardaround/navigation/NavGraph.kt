@@ -18,7 +18,7 @@ fun NavGraph() {
             HomepageScreen(navController)
         }
         composable(Route.Login.route) {
-            LoginScreen()
+            LoginScreen(navController)
         }
         composable(Route.Register.route) {
             RegisterScreen()

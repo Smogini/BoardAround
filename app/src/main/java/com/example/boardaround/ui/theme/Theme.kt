@@ -12,6 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+val PrimaryButtonColor = Color(0xFF6200EE) // Colore personalizzato per il bottone
+val PrimaryButtonTextColor = Color.White // Colore del testo del bottone
+
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
