@@ -1,4 +1,4 @@
-package com.example.boardaround.screens
+package com.boardaround.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.boardaround.navigation.Route
+import com.boardaround.navigation.Route
 
 @Composable
 fun HomepageScreen(navController: NavController) {

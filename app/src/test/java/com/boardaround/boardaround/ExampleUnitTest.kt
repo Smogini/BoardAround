@@ -1,4 +1,4 @@
-package com.example.boardaround
+package com.boardaround.boardaround
 
 import org.junit.Test
 

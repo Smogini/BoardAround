@@ -1,13 +1,12 @@
-package com.example.boardaround.navigation
+package com.boardaround.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHost
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.boardaround.screens.HomepageScreen
-import com.example.boardaround.screens.LoginScreen
-import com.example.boardaround.screens.RegisterScreen
+import androidx.navigation.compose.rememberNavController
+import com.boardaround.ui.screens.HomepageScreen
+import com.boardaround.ui.screens.LoginScreen
+import com.boardaround.ui.screens.RegisterScreen
 
 @Composable
 fun NavGraph() {

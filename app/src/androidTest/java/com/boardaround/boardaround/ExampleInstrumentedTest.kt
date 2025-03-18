@@ -1,4 +1,4 @@
-package com.example.boardaround
+package com.boardaround.boardaround
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.boardaround", appContext.packageName)
+        assertEquals("com.boardaround.boardaround", appContext.packageName)
     }
 }
