@@ -1,4 +1,4 @@
-package com.example.boardaround.navigation
+package com.boardaround.navigation
 
 //Rotte
 sealed class Route(val route: String) {

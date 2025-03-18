@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.boardaround"
+    namespace = "com.boardaround"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.boardaround"
+        applicationId = "com.boardaround"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -30,7 +30,7 @@ android {
 
     buildFeatures {
         viewBinding = true
-        compose = true  // Unisci entrambi i buildFeatures in uno solo
+        compose = true
     }
 
     compileOptions {
@@ -44,7 +44,7 @@ android {
 
 dependencies {
 
-    implementation("androidx.navigation:navigation-compose:2.7.5")
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

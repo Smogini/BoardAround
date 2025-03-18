@@ -1,4 +1,4 @@
-package com.example.boardaround.screens
+package com.boardaround.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -6,48 +6,51 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.compose.ui.text.input.TextFieldValue
-import com.example.boardaround.ui.components.CustomButton // Importa il CustomButton
-import com.example.boardaround.ui.components.CustomTextField
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.boardaround.ui.components.CustomButton
+import com.boardaround.ui.components.CustomTextField
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun RegisterScreen() {
     val usernameState = remember { mutableStateOf(TextFieldValue()) }
     val passwordState = remember { mutableStateOf(TextFieldValue()) }
+    val nameState = remember { mutableStateOf(TextFieldValue) }
 
     Column(modifier = Modifier.padding(16.dp)) {
-
-        CustomTextField(  //Username
+        CustomTextField(
             label = "Username",
             value = usernameState.value,
             onValueChange = { usernameState.value = it }
         )
 
-
-        CustomTextField( //Password
+        CustomTextField(
             label = "Password",
             value = passwordState.value,
             onValueChange = { passwordState.value = it }
         )
 
-
-        CustomButton( //Accedi
+        CustomButton(
             onClick = {
-                navController.navigate("homepage")
+
             },
             text = "Accedi"
         )
 
 
-        CustomButton( //Registrati
+        CustomButton(
             onClick = {
-                navController.navigate("registrati")
+
             },
             text = "Registrati"
         )
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun PreviewRegisterScreen() {
+    RegisterScreen()
+}
 
