@@ -2,5 +2,5 @@
 <paths>
     <external-cache-path
         name="my_image"
-        path="/"
+        path="/" />
 </paths>

@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.boardaround">
-    
+
     <uses-permission android:name="android.permission.CAMERA"/>
-    <user-feature android:name="android.hardware.camera.any"/>
+    <uses-feature android:name="android.hardware.camera"/>
 
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -32,12 +32,10 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="BoardAround.provider"
             android:exported="false"
-            android:grantUriPermissions="true"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.v4"
                 android:resource="@xml/path_provider" />
-
-
+        </provider>
     </application>
-
 </manifest>
