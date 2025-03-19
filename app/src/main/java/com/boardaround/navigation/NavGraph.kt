@@ -12,6 +12,8 @@ import com.boardaround.ui.screens.Register
 import com.boardaround.ui.screens.NewEvent
 import com.boardaround.ui.screens.Profile
 import com.boardaround.ui.screens.MyProfile
+import com.boardaround.ui.screens.EditMyProfile
+import com.boardaround.ui.screens.GameInfo
 
 
 @Composable
@@ -38,6 +40,12 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
         }
         composable(Route.MyProfile.route) {
             MyProfile(navController).ShowMyProfileScreen()
+        }
+        composable(Route.EditMyProfile.route) {
+            EditMyProfile(navController).ShowEditMyProfile()
+        }
+        composable(Route.GameInfo.route) {
+            GameInfo(navController).ShowGameInfo()
         }
     }
 }

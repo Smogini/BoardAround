@@ -8,6 +8,8 @@ sealed class Route(val route: String) {
     data object NewEvent : Route("newEvent")
     data object Profile : Route("profile")
     data object MyProfile : Route("myProfile")
+    data object EditMyProfile : Route("editMyProfile")
+    data object GameInfo : Route("gameInfo")
 }
 
 
