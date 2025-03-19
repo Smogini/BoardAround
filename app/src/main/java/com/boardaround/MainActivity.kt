@@ -3,7 +3,11 @@ package com.boardaround
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.boardaround.ui.screens.LoginScreen
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.navigation.compose.rememberNavController
+import com.boardaround.navigation.NavGraph
+import com.boardaround.ui.screens.Login
 import com.boardaround.ui.theme.BoardAroundTheme
 
 class MainActivity : ComponentActivity() {
@@ -11,11 +15,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             BoardAroundTheme {
-                // Qui chiamiamo la funzione NavGraph per gestire la navigazione
-//                Surface(color = MaterialTheme.colorScheme.background) {
-//                    NavGraph() // Questo è il punto dove la NavGraph viene effettivamente usata
-//                }
-                LoginScreen()
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    val navController = rememberNavController()
+                    NavGraph(navController)
+                }
             }
         }
     }

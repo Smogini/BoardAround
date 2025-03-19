@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.boardaround.ui.theme.Background
 import com.boardaround.ui.theme.Divider
-import com.boardaround.ui.theme.Notifications
+import com.boardaround.ui.theme.BottomBar
 import com.boardaround.ui.theme.PrimaryText
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,7 +29,7 @@ fun AppBar(title: String) {
                 )
             },
             actions = {
-                if (title.length != 25) { /* TODO da modificare, non deve disegnare l'icona nella schermata di login */
+                if (title.length != 25) { /* TODO da modificare, non deve disegnare l'icona nella schermata di login/registrazione */
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(Icons.Filled.NotificationsNone, "Empty notifications")
                     }
@@ -37,7 +37,7 @@ fun AppBar(title: String) {
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = Background,
-                actionIconContentColor = Notifications
+                actionIconContentColor = BottomBar
             )
         )
         HorizontalDivider(

@@ -12,7 +12,7 @@ val Pink40 = Color(0xFF7D5260)
 
 val Background = Color(0xFFEDE0D4)
 val PrimaryText = Color(0xFF3E2723)
-val Notifications = Color(0xFF5D4037)
+val BottomBar = Color(0xFF5D4037)
 val Divider = Color(0xFF4E342E)
 
 val ButtonColor=Color(0xFFFFC107)
