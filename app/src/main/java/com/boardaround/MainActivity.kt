@@ -7,7 +7,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.navigation.compose.rememberNavController
 import com.boardaround.navigation.NavGraph
-import com.boardaround.ui.screens.Login
 import com.boardaround.ui.theme.BoardAroundTheme
 
 class MainActivity : ComponentActivity() {

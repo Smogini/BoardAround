@@ -25,10 +25,12 @@ class Register(private val navController: NavController): ComponentActivity() {
     fun ShowRegisterScreen() {
         val usernameState = remember { mutableStateOf(TextFieldValue()) }
         val passwordState = remember { mutableStateOf(TextFieldValue()) }
-        val nameState = remember { mutableStateOf(TextFieldValue) }
 
         ScreenTemplate(
-            title = "Registrati"
+            title = "Crea un nuovo profilo",
+            currentRoute = Route.Register.route,
+            navController,
+            showBottomBar = false,
         ) { contentPadding ->
             Column(
                 modifier = Modifier.padding(contentPadding),

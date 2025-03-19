@@ -11,11 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import com.boardaround.ui.theme.Background
 import com.boardaround.ui.theme.PrimaryText
-import java.util.Locale
 
 @Composable
 fun CustomTextField(

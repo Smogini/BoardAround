@@ -3,7 +3,7 @@ package com.boardaround.ui.screens
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.boardaround.ui.components.BottomBar
+import com.boardaround.navigation.Route
 import com.boardaround.ui.components.ScreenTemplate
 
 class Homepage(private val navController: NavController): ComponentActivity() {
@@ -12,7 +12,9 @@ class Homepage(private val navController: NavController): ComponentActivity() {
     fun ShowHomePageScreen() {
         ScreenTemplate(
             title = "Homepage",
-            bottomBar = { BottomBar(navController) }
+            currentRoute = Route.Homepage.route,
+            navController,
+            showBottomBar = true,
         ) {
 
         }
