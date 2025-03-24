@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.boardaround.ui.screens.Homepage
 import com.boardaround.ui.screens.Invite
 import com.boardaround.ui.screens.Login
@@ -18,7 +17,7 @@ import com.boardaround.ui.screens.Map
 
 
 @Composable
-fun NavGraph(navController: NavHostController = rememberNavController()) {
+fun NavGraph(navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = Route.Login.route) {
         composable(Route.Homepage.route) {
