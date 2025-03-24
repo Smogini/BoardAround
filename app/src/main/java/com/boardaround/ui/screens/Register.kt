@@ -25,10 +25,12 @@ class Register(private val navController: NavController): ComponentActivity() {
     fun ShowRegisterScreen() {
         val usernameState = remember { mutableStateOf(TextFieldValue()) }
         val passwordState = remember { mutableStateOf(TextFieldValue()) }
-        val nameState = remember { mutableStateOf(TextFieldValue) }
+        val name = remember { mutableStateOf(TextFieldValue()) }
+        val surname = remember { mutableStateOf(TextFieldValue()) }
+
 
         ScreenTemplate(
-            title = "Registrati"
+            title = "Registrati su BoardAround"
         ) { contentPadding ->
             Column(
                 modifier = Modifier.padding(contentPadding),
@@ -41,14 +43,31 @@ class Register(private val navController: NavController): ComponentActivity() {
                 Text("Password", textAlign = TextAlign.Center, color = PrimaryText)
                 CustomTextField(label = "Password", value = passwordState.value, onValueChange = { passwordState.value = it })
 
+                Text("Nome", textAlign = TextAlign.Center, color = PrimaryText)
+                CustomTextField(label = "Nome", value = name.value, onValueChange = { name.value = it })
+
+                Text("Cognome", textAlign = TextAlign.Center, color = PrimaryText)
+                CustomTextField(label = "Cognome", value = surname.value, onValueChange = { surname.value = it })
+
+
+                CustomButton(
+                    onClick = {
+                        navController.navigate(Route.Homepage.route) {
+                            launchSingleTop = true
+                        }
+                    },
+                    text = "Registrati"
+                )
+
                 CustomButton(
                     onClick = {
                         navController.navigate(Route.Login.route) {
                             launchSingleTop = true
                         }
                     },
-                    text = "Registrati"
+                    text = "Login"
                 )
+
             }
         }
     }

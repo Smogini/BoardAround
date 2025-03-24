@@ -26,8 +26,21 @@ class MyProfile(private val navController: NavController) {
     fun ShowMyProfileScreen(){
 
         ScreenTemplate(
-            title = "Il mio profilo"
+            title = "Il mio profilo",
+            bottomBar = { BottomBar(navController) }
         ) {
+
+
+
+
+            CustomButton(
+                onClick = {
+                    navController.navigate(Route.EditMyProfile.route) {
+                        launchSingleTop = true
+                    }
+                },
+                text = "Modifica il mio profilo"
+            )
 
         }
     }
