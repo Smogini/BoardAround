@@ -1,5 +1,6 @@
 package com.boardaround.ui.screens
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -19,29 +20,21 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.ScreenTemplate
 import com.boardaround.ui.theme.PrimaryText
 
-
-class MyProfile(private val navController: NavController) {
-
+class Map(private val navController: NavController) {
     @Composable
-    fun ShowMyProfileScreen(){
+    fun ShowMapScreen(){
 
         ScreenTemplate(
-            title = "Il mio profilo",
+            title = "Mappa",
             bottomBar = { BottomBar(navController) }
-        ) {
-
-
-
-
-            CustomButton(
-                onClick = {
-                    navController.navigate(Route.EditMyProfile.route) {
-                        launchSingleTop = true
-                    }
-                },
-                text = "Modifica il mio profilo"
-            )
-
+        ) { contentPadding ->
+            Column(
+                modifier = Modifier.padding(contentPadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("Mappa", textAlign = TextAlign.Center, color = PrimaryText)
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ sealed class Route(val route: String) {
     data object MyProfile : Route("myProfile")
     data object EditMyProfile : Route("editMyProfile")
     data object GameInfo : Route("gameInfo")
+    data object Map : Route("map")
 }
 
 
