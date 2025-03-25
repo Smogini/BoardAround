@@ -20,7 +20,6 @@ class Invite(private val navController: NavController) {
     fun ShowInviteScreen() {
         ScreenTemplate(
             title = "Sei stato invitato da :",
-            currentRoute = Route.Invite.route,
             navController,
             showBottomBar = false,
         ) { contentPadding ->
@@ -37,7 +36,7 @@ class Invite(private val navController: NavController) {
 
                 CustomButton(
                     onClick = {
-                        navController.navigate(Route.Homepage.route) {
+                        navController.navigate(Route.Homepage) {
                             launchSingleTop = true
                         }
                     },
@@ -46,7 +45,7 @@ class Invite(private val navController: NavController) {
 
                 CustomButton(
                     onClick = {
-                        navController.navigate(Route.Homepage.route) {
+                        navController.navigate(Route.Homepage) {
                             launchSingleTop = true
                         }
                     },

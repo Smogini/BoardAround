@@ -12,13 +12,12 @@ import com.boardaround.ui.theme.Background
 @Composable
 fun ScreenTemplate(
     title: String,
-    currentRoute: String,
     navController: NavController,
     showBottomBar: Boolean,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
-        topBar = { CustomTopAppBar(title, currentRoute, navController) },
+        topBar = { CustomTopAppBar(title, navController) },
         bottomBar = { if (showBottomBar) { BottomBar(navController) } },
         containerColor = Background
     ) { contentPadding ->

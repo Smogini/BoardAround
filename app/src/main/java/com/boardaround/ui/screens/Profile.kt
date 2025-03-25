@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.boardaround.navigation.Route
 import com.boardaround.ui.components.ScreenTemplate
 
 class Profile(private val navController: NavController) {
@@ -17,7 +16,6 @@ class Profile(private val navController: NavController) {
 
         ScreenTemplate(
             title = "Profilo di :",
-            currentRoute = Route.Profile.route,
             navController,
             showBottomBar = true,
         ) { contentPadding ->

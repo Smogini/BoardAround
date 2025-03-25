@@ -9,9 +9,6 @@ import androidx.navigation.compose.rememberNavController
 import com.boardaround.navigation.NavGraph
 import com.boardaround.ui.theme.BoardAroundTheme
 
-import com.boardaround.utils.rememberCameraLauncher
-import com.boardaround.utils.rememberPermission
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

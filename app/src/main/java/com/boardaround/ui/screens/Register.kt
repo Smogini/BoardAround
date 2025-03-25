@@ -1,7 +1,7 @@
 package com.boardaround.ui.screens
 
+import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,10 +24,8 @@ import com.boardaround.viewmodel.UserViewModel
 
 class Register(private val navController: NavController): ComponentActivity() {
 
-    private val userViewModel: UserViewModel by viewModels()
-
     @Composable
-    fun ShowRegisterScreen() {
+    fun ShowRegisterScreen(userViewModel: UserViewModel) {
         val usernameState = remember { mutableStateOf(TextFieldValue()) }
         val nameState = remember { mutableStateOf(TextFieldValue()) }
         val emailState = remember { mutableStateOf(TextFieldValue()) }
@@ -36,7 +34,6 @@ class Register(private val navController: NavController): ComponentActivity() {
 
         ScreenTemplate(
             title = "Crea un nuovo profilo",
-            currentRoute = Route.Register.route,
             navController,
             showBottomBar = false,
         ) { contentPadding ->
@@ -50,10 +47,10 @@ class Register(private val navController: NavController): ComponentActivity() {
                     CustomTextField(label = "Username", value = usernameState.value, onValueChange = { usernameState.value = it })
 
                     Text("Nome", textAlign = TextAlign.Center, color = PrimaryText)
-                    CustomTextField(label = "name", value = usernameState.value, onValueChange = { nameState.value = it })
+                    CustomTextField(label = "name", value = nameState.value, onValueChange = { nameState.value = it })
 
                     Text("Email", textAlign = TextAlign.Center, color = PrimaryText)
-                    CustomTextField(label = "email", value = usernameState.value, onValueChange = { emailState.value = it })
+                    CustomTextField(label = "email", value = emailState.value, onValueChange = { emailState.value = it })
 
                     Text("Password", textAlign = TextAlign.Center, color = PrimaryText)
                     CustomTextField(label = "Password", value = passwordState.value, onValueChange = { passwordState.value = it })
@@ -66,16 +63,22 @@ class Register(private val navController: NavController): ComponentActivity() {
 
                     CustomButton(
                         onClick = {
-                            val newUser = User(
-                                username = usernameState.value.text,
-                                name = nameState.value.text,
-                                email = emailState.value.text,
-                                password = passwordState.value.text,
-                                dob = dobState.value,
-                            )
-                            userViewModel.insertUser(newUser)
-                            navController.navigate(Route.Login.route) {
-                                launchSingleTop = true
+                            try {
+                                val newUser = User(
+                                    username = usernameState.value.text,
+                                    name = nameState.value.text,
+                                    email = emailState.value.text,
+                                    password = passwordState.value.text,
+                                    dob = dobState.value,
+                                )
+                                Log.d("Register", "Inserting user: $newUser")
+                                userViewModel.insertUser(newUser) {
+                                    navController.navigate(Route.Login) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("Register", "Error during user registration: ${e.message}")
                             }
                         },
                         text = "Registrati"

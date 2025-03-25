@@ -1,5 +1,7 @@
 package com.boardaround.ui.screens
 
+import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -17,17 +19,17 @@ import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.ScreenTemplate
 import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.viewmodel.UserViewModel
 
-class Login(private val navController: NavController) {
+class Login(private val navController: NavController): ComponentActivity() {
 
     @Composable
-    fun ShowLoginScreen() {
+    fun ShowLoginScreen(userViewModel: UserViewModel) {
         val usernameState = remember { mutableStateOf(TextFieldValue()) }
         val passwordState = remember { mutableStateOf(TextFieldValue()) }
 
         ScreenTemplate(
             title = "Benvenuto su BoardAround!",
-            currentRoute = Route.Login.route,
             navController,
             showBottomBar = false,
         ) { contentPadding ->
@@ -44,15 +46,18 @@ class Login(private val navController: NavController) {
 
                 CustomButton(
                     onClick = {
-                        navController.navigate(Route.Homepage.route) {
-                            launchSingleTop = true
-                        }
+//                        navController.navigate(Route.Homepage) {
+//                            Log.i("LOGIN", "Cambio pagina")
+//                            launchSingleTop = true
+//                        }
+                        userViewModel.login(usernameState.value.text, passwordState.value.text)
+                        Log.i("LOGIN", "${userViewModel.loginResult.value}")
                     },
                     text = "Accedi"
                 )
                 CustomButton(
                     onClick = {
-                        navController.navigate(Route.Register.route) {
+                        navController.navigate(Route.Register) {
                             launchSingleTop = true
                         }
                     },

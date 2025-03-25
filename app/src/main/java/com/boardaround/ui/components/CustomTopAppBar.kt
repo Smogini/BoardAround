@@ -4,10 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.NotificationsNone
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -22,17 +18,19 @@ import androidx.navigation.NavController
 import com.boardaround.ui.theme.Background
 import com.boardaround.ui.theme.BottomBar
 import com.boardaround.ui.theme.Divider
-import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(
     title: String,
-    currentRoute: String,
     navController: NavController,
 ) {
     Column {
+        HorizontalDivider(
+            color = Divider,
+            thickness = 4.dp
+        )
         CenterAlignedTopAppBar(
             title = {
                 Text(
@@ -43,37 +41,45 @@ fun CustomTopAppBar(
                 )
             },
             actions = {
-                val pagesWithoutNotifications = setOf("login", "register", "editMyProfile")
+//                val pagesWithoutNotifications = setOf(
+//                    Route.Login,
+//                    Route.Register,
+//                    Route.EditMyProfile)
+//                val currentBackStackEntry by navController.currentBackStackEntryAsState()
+//                val currentRoute = currentBackStackEntry?.destination?.route
 
-                if (currentRoute !in pagesWithoutNotifications) {
-                    CustomButtonIcon(
-                        "Empty notifications",
-                        Icons.Filled.NotificationsNone,
-                        BottomBar,
-                        onClick = { /* TODO */ })
-                    if (currentRoute == "myProfile") {
-                        CustomButtonIcon(
-                            "Settings",
-                            Icons.Filled.Settings,
-                            BottomBar,
-                            onClick = { navController.navigate("editMyProfile") {
-                                    launchSingleTop = true
-                                }
-                            }
-                        )
-                    }
-                }
-                if (currentRoute == "editMyProfile") {
-                    CustomButtonIcon(
-                        "Return",
-                        Icons.Filled.Cancel,
-                        Errors,
-                        onClick = { navController.navigate("myProfile") {
-                                launchSingleTop = true
-                            }
-                        }
-                    )
-                }
+//                if (currentRoute !in pagesWithoutNotifications) {
+//                    CustomButtonIcon(
+//                        "Empty notifications",
+//                        Icons.Filled.NotificationsNone,
+//                        BottomBar,
+//                        onClick = { /* TODO */ }
+//                    )
+//                    if (currentRoute == "myProfile") {
+//                        CustomButtonIcon(
+//                            "Settings",
+//                            Icons.Filled.Settings,
+//                            BottomBar,
+//                            onClick = {
+//                                navController.navigate("editMyProfile") {
+//                                    launchSingleTop = true
+//                                }
+//                            }
+//                        )
+//                    }
+//                }
+//                if (currentRoute == "editMyProfile") {
+//                    CustomButtonIcon(
+//                        "Return",
+//                        Icons.Filled.Cancel,
+//                        Errors,
+//                        onClick = {
+//                            navController.navigate("myProfile") {
+//                                launchSingleTop = true
+//                            }
+//                        }
+//                    )
+//                }
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = Background,
@@ -83,10 +89,6 @@ fun CustomTopAppBar(
                 .padding(10.dp)
                 .wrapContentHeight()
                 .fillMaxWidth(),
-        )
-        HorizontalDivider(
-            color = Divider,
-            thickness = 4.dp
         )
     }
 }

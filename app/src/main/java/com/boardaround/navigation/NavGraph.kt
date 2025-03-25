@@ -1,6 +1,7 @@
 package com.boardaround.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,40 +15,41 @@ import com.boardaround.ui.screens.MyProfile
 import com.boardaround.ui.screens.EditMyProfile
 import com.boardaround.ui.screens.GameInfo
 import com.boardaround.ui.screens.Map
-
+import com.boardaround.viewmodel.UserViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+    val userViewModel: UserViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = Route.Login.route) {
-        composable(Route.Homepage.route) {
-            Homepage(navController).ShowHomePageScreen()
+    NavHost(navController = navController, startDestination = Route.Login) {
+        composable<Route.Homepage> {
+            Homepage(navController).ShowHomePageScreen(userViewModel)
         }
-        composable(Route.Login.route) {
-            Login(navController).ShowLoginScreen()
+        composable<Route.Login> {
+            Login(navController).ShowLoginScreen(userViewModel)
         }
-        composable(Route.Register.route) {
-            Register(navController).ShowRegisterScreen()
+        composable<Route.Register> {
+            Register(navController).ShowRegisterScreen(userViewModel)
         }
-        composable(Route.Invite.route) {
+        composable<Route.Invite> {
             Invite(navController).ShowInviteScreen()
         }
-        composable(Route.NewEvent.route) {
+        composable<Route.NewEvent> {
             NewEvent(navController).ShowNewEventScreen()
         }
-        composable(Route.Profile.route) {
+        composable<Route.Profile> {
             Profile(navController).ShowProfileScreen()
         }
-        composable(Route.MyProfile.route) {
+        composable<Route.MyProfile> {
             MyProfile(navController).ShowMyProfileScreen()
         }
-        composable(Route.EditMyProfile.route) {
+        composable<Route.EditMyProfile> {
             EditMyProfile(navController).ShowEditMyProfile()
         }
-        composable(Route.GameInfo.route) {
+        composable<Route.GameInfo> {
             GameInfo(navController).ShowGameInfo()
         }
-        composable(Route.Map.route) {
+        composable<Route.Map> {
             Map(navController).ShowMapScreen()
         }
     }
