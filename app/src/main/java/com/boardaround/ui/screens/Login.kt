@@ -1,12 +1,12 @@
 package com.boardaround.ui.screens
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -17,7 +17,6 @@ import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
-import com.boardaround.ui.components.ScreenTemplate
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.UserViewModel
 
@@ -27,6 +26,8 @@ class Login(private val navController: NavController): ComponentActivity() {
     fun ShowLoginScreen(userViewModel: UserViewModel) {
         val usernameState = remember { mutableStateOf(TextFieldValue()) }
         val passwordState = remember { mutableStateOf(TextFieldValue()) }
+
+        val userState = userViewModel.login(usernameState.value.text, passwordState.value.text).collectAsState()
 
         ScreenTemplate(
             title = "Benvenuto su BoardAround!",
@@ -46,12 +47,12 @@ class Login(private val navController: NavController): ComponentActivity() {
 
                 CustomButton(
                     onClick = {
-//                        navController.navigate(Route.Homepage) {
-//                            Log.i("LOGIN", "Cambio pagina")
-//                            launchSingleTop = true
-//                        }
-                        userViewModel.login(usernameState.value.text, passwordState.value.text)
-                        Log.i("LOGIN", "${userViewModel.loginResult.value}")
+                        if (userState.value?.username == usernameState.value.text
+                            && userState.value?.password == passwordState.value.text) {
+                            navController.navigate(Route.Homepage) {
+                                launchSingleTop = true
+                            }
+                        }
                     },
                     text = "Accedi"
                 )

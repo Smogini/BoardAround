@@ -2,20 +2,21 @@ package com.boardaround.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddLocation
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
@@ -26,57 +27,60 @@ import com.boardaround.ui.theme.ButtonColor
 fun BottomBar(navController: NavController) {
 
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxSize()
     ) {
-        // BottomAppBar
         BottomAppBar(
             containerColor = BottomBar,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 56.dp),
+                .padding(10.dp)
+                .clip(RoundedCornerShape(50.dp))
+                .align(Alignment.BottomCenter)
+                .wrapContentHeight(),
             actions = {
-                // Pulsante a sinistra per "ArrowBack"
-                IconButton(onClick = {
-                    navController.navigate(Route.Login) {
-                        launchSingleTop = true
+                CustomButtonIcon(
+                    "Homepage",
+                    icon = Icons.Filled.Home,
+                    iconColor = ButtonColor,
+                    onClick = {
+                        navController.navigate(Route.Homepage) {
+                            launchSingleTop = true
+                        }
                     }
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        "ArrowBack",
-                        tint = ButtonColor
-                    )
-                }
+                )
 
-                // Spacer per spingere il FAB al centro
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Pulsante "AddLocation" a destra
-                IconButton(onClick = {
-                    navController.navigate(Route.Map) {
-                        launchSingleTop = true
+                CustomButtonIcon(
+                    title = "Location",
+                    icon = Icons.Filled.AddLocation,
+                    iconColor = ButtonColor,
+                    onClick = {
+                        navController.navigate(Route.Map) {
+                            launchSingleTop = true
+                        }
                     }
-                }) {
-                    Icon(imageVector = Icons.Filled.AddLocation, "Location", tint = ButtonColor)
-                }
+                )
 
-                IconButton(onClick = {
-                    navController.navigate(Route.MyProfile) {
-                        launchSingleTop = true
+                CustomButtonIcon(
+                    title = "Account",
+                    icon = Icons.Filled.AccountCircle,
+                    iconColor = ButtonColor,
+                    onClick = {
+                        navController.navigate(Route.MyProfile) {
+                            launchSingleTop = true
+                        }
                     }
-                }) {
-                    Icon(imageVector = Icons.Filled.AccountCircle, "Account", tint = ButtonColor)
-                }
+                )
             }
         )
 
-        // FloatingActionButton centrato sopra la BottomAppBar
         CustomFloatingActionButton(
             onClick = {
+                /* TODO */
             },
             modifier = Modifier
-                .align(Alignment.Center)
-                .offset(y = -15.dp)
+                .align(Alignment.BottomCenter)
                 .size(60.dp)
         )
     }

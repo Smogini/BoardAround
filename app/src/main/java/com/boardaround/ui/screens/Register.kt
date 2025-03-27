@@ -18,7 +18,6 @@ import com.boardaround.data.entities.User
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
-import com.boardaround.ui.components.ScreenTemplate
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.UserViewModel
 
@@ -71,7 +70,6 @@ class Register(private val navController: NavController): ComponentActivity() {
                                     password = passwordState.value.text,
                                     dob = dobState.value,
                                 )
-                                Log.d("Register", "Inserting user: $newUser")
                                 userViewModel.insertUser(newUser) {
                                     navController.navigate(Route.Login) {
                                         launchSingleTop = true

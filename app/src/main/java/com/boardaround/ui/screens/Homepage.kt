@@ -18,11 +18,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.ui.components.CustomSearchBar
-import com.boardaround.ui.components.ScreenTemplate
 import com.boardaround.viewmodel.UserViewModel
 
 class Homepage(private val navController: NavController): ComponentActivity() {
-
 
     @Composable
     fun ShowHomePageScreen(userViewModel: UserViewModel) {
@@ -45,9 +43,6 @@ class Homepage(private val navController: NavController): ComponentActivity() {
                     }
                 )
 
-
-
-
             }
 
         }
@@ -67,6 +62,5 @@ class Homepage(private val navController: NavController): ComponentActivity() {
             singleLine = true
         )
     }
-
 
 }

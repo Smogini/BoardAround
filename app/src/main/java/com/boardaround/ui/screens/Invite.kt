@@ -11,7 +11,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
-import com.boardaround.ui.components.ScreenTemplate
 import com.boardaround.ui.theme.PrimaryText
 
 class Invite(private val navController: NavController) {

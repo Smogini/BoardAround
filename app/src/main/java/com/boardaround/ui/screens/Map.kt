@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
-import com.boardaround.ui.components.ScreenTemplate
 import com.boardaround.ui.theme.PrimaryText
 
 class Map(private val navController: NavController) {

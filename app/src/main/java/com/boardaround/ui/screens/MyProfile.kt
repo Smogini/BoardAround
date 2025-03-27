@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
-import com.boardaround.ui.components.ScreenTemplate
 
 class MyProfile(private val navController: NavController) {
 

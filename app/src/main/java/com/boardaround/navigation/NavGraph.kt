@@ -5,16 +5,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.boardaround.ui.screens.EditMyProfile
+import com.boardaround.ui.screens.GameInfo
 import com.boardaround.ui.screens.Homepage
 import com.boardaround.ui.screens.Invite
 import com.boardaround.ui.screens.Login
-import com.boardaround.ui.screens.Register
+import com.boardaround.ui.screens.Map
+import com.boardaround.ui.screens.MyProfile
 import com.boardaround.ui.screens.NewEvent
 import com.boardaround.ui.screens.Profile
-import com.boardaround.ui.screens.MyProfile
-import com.boardaround.ui.screens.EditMyProfile
-import com.boardaround.ui.screens.GameInfo
-import com.boardaround.ui.screens.Map
+import com.boardaround.ui.screens.Register
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
