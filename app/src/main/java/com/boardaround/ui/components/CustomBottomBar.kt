@@ -23,7 +23,7 @@ import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.ui.theme.BottomBar
 import com.boardaround.ui.theme.ButtonColor
-
+//CustomBottomBar
 @Composable
 fun BottomBar(navController: NavController) {
     var showExtraFabs by remember { mutableStateOf(false) }
