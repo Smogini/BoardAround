@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,12 +26,9 @@ class Login(private val navController: NavController): ComponentActivity() {
         val usernameState = remember { mutableStateOf(TextFieldValue()) }
         val passwordState = remember { mutableStateOf(TextFieldValue()) }
 
-        val userState = userViewModel.login(usernameState.value.text, passwordState.value.text).collectAsState()
-
         ScreenTemplate(
             title = "Benvenuto su BoardAround!",
             navController,
-            showBottomBar = false,
         ) { contentPadding ->
             Column(
                 modifier = Modifier.padding(contentPadding),
@@ -43,14 +39,20 @@ class Login(private val navController: NavController): ComponentActivity() {
                 CustomTextField(label = "Inserisci username", value = usernameState.value, onValueChange = { usernameState.value = it })
 
                 Text("Password", textAlign = TextAlign.Center, color = PrimaryText)
-                CustomTextField(label = "Inserisci password", value = passwordState.value, onValueChange = { passwordState.value = it })
+                CustomTextField(
+                    label = "Inserisci password",
+                    value = passwordState.value,
+                    onValueChange = { passwordState.value = it },
+                    isPasswordField = true
+                )
 
                 CustomButton(
                     onClick = {
-                        if (userState.value?.username == usernameState.value.text
-                            && userState.value?.password == passwordState.value.text) {
-                            navController.navigate(Route.Homepage) {
-                                launchSingleTop = true
+                        userViewModel.login(usernameState.value.text, passwordState.value.text) { result ->
+                            if (result) {
+                                navController.navigate(Route.Homepage) {
+                                    launchSingleTop = true
+                                }
                             }
                         }
                     },

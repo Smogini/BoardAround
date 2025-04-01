@@ -1,7 +1,9 @@
 package com.boardaround.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,10 +20,13 @@ import com.boardaround.ui.screens.Register
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController) {
-    val userViewModel: UserViewModel = viewModel()
-
-    NavHost(navController = navController, startDestination = Route.Login) {
+fun NavGraph(navController: NavHostController, userViewModel: UserViewModel) {
+    NavHost(
+        navController = navController,
+        startDestination = if (userViewModel.isUserLoggedIn()) Route.Homepage else Route.Login,
+        enterTransition = { fadeIn(tween(500)) },
+        exitTransition = { fadeOut(tween(500)) }
+    ) {
         composable<Route.Homepage> {
             Homepage(navController).ShowHomePageScreen(userViewModel)
         }
@@ -41,7 +46,7 @@ fun NavGraph(navController: NavHostController) {
             Profile(navController).ShowProfileScreen()
         }
         composable<Route.MyProfile> {
-            MyProfile(navController).ShowMyProfileScreen()
+            MyProfile(navController).ShowMyProfileScreen(userViewModel)
         }
         composable<Route.EditMyProfile> {
             EditMyProfile(navController).ShowEditMyProfile()

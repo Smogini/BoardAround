@@ -19,16 +19,18 @@ import com.boardaround.ui.theme.PrimaryText
 fun CustomTextField(
     label: String,
     value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit
+    isPasswordField: Boolean = false,
+    onValueChange: (TextFieldValue) -> Unit,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
+        label = { Text(label, color = PrimaryText) },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .padding(12.dp),
+            .padding(16.dp),
         shape = RoundedCornerShape(20.dp),
         singleLine = true,
         colors = TextFieldDefaults.colors(
@@ -42,6 +44,8 @@ fun CustomTextField(
             focusedLabelColor = PrimaryText,
             unfocusedLabelColor = PrimaryText,
         ),
-        visualTransformation = if (label.contains("password", ignoreCase = true)) PasswordVisualTransformation() else VisualTransformation.None
+        visualTransformation = if (isPasswordField) PasswordVisualTransformation() else VisualTransformation.None,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon
     )
 }

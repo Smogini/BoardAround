@@ -4,15 +4,15 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.boardaround.data.UserSessionManager
 import com.boardaround.data.dao.UserDAO
 import com.boardaround.data.database.AppDatabase
 import com.boardaround.data.entities.User
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class UserViewModel(application: Application): AndroidViewModel(application) {
 
+    private val sessionManager = UserSessionManager(application)
     private val database = AppDatabase.getDatabase(application)
     private val userDAO: UserDAO = database.userDAO()
 
@@ -27,13 +27,24 @@ class UserViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    fun login(username: String, password: String): StateFlow<User?>{
-        val res = MutableStateFlow<User?>(null)
+    fun login(username: String, password: String, onResult: (Boolean) -> Unit){
         viewModelScope.launch {
             val user = userDAO.login(username, password)
-            res.value = user
-            Log.d("ViewModel", "user: $res")
+            val res = user != null
+            sessionManager.setUserLoggedIn(res, username)
+            onResult(res)
         }
-        return res
+    }
+
+    fun logout() {
+        sessionManager.logout()
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return sessionManager.isUserLoggedIn()
+    }
+
+    fun retrieveUsername(): String {
+        return sessionManager.getUsername()
     }
 }

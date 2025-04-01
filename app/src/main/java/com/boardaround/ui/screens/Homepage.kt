@@ -4,63 +4,71 @@ package com.boardaround.ui.screens
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.boardaround.ui.components.CustomSearchBar
+import com.boardaround.navigation.Route
+import com.boardaround.ui.components.CustomButtonIcon
+import com.boardaround.ui.components.CustomTextField
+import com.boardaround.ui.theme.Errors
+import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.UserViewModel
 
 class Homepage(private val navController: NavController): ComponentActivity() {
 
     @Composable
     fun ShowHomePageScreen(userViewModel: UserViewModel) {
-        ScreenTemplate(
-            title = "Homepage",
-            showBottomBar = true,
-            navController = navController,
-        ) {
+        if (userViewModel.isUserLoggedIn()) {
             val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
 
-            Column (
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+            ScreenTemplate(
+                title = "Homepage",
+                showBottomBar = true,
+                navController = navController,
             ) {
-                CustomSearchBar(searchQuery = searchQuery,
-                    onQueryChange = { query ->
-                        // Gestire il cambiamento della query (esempio: filtrare i dati)
-                        println("Query cambiata: $query")
-                    }
-                )
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    CustomTextField(
+                        label = "Cosa stai cercando?",
+                        value = searchQuery.value,
+                        onValueChange = { searchQuery.value = it },
+                        leadingIcon = {
+                            CustomButtonIcon(
+                                title = "Search",
+                                icon = Icons.Filled.Search,
+                                iconColor = PrimaryText,
+                                onClick = { /* TODO */ }
+                            )
+                        },
+                        trailingIcon = {
+                            if (searchQuery.value.text.isNotEmpty()) {
+                                CustomButtonIcon(
+                                    title = "Clear",
+                                    icon = Icons.Filled.Clear,
+                                    iconColor = Errors,
+                                    onClick = { searchQuery.value = TextFieldValue("") }
+                                )
+                            }
+                        },
+                    )
 
+                }
             }
-
+        } else {
+            navController.navigate(Route.Login) {
+                launchSingleTop = true
+            }
         }
     }
-
-    @Composable
-    fun SearchBar(searchQuery: MutableState<TextFieldValue>) {
-        OutlinedTextField(
-            value = searchQuery.value,
-            onValueChange = { newQuery ->
-                searchQuery.value = newQuery
-            },
-            label = { Text("Cerca...") },
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .fillMaxWidth(),
-            singleLine = true
-        )
-    }
-
 }

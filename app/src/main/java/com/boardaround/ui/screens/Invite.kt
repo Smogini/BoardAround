@@ -20,7 +20,6 @@ class Invite(private val navController: NavController) {
         ScreenTemplate(
             title = "Sei stato invitato da :",
             navController,
-            showBottomBar = false,
         ) { contentPadding ->
             Column(
                 modifier = Modifier.padding(contentPadding),

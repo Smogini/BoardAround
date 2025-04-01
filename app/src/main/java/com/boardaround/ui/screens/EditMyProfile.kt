@@ -11,7 +11,6 @@ class EditMyProfile(private val navController: NavController) {
         ScreenTemplate(
             title = "Modifica profilo",
             navController,
-            showBottomBar = false,
         ) {
 
         }

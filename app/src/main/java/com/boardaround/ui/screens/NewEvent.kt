@@ -21,7 +21,6 @@ class NewEvent (private val navController: NavController) {
         ScreenTemplate(
             title = "Crea nuovo evento",
             navController,
-            showBottomBar = false,
         ) {
             Column {
                 Text("Inserisci nome evento", textAlign = TextAlign.Center, color = PrimaryText)

@@ -34,7 +34,6 @@ class Register(private val navController: NavController): ComponentActivity() {
         ScreenTemplate(
             title = "Crea un nuovo profilo",
             navController,
-            showBottomBar = false,
         ) { contentPadding ->
             LazyColumn (
                 modifier = Modifier.padding(contentPadding),

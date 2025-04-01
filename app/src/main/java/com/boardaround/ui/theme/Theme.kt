@@ -56,7 +56,7 @@ private val LightColorScheme = lightColorScheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
-            content = content
+            content = content,
         )
     }
 

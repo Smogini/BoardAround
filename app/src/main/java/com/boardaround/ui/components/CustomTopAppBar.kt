@@ -1,5 +1,6 @@
 package com.boardaround.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,41 +63,30 @@ fun CustomTopAppBar(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val actionButtons = mutableListOf<Pair<String, ImageVector>>()
+
                     if (currentRoute !in pagesWithoutNotifications) {
-                        CustomButtonIcon(
-                            "Empty notifications",
-                            Icons.Filled.NotificationsNone,
-                            BottomBar,
-                            onClick = { /* TODO */ }
-                        )
+                        actionButtons.add("Empty notification" to Icons.Filled.NotificationsNone)
                     }
 
                     when (currentRoute) {
-                        Route.MyProfile.toString() -> {
-                            CustomButtonIcon(
-                                "Settings",
-                                Icons.Filled.Settings,
-                                BottomBar,
-                                onClick = {
-                                    navController.navigate(Route.EditMyProfile) {
-                                        launchSingleTop = true
-                                    }
-                                }
-                            )
-                        }
+                        Route.MyProfile.toString() -> actionButtons.add("Settings" to Icons.Filled.Settings)
+                        Route.EditMyProfile.toString() -> actionButtons.add("Return" to Icons.Filled.Cancel)
+                    }
 
-                        Route.EditMyProfile.toString() -> {
-                            CustomButtonIcon(
-                                "Return",
-                                Icons.Filled.Cancel,
-                                Errors,
-                                onClick = {
-                                    navController.navigate(Route.MyProfile) {
-                                        launchSingleTop = true
-                                    }
+                    actionButtons.forEach { (title, icon) ->
+                        CustomButtonIcon(
+                            title = title,
+                            icon = icon,
+                            iconColor = if (title == "Return") Errors else BottomBar,
+                            onClick = {
+                                when (title) {
+                                    "Settings" -> navController.navigate(Route.EditMyProfile) { launchSingleTop = true }
+                                    "Return" -> navController.navigate(Route.MyProfile) { launchSingleTop = true }
+                                    else -> { Log.e("Top App Bar", "Function not implemented") }
                                 }
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             },
