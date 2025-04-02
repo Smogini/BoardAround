@@ -12,6 +12,7 @@ import com.boardaround.ui.screens.GameInfo
 import com.boardaround.ui.screens.Homepage
 import com.boardaround.ui.screens.Invite
 import com.boardaround.ui.screens.Login
+import com.boardaround.ui.screens.NewPost
 import com.boardaround.ui.screens.Map
 import com.boardaround.ui.screens.MyProfile
 import com.boardaround.ui.screens.NewEvent
@@ -56,6 +57,9 @@ fun NavGraph(navController: NavHostController, userViewModel: UserViewModel) {
         }
         composable<Route.Map> {
             Map(navController).ShowMapScreen()
+        }
+        composable<Route.NewPost> {
+            NewPost(navController).ShowNewPostScreen()
         }
     }
 }

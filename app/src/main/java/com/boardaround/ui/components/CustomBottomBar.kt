@@ -20,8 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddLocation
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -116,23 +118,23 @@ fun BottomBar(navController: NavController) {
                 ) {
                     CustomFloatingActionButton(
                         onClick = {
-                            navController.navigate(Route.MyProfile)
-                            showExtraFabs = false
-                        },
-                        modifier = Modifier
-                            .size(55.dp)
-                            .offset(x = (-20).dp, y = verticalOffset),
-                        icon = Icons.Filled.Person
-                    )
-                    CustomFloatingActionButton(
-                        onClick = {
                             navController.navigate(Route.NewEvent)
                             showExtraFabs = false
                         },
                         modifier = Modifier
                             .size(55.dp)
+                            .offset(x = (-20).dp, y = verticalOffset),
+                        icon = Icons.Filled.Create
+                    )
+                    CustomFloatingActionButton(
+                        onClick = {
+                            navController.navigate(Route.NewPost)
+                            showExtraFabs = false
+                        },
+                        modifier = Modifier
+                            .size(55.dp)
                             .offset(x = 20.dp, y = verticalOffset),
-                        icon = Icons.Filled.AddLocation
+                        icon = Icons.Filled.PostAdd
                     )
                 }
             }

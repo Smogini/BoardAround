@@ -26,4 +26,5 @@ sealed interface Route {
     @Serializable data object EditMyProfile : Route
     @Serializable data object GameInfo : Route
     @Serializable data object Map : Route
+    @Serializable data object NewPost : Route
 }
