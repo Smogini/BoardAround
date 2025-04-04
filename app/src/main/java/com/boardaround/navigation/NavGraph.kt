@@ -29,13 +29,13 @@ fun NavGraph(navController: NavHostController, userViewModel: UserViewModel) {
         exitTransition = { fadeOut(tween(500)) }
     ) {
         composable<Route.Homepage> {
-            Homepage(navController).ShowHomePageScreen(userViewModel)
+            Homepage(navController, userViewModel).ShowHomePageScreen()
         }
         composable<Route.Login> {
-            Login(navController).ShowLoginScreen(userViewModel)
+            Login(navController, userViewModel).ShowLoginScreen()
         }
         composable<Route.Register> {
-            Register(navController).ShowRegisterScreen(userViewModel)
+            Register(navController, userViewModel).ShowRegisterScreen()
         }
         composable<Route.Invite> {
             Invite(navController).ShowInviteScreen()
@@ -47,7 +47,7 @@ fun NavGraph(navController: NavHostController, userViewModel: UserViewModel) {
             Profile(navController).ShowProfileScreen()
         }
         composable<Route.MyProfile> {
-            MyProfile(navController).ShowMyProfileScreen(userViewModel)
+            MyProfile(navController, userViewModel).ShowMyProfileScreen()
         }
         composable<Route.EditMyProfile> {
             EditMyProfile(navController).ShowEditMyProfile()

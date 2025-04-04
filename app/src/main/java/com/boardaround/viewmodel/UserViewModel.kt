@@ -8,6 +8,8 @@ import com.boardaround.data.UserSessionManager
 import com.boardaround.data.dao.UserDAO
 import com.boardaround.data.database.AppDatabase
 import com.boardaround.data.entities.User
+import com.boardaround.network.RetrofitInstance
+import com.boardaround.utils.GameSearchResult
 import kotlinx.coroutines.launch
 
 class UserViewModel(application: Application): AndroidViewModel(application) {
@@ -46,5 +48,17 @@ class UserViewModel(application: Application): AndroidViewModel(application) {
 
     fun retrieveUsername(): String {
         return sessionManager.getUsername()
+    }
+
+    fun searchGames(query: String, onResult: (GameSearchResult) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val result = RetrofitInstance.api.searchGames(query)
+                onResult(result)
+                Log.d("UserViewModel", "Chiamata API completata con successo. Totale risultati: ${result.total}")
+            } catch (e: Exception) {
+                Log.e("UserViewModel", "Errore nella chiamata API: ${e.message}", e)
+            }
+        }
     }
 }

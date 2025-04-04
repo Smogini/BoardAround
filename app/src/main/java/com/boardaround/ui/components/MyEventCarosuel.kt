@@ -12,13 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.boardaround.ui.theme.PrimaryText
 
 data class Event(val name: String, val imageUrl: String) // Modello dati
 
 @Composable
 fun MyEventsCarousel(events: List<Event>) { // Accetta una lista di Event
     Column {
-        Text("I miei eventi", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(start = 16.dp))
+        Text("I miei eventi", color = PrimaryText, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(start = 16.dp))
         LazyRow(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
             items(events) { event ->
                 Card(modifier = Modifier.padding(end = 8.dp)) {

@@ -19,10 +19,10 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.UserViewModel
 
-class Login(private val navController: NavController): ComponentActivity() {
+class Login(private val navController: NavController, private val userViewModel: UserViewModel): ComponentActivity() {
 
     @Composable
-    fun ShowLoginScreen(userViewModel: UserViewModel) {
+    fun ShowLoginScreen() {
         val usernameState = remember { mutableStateOf(TextFieldValue()) }
         val passwordState = remember { mutableStateOf(TextFieldValue()) }
 

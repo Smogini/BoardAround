@@ -8,6 +8,6 @@ interface GameApiService {
     @GET("xmlapi2/search")
     suspend fun searchGames(
         @Query("query") query: String,
-        @Query("type") type: String = "boardgame" // Filtra per giochi da tavolo
+        @Query("type") type: String = "boardgame"
     ): GameSearchResult
 }

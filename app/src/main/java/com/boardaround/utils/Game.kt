@@ -6,31 +6,46 @@ import com.tickaroo.tikxml.annotation.Path
 import com.tickaroo.tikxml.annotation.PropertyElement
 import com.tickaroo.tikxml.annotation.Xml
 
+@Xml(name = "items")
+data class GameSearchResult(
+    @Attribute(name = "total")
+    val total: Int,
+
+    @Element(name = "item")
+    val games: List<Game>? = null,
+    
+    @Attribute(name = "termsofuse")
+    val termsofuse: String? = ""
+)
+
 @Xml(name = "item")
 data class Game(
     @Attribute(name = "id")
     val id: Int,
 
-    @PropertyElement(name = "name")
-    val name: String,
+    @Element(name = "name")
+    val nameElement: NameElement,
 
     @Path("thumbnail")
     @PropertyElement(name = "value")
-    val imageUrl: String? = null,
+    val imageUrl: String? = "No image",
 
     @Path("description")
     @PropertyElement(name = "value")
-    val description: String? = null,
+    val description: String? = "No description",
 
-    @Attribute(name = "yearpublished")
-    val yearPublished: Int? = null
+    @Element(name = "yearpublished")
+    val yearPublished: YearPublished?
 )
 
-@Xml(name = "items")
-data class GameSearchResult(
-    @Attribute(name = "total")
-    val total: Int, // Aggiungi questa proprietà
+@Xml(name = "name")
+data class NameElement(
+    @Attribute(name = "value")
+    val value: String
+)
 
-    @Element(name = "item")
-    val games: List<Game> = emptyList()
+@Xml(name = "yearpublished")
+data class YearPublished(
+    @Attribute(name = "value")
+    val value: Int
 )

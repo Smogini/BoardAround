@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.runtime.Composable
@@ -52,13 +51,6 @@ fun BottomBar(navController: NavController) {
     }
 
     Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .pointerInput(Unit) {
-//                detectTapGestures {
-//                    showExtraFabs = false
-//                }
-//            }
         modifier = Modifier.fillMaxSize()
     ) {
         BottomAppBar(

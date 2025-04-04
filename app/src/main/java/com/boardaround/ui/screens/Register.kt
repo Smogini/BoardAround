@@ -21,10 +21,10 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.UserViewModel
 
-class Register(private val navController: NavController): ComponentActivity() {
+class Register(private val navController: NavController, private val userViewModel: UserViewModel): ComponentActivity() {
 
     @Composable
-    fun ShowRegisterScreen(userViewModel: UserViewModel) {
+    fun ShowRegisterScreen() {
         val usernameState = remember { mutableStateOf(TextFieldValue()) }
         val nameState = remember { mutableStateOf(TextFieldValue()) }
         val emailState = remember { mutableStateOf(TextFieldValue()) }
