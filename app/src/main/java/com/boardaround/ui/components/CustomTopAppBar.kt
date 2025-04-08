@@ -18,7 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -26,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.boardaround.navigation.Route
 import com.boardaround.ui.theme.Background
 import com.boardaround.ui.theme.BottomBar
@@ -34,19 +33,13 @@ import com.boardaround.ui.theme.Divider
 import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryText
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(
     title: String,
     navController: NavController,
+    currentRoute: Route
 ) {
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route?.substringAfterLast(".")
-    val pagesWithoutNotifications = setOf(
-        Route.Login.toString(),
-        Route.Register.toString(),
-        Route.EditMyProfile.toString())
-
     Column {
         CenterAlignedTopAppBar(
             title = {
@@ -63,16 +56,7 @@ fun CustomTopAppBar(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val actionButtons = mutableListOf<Pair<String, ImageVector>>()
-
-                    if (currentRoute !in pagesWithoutNotifications) {
-                        actionButtons.add("Empty notification" to Icons.Filled.NotificationsNone)
-                    }
-
-                    when (currentRoute) {
-                        Route.MyProfile.toString() -> actionButtons.add("Settings" to Icons.Filled.Settings)
-                        Route.EditMyProfile.toString() -> actionButtons.add("Return" to Icons.Filled.Cancel)
-                    }
+                    val actionButtons = remember { calculateActionButtons(currentRoute) }
 
                     actionButtons.forEach { (title, icon) ->
                         CustomButtonIcon(
@@ -104,4 +88,28 @@ fun CustomTopAppBar(
             thickness = 4.dp,
         )
     }
+}
+
+fun calculateActionButtons(currentRoute: Route): List<Pair<String, ImageVector>> {
+    val pagesWithoutNotifications = setOf(
+        Route.Login,
+        Route.Register,
+        Route.EditMyProfile,
+        Route.NewPost,
+        Route.NewEvent
+    )
+
+    val actionButtons = mutableListOf<Pair<String, ImageVector>>()
+
+    if (!pagesWithoutNotifications.contains(currentRoute)) {
+        actionButtons.add("Empty notification" to Icons.Filled.NotificationsNone)
+    }
+
+    when (currentRoute) {
+        Route.MyProfile -> actionButtons.add("Settings" to Icons.Filled.Settings)
+        Route.EditMyProfile -> actionButtons.add("Return" to Icons.Filled.Cancel)
+        else -> {  }
+    }
+
+    return actionButtons
 }

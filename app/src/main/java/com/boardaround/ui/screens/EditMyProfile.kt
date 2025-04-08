@@ -2,17 +2,16 @@ package com.boardaround.ui.screens
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import com.boardaround.navigation.Route
 
-class EditMyProfile(private val navController: NavController) {
+@Composable
+fun ShowEditMyProfile(navController: NavController) {
 
-    @Composable
-    fun ShowEditMyProfile() {
+    ScreenTemplate(
+        title = "Modifica profilo",
+        currentRoute = Route.EditMyProfile,
+        navController
+    ) {
 
-        ScreenTemplate(
-            title = "Modifica profilo",
-            navController,
-        ) {
-
-        }
     }
 }

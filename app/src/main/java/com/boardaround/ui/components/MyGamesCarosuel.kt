@@ -14,12 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.boardaround.navigation.Route
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.utils.GameSearchResult
 
 @Composable
-fun MyGamesCarousel(title: String, searchResult: GameSearchResult) {
+fun MyGamesCarousel(title: String, searchResult: GameSearchResult, navController: NavController) {
     if (searchResult.total <= 0) {
         Text("Nessun gioco presente", color = PrimaryText, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 20.dp))
         return
@@ -29,7 +31,12 @@ fun MyGamesCarousel(title: String, searchResult: GameSearchResult) {
         Text(title, color = PrimaryText, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(start = 16.dp))
         LazyRow(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
             items(searchResult.games ?: emptyList()) { game ->
-                Card(modifier = Modifier.padding(end = 8.dp)) {
+                Card(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+                        navController.navigate(Route.GameInfo) { launchSingleTop = true }
+                    }
+                ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         AsyncImage(
                             model = game.imageUrl,

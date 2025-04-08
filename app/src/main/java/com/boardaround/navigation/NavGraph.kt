@@ -7,59 +7,64 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.boardaround.ui.screens.EditMyProfile
-import com.boardaround.ui.screens.GameInfo
-import com.boardaround.ui.screens.Homepage
-import com.boardaround.ui.screens.Invite
-import com.boardaround.ui.screens.Login
-import com.boardaround.ui.screens.NewPost
-import com.boardaround.ui.screens.Map
-import com.boardaround.ui.screens.MyProfile
-import com.boardaround.ui.screens.NewEvent
-import com.boardaround.ui.screens.Profile
-import com.boardaround.ui.screens.Register
+import com.boardaround.ui.screens.ShowEditMyProfile
+import com.boardaround.ui.screens.ShowGameInfo
+import com.boardaround.ui.screens.ShowHomePageScreen
+import com.boardaround.ui.screens.ShowInviteScreen
+import com.boardaround.ui.screens.ShowLoginScreen
+import com.boardaround.ui.screens.ShowMapScreen
+import com.boardaround.ui.screens.ShowMyProfileScreen
+import com.boardaround.ui.screens.ShowNewEventScreen
+import com.boardaround.ui.screens.ShowNewPostScreen
+import com.boardaround.ui.screens.ShowProfileScreen
+import com.boardaround.ui.screens.ShowRegisterScreen
+import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController, userViewModel: UserViewModel) {
+fun NavGraph(
+    navController: NavHostController,
+    userViewModel: UserViewModel,
+    authViewModel: AuthViewModel
+) {
     NavHost(
         navController = navController,
-        startDestination = if (userViewModel.isUserLoggedIn()) Route.Homepage else Route.Login,
-        enterTransition = { fadeIn(tween(500)) },
-        exitTransition = { fadeOut(tween(500)) }
+        startDestination = if (authViewModel.isUserLoggedIn()) Route.Homepage else Route.Login,
+        enterTransition = { fadeIn(tween(1000)) },
+        exitTransition = { fadeOut(tween(1000)) }
     ) {
         composable<Route.Homepage> {
-            Homepage(navController, userViewModel).ShowHomePageScreen()
+            ShowHomePageScreen(navController, userViewModel)
         }
         composable<Route.Login> {
-            Login(navController, userViewModel).ShowLoginScreen()
+            ShowLoginScreen(navController, authViewModel)
         }
         composable<Route.Register> {
-            Register(navController, userViewModel).ShowRegisterScreen()
+            ShowRegisterScreen(navController, authViewModel)
         }
         composable<Route.Invite> {
-            Invite(navController).ShowInviteScreen()
+            ShowInviteScreen(navController)
         }
         composable<Route.NewEvent> {
-            NewEvent(navController).ShowNewEventScreen()
+            ShowNewEventScreen(navController)
         }
         composable<Route.Profile> {
-            Profile(navController).ShowProfileScreen()
+            ShowProfileScreen(navController)
         }
         composable<Route.MyProfile> {
-            MyProfile(navController, userViewModel).ShowMyProfileScreen()
+            ShowMyProfileScreen(navController, authViewModel)
         }
         composable<Route.EditMyProfile> {
-            EditMyProfile(navController).ShowEditMyProfile()
+            ShowEditMyProfile(navController)
         }
         composable<Route.GameInfo> {
-            GameInfo(navController).ShowGameInfo()
+            ShowGameInfo(navController)
         }
         composable<Route.Map> {
-            Map(navController).ShowMapScreen()
+            ShowMapScreen(navController)
         }
         composable<Route.NewPost> {
-            NewPost(navController).ShowNewPostScreen()
+            ShowNewPostScreen(navController)
         }
     }
 }

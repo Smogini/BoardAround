@@ -8,27 +8,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.theme.PrimaryText
 
-class NewEvent (private val navController: NavController) {
+@Composable
+fun ShowNewEventScreen(navController: NavController) {
+    val eventState = remember { mutableStateOf(TextFieldValue()) }
+    val descriptionState = remember { mutableStateOf(TextFieldValue()) }
 
-    @Composable
-    fun ShowNewEventScreen() {
-        val eventState = remember { mutableStateOf(TextFieldValue()) }
-        val descriptionState = remember { mutableStateOf(TextFieldValue()) }
+    ScreenTemplate(
+        title = "Crea nuovo evento",
+        currentRoute = Route.NewEvent,
+        navController,
+    ) {
+        Column {
+            Text("Inserisci nome evento", textAlign = TextAlign.Center, color = PrimaryText)
+            CustomTextField(label = "Inserisci nome evento", value = eventState.value, onValueChange = { eventState.value = it })
 
-        ScreenTemplate(
-            title = "Crea nuovo evento",
-            navController,
-        ) {
-            Column {
-                Text("Inserisci nome evento", textAlign = TextAlign.Center, color = PrimaryText)
-                CustomTextField(label = "Inserisci nome evento", value = eventState.value, onValueChange = { eventState.value = it })
-
-                Text("Inserisci descrizione", textAlign = TextAlign.Center, color = PrimaryText)
-                CustomTextField(label = "Inserisci descrizione", value = descriptionState.value, onValueChange = { descriptionState.value = it })
-            }
+            Text("Inserisci descrizione", textAlign = TextAlign.Center, color = PrimaryText)
+            CustomTextField(label = "Inserisci descrizione", value = descriptionState.value, onValueChange = { descriptionState.value = it })
         }
     }
 }

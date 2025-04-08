@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.boardaround"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.boardaround"
@@ -63,18 +63,18 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-simplexml:2.9.0")
-    implementation("com.tickaroo.tikxml:annotation:0.8.13")
-    implementation("com.tickaroo.tikxml:core:0.8.13")
-    implementation("com.tickaroo.tikxml:retrofit-converter:0.8.13")
-    kapt("com.tickaroo.tikxml:processor:0.8.13")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
+    implementation(libs.logging.interceptor)
+    implementation(libs.retrofit)
+    implementation(libs.converter.simplexml)
+    implementation(libs.tikxml.annotation)
+    implementation(libs.tikxml.core)
+    implementation(libs.tikxml.retrofit.converter)
+    kapt(libs.tikxml.processor)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.coil.compose)
     implementation(libs.androidx.material.icons.extended)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

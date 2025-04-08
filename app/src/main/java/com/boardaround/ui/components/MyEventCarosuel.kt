@@ -11,26 +11,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.boardaround.ui.theme.PrimaryText
 
-data class Event(val name: String, val imageUrl: String) // Modello dati
+data class Event(val name: String, val imageUrl: String)
 
 @Composable
-fun MyEventsCarousel(events: List<Event>) { // Accetta una lista di Event
+fun MyEventsCarousel(events: List<Event>, navController: NavController) {
     Column {
         Text("I miei eventi", color = PrimaryText, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(start = 16.dp))
         LazyRow(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
             items(events) { event ->
-                Card(modifier = Modifier.padding(end = 8.dp)) {
+                Card(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+//                        navController.navigate()
+                    }) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         AsyncImage(
                             model = event.imageUrl,
                             contentDescription = "Immagine di ${event.name}",
                             modifier = Modifier
-                                .size(100.dp) // Imposta la dimensione dell'immagine
+                                .size(100.dp)
                                 .padding(top = 8.dp),
-                            contentScale = ContentScale.Crop // Adatta l'immagine al contenitore
+                            contentScale = ContentScale.Crop
                         )
                         Text(text = event.name, modifier = Modifier.padding(16.dp))
                     }

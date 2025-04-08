@@ -9,24 +9,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import com.boardaround.navigation.Route
 import com.boardaround.ui.theme.PrimaryText
 
-class Map(private val navController: NavController) {
-    @Composable
-    fun ShowMapScreen(){
+@Composable
+fun ShowMapScreen(navController: NavController){
 
-        ScreenTemplate(
-            title = "Mappa",
-            navController = navController,
-            showBottomBar = true,
-        ) { contentPadding ->
-            Column(
-                modifier = Modifier.padding(contentPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text("Mappa", textAlign = TextAlign.Center, color = PrimaryText)
-            }
+    ScreenTemplate(
+        title = "Mappa",
+        currentRoute = Route.Map,
+        navController = navController,
+        showBottomBar = true,
+    ) { contentPadding ->
+        Column(
+            modifier = Modifier.padding(contentPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Mappa", textAlign = TextAlign.Center, color = PrimaryText)
         }
     }
 }
