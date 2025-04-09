@@ -1,14 +1,22 @@
 package com.boardaround.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
@@ -17,6 +25,12 @@ import com.boardaround.ui.components.CustomTextField
 fun ShowNewPostScreen(navController: NavController) {
     var title by remember { mutableStateOf(TextFieldValue("")) }
     var content by remember { mutableStateOf(TextFieldValue("")) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        selectedImageUri = uri
+    }
 
     ScreenTemplate(
         title = "Nuovo Post",
@@ -42,10 +56,29 @@ fun ShowNewPostScreen(navController: NavController) {
                 value = content,
                 onValueChange = { content = it }
             )
+
+            // Bottone per selezionare l'immagine
+            CustomButton(
+                onClick = { launcher.launch("image/*") },
+                text = "Seleziona Immagine"
+            )
+
+            // Visualizzazione dell'immagine selezionata
+            if (selectedImageUri != null) {
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Immagine selezionata",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
             CustomButton(
                 onClick = {
-                    // TODO: Implementa la logica per salvare il post
-                    println("Titolo: ${title.text}, Contenuto: ${content.text}")
+                    // TODO: Implementa la logica per salvare il post con l'immagine
+                    println("Titolo: ${title.text}, Contenuto: ${content.text}, Immagine: $selectedImageUri")
                     navController.popBackStack()
                 },
                 text = "Pubblica"

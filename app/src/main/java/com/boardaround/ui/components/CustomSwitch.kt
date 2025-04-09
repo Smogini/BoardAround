@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import com.boardaround.ui.theme.ButtonColor
 import com.boardaround.ui.theme.PrimaryText
 
@@ -21,7 +22,7 @@ fun Customswitch() {
             checkedThumbColor = PrimaryText,
             checkedTrackColor = ButtonColor,
             uncheckedThumbColor = PrimaryText,
-            uncheckedTrackColor = ButtonColor
+            uncheckedTrackColor = Color.Gray
         )
     )
 }
