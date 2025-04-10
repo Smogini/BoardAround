@@ -25,7 +25,8 @@ import com.boardaround.viewmodel.UserViewModel
 fun NavGraph(
     navController: NavHostController,
     userViewModel: UserViewModel,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    onThemeChange: (Boolean) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -55,7 +56,7 @@ fun NavGraph(
             ShowMyProfileScreen(navController, authViewModel)
         }
         composable<Route.EditMyProfile> {
-            ShowEditMyProfile(navController)
+            ShowEditMyProfile(navController, onThemeChange = onThemeChange)
         }
         composable<Route.GameInfo> {
             ShowGameInfo(navController)

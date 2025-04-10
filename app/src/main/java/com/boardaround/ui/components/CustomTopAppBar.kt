@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -45,7 +46,7 @@ fun CustomTopAppBar(
             title = {
                 Text(
                     text = title,
-                    color = PrimaryText,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                 )
@@ -75,8 +76,8 @@ fun CustomTopAppBar(
                 }
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Background,
-                actionIconContentColor = BottomBar
+                containerColor = MaterialTheme.colorScheme.background,
+                actionIconContentColor = MaterialTheme.colorScheme.background
             ),
             modifier = Modifier
                 .padding(5.dp)
@@ -84,7 +85,7 @@ fun CustomTopAppBar(
                 .fillMaxWidth(),
         )
         HorizontalDivider(
-            color = Divider,
+            color = MaterialTheme.colorScheme.secondary,
             thickness = 4.dp,
         )
     }

@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +56,7 @@ fun BottomBar(navController: NavController) {
         modifier = Modifier.fillMaxSize()
     ) {
         BottomAppBar(
-            containerColor = BottomBar,
+            containerColor = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
@@ -66,7 +67,7 @@ fun BottomBar(navController: NavController) {
                 CustomButtonIcon(
                     "Homepage",
                     icon = Icons.Filled.Home,
-                    iconColor = ButtonColor,
+                    iconColor = MaterialTheme.colorScheme.primary,
                     onClick = {
                         navController.navigate(Route.Homepage) {
                             launchSingleTop = true
@@ -79,7 +80,7 @@ fun BottomBar(navController: NavController) {
                 CustomButtonIcon(
                     title = "Location",
                     icon = Icons.Filled.Casino,
-                    iconColor = ButtonColor,
+                    iconColor = MaterialTheme.colorScheme.primary,
                     onClick = {
                         navController.navigate(Route.Dice) {
                             launchSingleTop = true
@@ -90,7 +91,7 @@ fun BottomBar(navController: NavController) {
                 CustomButtonIcon(
                     title = "Account",
                     icon = Icons.Filled.AccountCircle,
-                    iconColor = ButtonColor,
+                    iconColor = MaterialTheme.colorScheme.primary,
                     onClick = {
                         navController.navigate(Route.MyProfile) {
                             launchSingleTop = true

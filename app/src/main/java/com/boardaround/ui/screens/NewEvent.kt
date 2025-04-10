@@ -125,7 +125,10 @@ fun ShowNewEventScreen(navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Evento privato", color = PrimaryText)
-                Customswitch()
+                Customswitch(
+                    checked = isPrivateEvent,
+                    onCheckedChange = { isPrivateEvent = it }
+                )
             }
 
 

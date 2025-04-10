@@ -3,6 +3,7 @@ package com.boardaround.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -34,15 +35,15 @@ fun CustomTextField(
         shape = RoundedCornerShape(20.dp),
         singleLine = true,
         colors = TextFieldDefaults.colors(
-            focusedTextColor = PrimaryText,
-            unfocusedTextColor = PrimaryText,
-            focusedContainerColor = Background,
-            unfocusedContainerColor = Background,
-            cursorColor = PrimaryText,
-            focusedIndicatorColor = PrimaryText,
-            unfocusedIndicatorColor = PrimaryText,
-            focusedLabelColor = PrimaryText,
-            unfocusedLabelColor = PrimaryText,
+            focusedTextColor = MaterialTheme.colorScheme.primary,
+            unfocusedTextColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.primary,
         ),
         visualTransformation = if (isPasswordField) PasswordVisualTransformation() else VisualTransformation.None,
         leadingIcon = leadingIcon,

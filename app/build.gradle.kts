@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.retrofit)
+    implementation("androidx.datastore:datastore-preferences:1.1.4")
     implementation(libs.converter.simplexml)
     implementation(libs.tikxml.annotation)
     implementation(libs.tikxml.core)
