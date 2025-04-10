@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddLocation
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PostAdd
@@ -77,10 +78,10 @@ fun BottomBar(navController: NavController) {
 
                 CustomButtonIcon(
                     title = "Location",
-                    icon = Icons.Filled.AddLocation,
+                    icon = Icons.Filled.Casino,
                     iconColor = ButtonColor,
                     onClick = {
-                        navController.navigate(Route.Map) {
+                        navController.navigate(Route.Dice) {
                             launchSingleTop = true
                         }
                     }

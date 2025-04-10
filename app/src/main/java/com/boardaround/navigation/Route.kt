@@ -13,6 +13,6 @@ sealed class Route() {
     @Serializable data object MyProfile : Route()
     @Serializable data object EditMyProfile : Route()
     @Serializable data object GameInfo : Route()
-    @Serializable data object Map : Route()
+    @Serializable data object Dice : Route()
     @Serializable data object NewPost : Route()
 }

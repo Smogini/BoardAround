@@ -12,7 +12,7 @@ import com.boardaround.ui.screens.ShowGameInfo
 import com.boardaround.ui.screens.ShowHomePageScreen
 import com.boardaround.ui.screens.ShowInviteScreen
 import com.boardaround.ui.screens.ShowLoginScreen
-import com.boardaround.ui.screens.ShowMapScreen
+import com.boardaround.ui.screens.ShowDiceScreen
 import com.boardaround.ui.screens.ShowMyProfileScreen
 import com.boardaround.ui.screens.ShowNewEventScreen
 import com.boardaround.ui.screens.ShowNewPostScreen
@@ -60,8 +60,8 @@ fun NavGraph(
         composable<Route.GameInfo> {
             ShowGameInfo(navController)
         }
-        composable<Route.Map> {
-            ShowMapScreen(navController)
+        composable<Route.Dice> {
+            ShowDiceScreen(navController)
         }
         composable<Route.NewPost> {
             ShowNewPostScreen(navController)
