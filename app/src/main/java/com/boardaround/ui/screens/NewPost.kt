@@ -1,18 +1,17 @@
 package com.boardaround.ui.screens
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -26,11 +25,27 @@ fun ShowNewPostScreen(navController: NavController) {
     var title by remember { mutableStateOf(TextFieldValue("")) }
     var content by remember { mutableStateOf(TextFieldValue("")) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    val context = LocalContext.current
+    var hasImagePermission by remember { mutableStateOf(false) }
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        selectedImageUri = uri
-    }
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            selectedImageUri = uri
+        }
+    )
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted: Boolean ->
+            hasImagePermission = isGranted
+            if (isGranted) {
+                imagePickerLauncher.launch("image/*")
+            } else {
+                // TODO: Gestire il caso in cui il permesso non è concesso (es. mostrare un messaggio all'utente)
+                println("Permesso negato")
+            }
+        }
+    )
 
     ScreenTemplate(
         title = "Nuovo Post",
@@ -59,7 +74,18 @@ fun ShowNewPostScreen(navController: NavController) {
 
             // Bottone per selezionare l'immagine
             CustomButton(
-                onClick = { launcher.launch("image/*") },
+                onClick = {
+                    val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    } else {
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    }
+                    if (hasImagePermission) {
+                        imagePickerLauncher.launch("image/*")
+                    } else {
+                        permissionLauncher.launch(permissionToRequest)
+                    }
+                },
                 text = "Seleziona Immagine"
             )
 
