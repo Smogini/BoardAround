@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -19,9 +20,15 @@ import coil.compose.AsyncImage
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
+import com.boardaround.viewmodel.ViewModelFactory
 
 @Composable
 fun ShowNewPostScreen(navController: NavController) {
+
+    val context = LocalContext.current
+    val postViewModel = remember { ViewModelFactory(context).providePostViewModel() }
+
+
     var title by remember { mutableStateOf(TextFieldValue("")) }
     var content by remember { mutableStateOf(TextFieldValue("")) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -103,8 +110,11 @@ fun ShowNewPostScreen(navController: NavController) {
 
             CustomButton(
                 onClick = {
-                    // TODO: Implementa la logica per salvare il post con l'immagine
-                    println("Titolo: ${title.text}, Contenuto: ${content.text}, Immagine: $selectedImageUri")
+                    postViewModel.insertPost(
+                        title = title.text,
+                        content = content.text,
+                        imageUri = selectedImageUri?.toString()
+                    )
                     navController.popBackStack()
                 },
                 text = "Pubblica"

@@ -2,6 +2,7 @@ package com.boardaround.viewmodel
 
 import android.content.Context
 import com.boardaround.data.database.AppDatabase
+import com.boardaround.data.repositories.PostRepository
 import com.boardaround.data.repositories.UserRepository
 
 class ViewModelFactory(context: Context) {
@@ -14,4 +15,11 @@ class ViewModelFactory(context: Context) {
     fun provideAuthViewModel(): AuthViewModel = AuthViewModel(userRepository)
 
     fun provideUserViewModel(): UserViewModel = UserViewModel(userRepository)
+
+    fun providePostViewModel(): PostViewModel {
+        val postDao = database.PostDao()
+        val postRepository = PostRepository(postDao)
+        return PostViewModel(postRepository)
+    }
+
 }
