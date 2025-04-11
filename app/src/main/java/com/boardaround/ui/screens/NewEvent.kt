@@ -21,8 +21,6 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.theme.PrimaryText
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.boardaround.ui.components.Customswitch
@@ -41,6 +39,13 @@ fun ShowNewEventScreen(navController: NavController) {
     val context = LocalContext.current
     var isPrivateEvent by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<GeoPoint?>(null) } // Stato per la posizione selezionata
+    var selectedGame by remember { mutableStateOf("") } // Stato per il gioco selezionato
+
+    // Lista simulata di giochi (sostituire con i giochi dell'utente)
+    val gamesList = listOf("Monopoly", "Catan", "Risk", "Uno", "Jenga")
+
+    // Stato per il popup (dialog) che mostra i giochi
+    var isDialogOpen by remember { mutableStateOf(false) }
 
     val formattedDateTime = selectedDateTime?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.getDefault())) ?: "Seleziona data e ora"
 
@@ -88,61 +93,91 @@ fun ShowNewEventScreen(navController: NavController) {
                             val selectedDate = Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.systemDefault()).toLocalDate()
                             selectedDateTime = LocalDateTime.of(selectedDate.year, selectedDate.month, selectedDate.dayOfMonth, timePickerState.hour, timePickerState.minute)
                         }, text = "OK")
-            },
-            dismissButton = {
-                CustomButton(onClick = { showTimePicker = false }, text = "Annulla")
-            }
-            )
-        }
-
-        Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
-        CustomTextField(
-            label = "Inserisci indirizzo evento",
-            value = addressState.value,
-            onValueChange = { addressState.value = it },
-            onSuggestionClick = { suggestion ->
-                addressState.value = TextFieldValue(suggestion.display_name)
-                selectedLocation = GeoPoint(suggestion.lat.toDouble(), suggestion.lon.toDouble())
-            }
-        )
-
-        Spacer(modifier = Modifier.height(50.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Evento privato", color = PrimaryText)
-            Customswitch(
-                checked = isPrivateEvent,
-                onCheckedChange = { isPrivateEvent = it }
-            )
-        }
-
-        CustomButton(
-            onClick = {
-                if (selectedLocation != null) {
-                    val message = if (isPrivateEvent) "Evento privato creato con successo" else "Evento pubblico creato con successo"
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                    navController.navigate(Route.Homepage) {
-                        launchSingleTop = true
+                    },
+                    dismissButton = {
+                        CustomButton(onClick = { showTimePicker = false }, text = "Annulla")
                     }
-                } else {
-                    Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()
-                }
-            },
-            text = "Crea evento"
-        )
-
-        CustomButton(onClick = {
-            Toast.makeText(context, "Evento annullato con successo", Toast.LENGTH_SHORT).show()
-            navController.navigate(Route.Homepage) {
-                launchSingleTop = true
+                )
             }
-        }, text = "Annulla")
+
+            // Sezione Indirizzo
+            Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
+            CustomTextField(
+                label = "Inserisci indirizzo evento",
+                value = addressState.value,
+                onValueChange = { addressState.value = it },
+                onSuggestionClick = { suggestion ->
+                    addressState.value = TextFieldValue(suggestion.display_name)
+                    selectedLocation = GeoPoint(suggestion.lat.toDouble(), suggestion.lon.toDouble())
+                }
+            )
+
+            // Pulsante "A cosa si gioca?"
+            Text("Seleziona gioco per l'evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
+            CustomButton(onClick = { isDialogOpen = true }, text = if (selectedGame.isEmpty()) "A cosa si gioca?" else "Gioco selezionato: $selectedGame")
+
+            // Dialog per la selezione del gioco
+            if (isDialogOpen) {
+                AlertDialog(
+                    onDismissRequest = { isDialogOpen = false },
+                    title = { Text("Seleziona un gioco") },
+                    text = {
+                        Column {
+                            gamesList.forEach { game ->
+                                TextButton(onClick = {
+                                    selectedGame = game
+                                    isDialogOpen = false // Chiude il dialogo dopo la selezione
+                                }) {
+                                    Text(game)
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { isDialogOpen = false }) {
+                            Text("Chiudi")
+                        }
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(50.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Evento privato", color = PrimaryText)
+                Customswitch(
+                    checked = isPrivateEvent,
+                    onCheckedChange = { isPrivateEvent = it }
+                )
+            }
+
+            CustomButton(
+                onClick = {
+                    if (selectedLocation != null) {
+                        val message = if (isPrivateEvent) "Evento privato creato con successo" else "Evento pubblico creato con successo"
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        navController.navigate(Route.Homepage) {
+                            launchSingleTop = true
+                        }
+                    } else {
+                        Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                text = "Crea evento"
+            )
+
+            CustomButton(onClick = {
+                Toast.makeText(context, "Evento annullato con successo", Toast.LENGTH_SHORT).show()
+                navController.navigate(Route.Homepage) {
+                    launchSingleTop = true
+                }
+            }, text = "Annulla")
+        }
     }
-}
 }
