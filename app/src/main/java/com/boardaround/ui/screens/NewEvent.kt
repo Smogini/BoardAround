@@ -23,6 +23,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import com.boardaround.ui.components.CustomMapField
 import com.boardaround.ui.components.Customswitch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,7 +103,7 @@ fun ShowNewEventScreen(navController: NavController) {
 
             // Sezione Indirizzo
             Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
-            CustomTextField(
+            CustomMapField(
                 label = "Inserisci indirizzo evento",
                 value = addressState.value,
                 onValueChange = { addressState.value = it },
