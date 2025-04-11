@@ -1,52 +1,104 @@
 package com.boardaround.ui.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import com.boardaround.network.NominatimClient
+import com.boardaround.network.SearchResult
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.boardaround.ui.theme.Background
-import com.boardaround.ui.theme.PrimaryText
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 
 @Composable
 fun CustomTextField(
     label: String,
     value: TextFieldValue,
-    isPasswordField: Boolean = false,
     onValueChange: (TextFieldValue) -> Unit,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    onSuggestionClick: ((SearchResult) -> Unit)? = null,
+    leadingIcon: (@Composable () -> Unit)? = null, // Aggiunto parametro leadingIcon
+    trailingIcon: (@Composable () -> Unit)? = null // Aggiunto parametro trailingIcon
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label, color = PrimaryText) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(20.dp),
-        singleLine = true,
-        colors = TextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.primary,
-            unfocusedTextColor = MaterialTheme.colorScheme.primary,
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background,
-            cursorColor = MaterialTheme.colorScheme.primary,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
-            unfocusedLabelColor = MaterialTheme.colorScheme.primary,
-        ),
-        visualTransformation = if (isPasswordField) PasswordVisualTransformation() else VisualTransformation.None,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon
-    )
+    var suggestions by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
+    var showSuggestions by remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+                if (it.text.isNotEmpty()) {
+                    NominatimClient.instance.search(query = it.text).enqueue(object : retrofit2.Callback<List<SearchResult>> {
+                        override fun onResponse(call: retrofit2.Call<List<SearchResult>>, response: retrofit2.Response<List<SearchResult>>) {
+                            if (response.isSuccessful) {
+                                suggestions = response.body() ?: emptyList()
+                                showSuggestions = suggestions.isNotEmpty()
+                                Log.d("CustomTextField", "API Response: ${response.body()}")
+                            } else {
+                                suggestions = emptyList()
+                                showSuggestions = false
+                                Log.e("CustomTextField", "API Error: ${response.code()} - ${response.message()}")
+                            }
+                        }
+
+                        override fun onFailure(call: retrofit2.Call<List<SearchResult>>, t: Throwable) {
+                            suggestions = emptyList()
+                            showSuggestions = false
+                            Log.e("CustomTextField", "API Failure: ${t.message}", t)
+                        }
+                    })
+                } else {
+                    suggestions = emptyList()
+                    showSuggestions = false
+                }
+            },
+            label = { Text(label) },
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = readOnly,
+            leadingIcon = leadingIcon, // Utilizzo del parametro leadingIcon
+            trailingIcon = trailingIcon // Utilizzo del parametro trailingIcon
+        )
+
+        if (showSuggestions && onSuggestionClick != null) {
+            Popup(
+                alignment = Alignment.BottomStart,
+                offset = IntOffset(0, 0),
+                properties = PopupProperties(focusable = false)
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .padding(top = 4.dp),
+                    shape = MaterialTheme.shapes.small,
+                    tonalElevation = 2.dp
+                ) {
+                    LazyColumn(modifier = Modifier.padding(8.dp)) {
+                        items(suggestions) { suggestion ->
+                            Text(
+                                text = suggestion.display_name,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onSuggestionClick(suggestion)
+                                        showSuggestions = false
+                                    }
+                                    .padding(vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

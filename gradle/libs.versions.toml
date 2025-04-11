@@ -7,7 +7,9 @@ junit = "4.13.2"
 lifecycleViewmodelCompose = "2.8.7"
 loggingInterceptor = "4.11.0"
 retrofit = "2.9.0"
+gson = "2.10.1"
 tikxml = "0.8.13"
+osmdroid = "6.1.18"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 ktorSerializationKotlinxJson = "2.3.8"
@@ -30,6 +32,8 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx"
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 converter-simplexml = { group = "com.squareup.retrofit2", name = "converter-simplexml", version.ref = "retrofit" }

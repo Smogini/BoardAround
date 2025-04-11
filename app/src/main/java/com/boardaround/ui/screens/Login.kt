@@ -42,7 +42,7 @@ fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) 
                 label = "Inserisci password",
                 value = passwordState.value,
                 onValueChange = { passwordState.value = it },
-                isPasswordField = true
+
             )
 
             CustomButton(
