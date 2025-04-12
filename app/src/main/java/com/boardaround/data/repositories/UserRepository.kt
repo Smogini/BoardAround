@@ -31,6 +31,10 @@ class UserRepository(
         return sessionManager.isUserLoggedIn()
     }
 
+    suspend fun getUserData(username: String): User? {
+        return userDAO.retrieveUser(username) // Utilizza il DAO per ottenere l'utente
+    }
+
     fun retrieveUsername():String {
         return sessionManager.getUsername()
     }

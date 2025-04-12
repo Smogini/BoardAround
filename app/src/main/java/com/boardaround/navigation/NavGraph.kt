@@ -55,7 +55,7 @@ fun NavGraph(
             ShowProfileScreen(navController)
         }
         composable<Route.MyProfile> {
-            ShowMyProfileScreen(navController, authViewModel, postViewModel)
+            ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel)
         }
         composable<Route.EditMyProfile> {
             ShowEditMyProfile(navController, onThemeChange = onThemeChange)

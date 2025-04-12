@@ -22,6 +22,18 @@ class UserViewModel(private val userRepository: UserRepository): ViewModel() {
         }
     }
 
+    fun getUserData(username: String, onResult: (User?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val user = userRepository.getUserData(username) // Ottieni i dati dell'utente
+                onResult(user) // Passa i dati alla UI
+            } catch (e: Exception) {
+                Log.e("UserViewModel", "Errore nel recupero dell'utente: ${e.message}", e)
+                onResult(null) // In caso di errore, restituisci null
+            }
+        }
+    }
+
     fun searchGames(query: String, onResult: (GameSearchResult) -> Unit) {
         viewModelScope.launch {
             try {
