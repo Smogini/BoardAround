@@ -1,56 +1,32 @@
 package com.boardaround.ui.components
 
-import androidx.compose.animation.core.EaseOutQuad
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.AddLocation
-import androidx.compose.material.icons.filled.Casino
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PostAdd
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.draw.clip
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.ui.theme.BottomBar
 import com.boardaround.ui.theme.ButtonColor
 
 @Composable
 fun BottomBar(navController: NavController) {
     var showExtraFabs by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) } // Stato per il menu a tendina
     val transition = updateTransition(targetState = showExtraFabs, label = "Extra Fabs Position")
-
     val verticalOffset by transition.animateDp(
         label = "Vertical Offset",
-        transitionSpec = { tween(durationMillis = 300, easing = EaseOutQuad) }
-    ) { visible ->
-        if (visible) (-10).dp else 50.dp
-    }
+        transitionSpec = { tween(durationMillis = 300) }
+    ) { visible -> if (visible) (-10).dp else 50.dp }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -77,16 +53,54 @@ fun BottomBar(navController: NavController) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                CustomButtonIcon(
-                    title = "Location",
-                    icon = Icons.Filled.Casino,
-                    iconColor = MaterialTheme.colorScheme.primary,
-                    onClick = {
-                        navController.navigate(Route.Dice) {
-                            launchSingleTop = true
-                        }
+                // Pulsante che fa comparire il menu a tendina
+                Box {
+                    IconButton(
+                        onClick = { expanded = !expanded },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowUpward,
+                            contentDescription = "Menu",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
-                )
+
+                    // Menu a tendina che appare quando expanded è true
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.padding(top = 2.dp)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Token") },
+                            onClick = {
+                                navController.navigate(Route.Homepage) {
+                                    launchSingleTop = true
+                                }
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Lancio dei dadi") },
+                            onClick = {
+                                navController.navigate(Route.Dice) {
+                                    launchSingleTop = true
+                                }
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Segna punti") },
+                            onClick = {
+                                navController.navigate(Route.ScoreBoard) {
+                                    launchSingleTop = true
+                                }
+                                expanded = false
+                            }
+                        )
+                    }
+                }
 
                 CustomButtonIcon(
                     title = "Account",
@@ -105,7 +119,6 @@ fun BottomBar(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 50.dp)
         ) {
-
             if (showExtraFabs) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)

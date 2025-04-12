@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.boardaround.ui.screens.ScoreBoardScreen
 import com.boardaround.ui.screens.ShowEditMyProfile
 import com.boardaround.ui.screens.ShowGameInfo
 import com.boardaround.ui.screens.ShowHomePageScreen
@@ -18,9 +19,11 @@ import com.boardaround.ui.screens.ShowNewEventScreen
 import com.boardaround.ui.screens.ShowNewPostScreen
 import com.boardaround.ui.screens.ShowProfileScreen
 import com.boardaround.ui.screens.ShowRegisterScreen
+import com.boardaround.ui.screens.SplashScreen
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
+
 
 @Composable
 fun NavGraph(
@@ -32,10 +35,13 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = if (authViewModel.isUserLoggedIn()) Route.Homepage else Route.Login,
+        startDestination = if (authViewModel.isUserLoggedIn()) Route.Splash else Route.Login,
         enterTransition = { fadeIn(tween(1000)) },
         exitTransition = { fadeOut(tween(1000)) }
     ) {
+        composable<Route.Splash> {
+            SplashScreen(navController)
+        }
         composable<Route.Homepage> {
             ShowHomePageScreen(navController, userViewModel)
         }
@@ -68,6 +74,9 @@ fun NavGraph(
         }
         composable<Route.NewPost> {
             ShowNewPostScreen(navController)
+        }
+        composable<Route.ScoreBoard> {
+            ScoreBoardScreen()
         }
     }
 }

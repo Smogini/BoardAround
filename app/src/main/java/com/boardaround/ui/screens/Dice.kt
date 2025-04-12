@@ -26,6 +26,9 @@ fun ShowDiceScreen(navController: NavController) {
     var results by remember { mutableStateOf(emptyList<Int>()) }
     var isRolling by remember { mutableStateOf(false) } // Stato per l'animazione
 
+    // Calcolare la somma dei risultati
+    val sumOfDice = results.sum()
+
     ScreenTemplate(
         title = "Lancio Dadi",
         currentRoute = Route.Dice,
@@ -91,6 +94,8 @@ fun ShowDiceScreen(navController: NavController) {
                         )
                     }
                 }
+                // Mostra la somma dei dadi
+                Text("Somma dei dadi: $sumOfDice", color = PrimaryText)
             }
         }
     }
