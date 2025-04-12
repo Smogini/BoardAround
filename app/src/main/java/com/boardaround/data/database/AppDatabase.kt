@@ -9,15 +9,15 @@ import com.boardaround.data.dao.UserDAO
 import com.boardaround.data.entities.User
 import com.boardaround.data.entities.Post
 
-@Database(entities = [User::class, Post::class], version = 2, exportSchema = false)
-abstract class AppDatabase: RoomDatabase() {
+@Database(entities = [User::class, Post::class], version = 3, exportSchema = false)
+abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDAO(): UserDAO
     abstract fun PostDao(): PostDao
 
     companion object {
         @Volatile
-        private var INSTANCE: AppDatabase ?= null
+        private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -25,12 +25,15 @@ abstract class AppDatabase: RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).fallbackToDestructiveMigration().build()
+                )
+                    // Usa fallbackToDestructiveMigration() per eliminare e ricreare il database
+                    .fallbackToDestructiveMigration()
+                    .build()
 
                 INSTANCE = instance
-
                 instance
             }
         }
     }
 }
+

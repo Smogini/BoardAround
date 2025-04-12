@@ -19,7 +19,8 @@ class ViewModelFactory(context: Context) {
     fun providePostViewModel(): PostViewModel {
         val postDao = database.PostDao()
         val postRepository = PostRepository(postDao)
-        return PostViewModel(postRepository)
+        val authViewModel = provideAuthViewModel() // 🔥 creo anche l'AuthViewModel
+        return PostViewModel(postRepository, authViewModel) // 🔥 passo entrambi
     }
 
 }

@@ -13,4 +13,7 @@ interface PostDao {
     @Query("SELECT * FROM posts ORDER BY id DESC")
     suspend fun getAllPosts(): List<Post>
 
+    @Query("SELECT * FROM posts WHERE author = :username")
+    suspend fun getPostsByUsername(username: String): List<Post>
+
 }

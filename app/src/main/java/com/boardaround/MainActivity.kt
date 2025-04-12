@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val viewModelFactory = ViewModelFactory(this)
+        val postViewModel = viewModelFactory.providePostViewModel()
 
         setContent {
             val context = LocalContext.current
@@ -46,6 +47,7 @@ class MainActivity : ComponentActivity() {
                         navController,
                         userViewModel,
                         authViewModel,
+                        postViewModel,
                         onThemeChange = { newIsDarkMode ->
                             isDarkMode.value = newIsDarkMode
                             lifecycleScope.launch {

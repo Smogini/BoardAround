@@ -19,6 +19,7 @@ import com.boardaround.ui.screens.ShowNewPostScreen
 import com.boardaround.ui.screens.ShowProfileScreen
 import com.boardaround.ui.screens.ShowRegisterScreen
 import com.boardaround.viewmodel.AuthViewModel
+import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
@@ -26,6 +27,7 @@ fun NavGraph(
     navController: NavHostController,
     userViewModel: UserViewModel,
     authViewModel: AuthViewModel,
+    postViewModel: PostViewModel,
     onThemeChange: (Boolean) -> Unit
 ) {
     NavHost(
@@ -53,7 +55,7 @@ fun NavGraph(
             ShowProfileScreen(navController)
         }
         composable<Route.MyProfile> {
-            ShowMyProfileScreen(navController, authViewModel)
+            ShowMyProfileScreen(navController, authViewModel, postViewModel)
         }
         composable<Route.EditMyProfile> {
             ShowEditMyProfile(navController, onThemeChange = onThemeChange)
