@@ -19,7 +19,7 @@ interface NominatimApi {
 }
 
 data class SearchResult(
-    val display_name: String,
+    val displayName: String,
     val lat: String,
     val lon: String
 )

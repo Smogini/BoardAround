@@ -22,9 +22,9 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun ShowDiceScreen(navController: NavController) {
-    var numDice by remember { mutableStateOf(1) }
+    var numDice by remember { mutableIntStateOf(1) }
     var results by remember { mutableStateOf(emptyList<Int>()) }
-    var isRolling by remember { mutableStateOf(false) } // Stato per l'animazione
+    var isRolling by remember { mutableStateOf(false) }
 
     // Calcolare la somma dei risultati
     val sumOfDice = results.sum()

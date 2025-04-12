@@ -1,13 +1,13 @@
 [versions]
-agp = "8.7.0-alpha08"
+agp = "8.7.3"
 coilCompose = "2.6.0"
+datastorePreferences = "1.1.4"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 lifecycleViewmodelCompose = "2.8.7"
 loggingInterceptor = "4.11.0"
 retrofit = "2.9.0"
-gson = "2.10.1"
 tikxml = "0.8.13"
 osmdroid = "6.1.18"
 junitVersion = "1.2.1"
@@ -24,6 +24,7 @@ roomRuntime = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

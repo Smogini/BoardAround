@@ -4,20 +4,23 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.boardaround.data.dao.EventDAO
 import com.boardaround.data.dao.PostDao
 import com.boardaround.data.dao.UserDAO
-import com.boardaround.data.entities.User
+import com.boardaround.data.entities.Event
 import com.boardaround.data.entities.Post
+import com.boardaround.data.entities.User
 
-@Database(entities = [User::class, Post::class], version = 3, exportSchema = false)
-abstract class AppDatabase : RoomDatabase() {
+@Database(entities = [User::class, Event::class, Post::class], version = 2)
+abstract class AppDatabase: RoomDatabase() {
 
     abstract fun userDAO(): UserDAO
-    abstract fun PostDao(): PostDao
+    abstract fun eventDAO(): EventDAO
+    abstract fun postDAO(): PostDao
 
     companion object {
         @Volatile
-        private var INSTANCE: AppDatabase? = null
+        private var INSTANCE: AppDatabase ?= null
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -25,15 +28,12 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                )
-                    // Usa fallbackToDestructiveMigration() per eliminare e ricreare il database
-                    .fallbackToDestructiveMigration()
-                    .build()
+                ).fallbackToDestructiveMigration().build()
 
                 INSTANCE = instance
+
                 instance
             }
         }
     }
 }
-

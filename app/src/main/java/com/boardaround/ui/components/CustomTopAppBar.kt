@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,19 +30,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.ui.theme.Background
+import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.theme.BottomBar
-import com.boardaround.ui.theme.Divider
 import com.boardaround.ui.theme.Errors
-import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(
     title: String,
     navController: NavController,
+    userViewModel: UserViewModel? = null,
     currentRoute: Route
 ) {
+    val hasNotifications = userViewModel?.hasNewNotifications?.collectAsState()?.value ?: false
+
     Column {
         CenterAlignedTopAppBar(
             title = {
@@ -57,7 +61,7 @@ fun CustomTopAppBar(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val actionButtons = remember { calculateActionButtons(currentRoute) }
+                    val actionButtons = remember { calculateActionButtons(currentRoute, hasNotifications) }
 
                     actionButtons.forEach { (title, icon) ->
                         CustomButtonIcon(
@@ -66,8 +70,8 @@ fun CustomTopAppBar(
                             iconColor = if (title == "Return") Errors else BottomBar,
                             onClick = {
                                 when (title) {
-                                    "Settings" -> navController.navigate(Route.EditMyProfile) { launchSingleTop = true }
-                                    "Return" -> navController.navigate(Route.MyProfile) { launchSingleTop = true }
+                                    "Settings" -> navController.navigateSingleTop(Route.EditMyProfile)
+                                    "Return" -> navController.popBackStack()
                                     else -> { Log.e("Top App Bar", "Function not implemented") }
                                 }
                             }
@@ -91,7 +95,7 @@ fun CustomTopAppBar(
     }
 }
 
-fun calculateActionButtons(currentRoute: Route): List<Pair<String, ImageVector>> {
+fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): List<Pair<String, ImageVector>> {
     val pagesWithoutNotifications = setOf(
         Route.Login,
         Route.Register,
@@ -99,11 +103,11 @@ fun calculateActionButtons(currentRoute: Route): List<Pair<String, ImageVector>>
         Route.NewPost,
         Route.NewEvent
     )
-
     val actionButtons = mutableListOf<Pair<String, ImageVector>>()
+    val notificationIcon = if(hasNotification) Icons.Filled.Notifications else Icons.Filled.NotificationsNone
 
     if (!pagesWithoutNotifications.contains(currentRoute)) {
-        actionButtons.add("Empty notification" to Icons.Filled.NotificationsNone)
+        actionButtons.add("Notifications" to notificationIcon)
     }
 
     when (currentRoute) {

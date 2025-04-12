@@ -16,13 +16,14 @@ import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.BottomBar
 import com.boardaround.ui.components.CustomTopAppBar
-import com.boardaround.ui.theme.Background
+import com.boardaround.viewmodel.UserViewModel
 
 @Composable
 fun ScreenTemplate(
     title: String,
     currentRoute: Route,
     navController: NavController,
+    userViewModel: UserViewModel? = null,
     showBottomBar: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -36,7 +37,7 @@ fun ScreenTemplate(
         }
     ){
         Scaffold(
-            topBar = { CustomTopAppBar(title, navController, currentRoute) },
+            topBar = { CustomTopAppBar(title, navController, userViewModel, currentRoute) },
             containerColor = MaterialTheme.colorScheme.background
         ) { contentPadding ->
 

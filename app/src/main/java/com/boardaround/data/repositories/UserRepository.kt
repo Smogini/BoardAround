@@ -32,7 +32,7 @@ class UserRepository(
     }
 
     suspend fun getUserData(username: String): User? {
-        return userDAO.retrieveUser(username) // Utilizza il DAO per ottenere l'utente
+        return userDAO.retrieveUser(username)
     }
 
     fun retrieveUsername():String {

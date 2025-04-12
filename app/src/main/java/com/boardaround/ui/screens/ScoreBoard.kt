@@ -1,29 +1,41 @@
 package com.boardaround.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import com.boardaround.ui.theme.PrimaryText
-import kotlin.random.Random
 
 data class Player(var name: String, var points: Int)
 
 @Composable
 fun ScoreBoardScreen() {
-    var numPlayers by remember { mutableStateOf(2) }  // Numero di giocatori (da 1 a 6)
-    var players by remember { mutableStateOf(List(6) { Player("Player ${it + 1}", 0) }) } // Lista di giocatori
+    var numPlayers by remember { mutableIntStateOf(2) }
+    val players by remember { mutableStateOf(List(6) { Player("Player ${it + 1}", 0) }) }
     var playerName by remember { mutableStateOf(TextFieldValue("")) } // Per il campo di testo di rinomina
-    var selectedPlayerIndex by remember { mutableStateOf(0) } // Indice del giocatore selezionato per rinominarlo
+    var selectedPlayerIndex by remember { mutableIntStateOf(0) } // Indice del giocatore selezionato per rinominarlo
 
     Column(
         modifier = Modifier
@@ -77,12 +89,12 @@ fun ScoreBoardScreen() {
 
         // Mostra la lista di giocatori e i punteggi
         Column {
-            players.take(numPlayers).forEachIndexed { index, player ->
+            players.take(numPlayers).forEachIndexed { _, player ->
                 val maxPoints = players.take(numPlayers).maxOf { it.points }
                 val minPoints = players.take(numPlayers).minOf { it.points }
-                val textColor = when {
-                    player.points == maxPoints -> Color.Green
-                    player.points == minPoints -> Color.Red
+                val textColor = when(player.points) {
+                    maxPoints -> Color.Green
+                    minPoints -> Color.Red
                     else -> PrimaryText
                 }
 

@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 class PostViewModel(
     private val repository: PostRepository,
-    private val authViewModel: AuthViewModel // 🔥 gli passo anche l'authViewModel
+//    private val authViewModel: AuthViewModel
 ) : ViewModel() {
 
     private val _myPosts = MutableStateFlow<List<Post>>(emptyList())
@@ -18,12 +18,12 @@ class PostViewModel(
 
     fun insertPost(title: String, content: String, imageUri: String?) {
         viewModelScope.launch {
-            val username = authViewModel.retrieveUsername() ?: return@launch
+//            val username = authViewModel.retrieveUsername() ?: return@launch
             val post = Post(
                 title = title,
                 content = content,
                 imageUri = imageUri,
-                author = username // 🔥 adesso passo l'autore giusto
+                author = "username"
             )
             repository.insertPost(post)
         }
@@ -31,8 +31,8 @@ class PostViewModel(
 
     fun getPostsByUser() {
         viewModelScope.launch {
-            val username = authViewModel.retrieveUsername() ?: return@launch
-            _myPosts.value = repository.getPostsByUsername(username)
+//            val username = authViewModel.retrieveUsername() ?: return@launch
+            _myPosts.value = repository.getPostsByUsername("username")
         }
     }
 }

@@ -26,6 +26,7 @@ import coil.request.ImageRequest
 import com.boardaround.R
 import com.boardaround.data.entities.User
 import com.boardaround.navigation.Route
+import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.theme.PrimaryText
@@ -42,14 +43,12 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
     val passwordState = remember { mutableStateOf(TextFieldValue()) }
     val dobState = remember { mutableStateOf("") }
 
-    // Launcher per scegliere immagine
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         selectedImageUri = uri
     }
 
-    // Launcher per chiedere permesso
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -73,7 +72,6 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
             verticalArrangement = Arrangement.Top
         ) {
             item {
-                // Immagine profilo
                 Image(
                     painter = selectedImageUri?.let {
                         rememberAsyncImagePainter(
@@ -81,7 +79,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                                 .data(it)
                                 .build()
                         )
-                    } ?: painterResource(id = R.drawable.default_profile), // immagine di default
+                    } ?: painterResource(id = R.drawable.default_profile),
                     contentDescription = "Immagine profilo",
                     modifier = Modifier
                         .size(70.dp)
@@ -113,7 +111,12 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                 CustomTextField(label = "Email", value = emailState.value, onValueChange = { emailState.value = it })
 
                 Text("Password", textAlign = TextAlign.Center, color = PrimaryText)
-                CustomTextField(label = "Password", value = passwordState.value, onValueChange = { passwordState.value = it })
+                CustomTextField(
+                    label = "Password",
+                    value = passwordState.value,
+                    isPasswordField = true,
+                    onValueChange = { passwordState.value = it }
+                )
 
                 CustomButton(
                     onClick = {
@@ -124,13 +127,10 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                                 email = emailState.value.text,
                                 password = passwordState.value.text,
                                 dob = dobState.value,
-                                // Qui potresti anche salvare selectedImageUri.toString() se vuoi associare l'immagine
+                                profilePic = "selectedImageUri.toString()"
                             )
-                            authViewModel.registerUser(newUser) {
-                                navController.navigate(Route.Login) {
-                                    launchSingleTop = true
-                                }
-                            }
+                            authViewModel.registerUser(newUser)
+                            navController.navigateSingleTop(Route.Login)
                         } catch (e: Exception) {
                             Log.e("Register", "Errore durante la registrazione: ${e.message}")
                         }

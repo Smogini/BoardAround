@@ -4,6 +4,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,7 +25,6 @@ import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
 
-
 @Composable
 fun NavGraph(
     navController: NavHostController,
@@ -35,9 +35,9 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = if (authViewModel.isUserLoggedIn()) Route.Splash else Route.Login,
-        enterTransition = { fadeIn(tween(1000)) },
-        exitTransition = { fadeOut(tween(1000)) }
+        startDestination = if(authViewModel.isUserLoggedIn()) Route.Homepage else Route.Splash,
+        enterTransition = { fadeIn(tween(500)) },
+        exitTransition = { fadeOut(tween(500)) }
     ) {
         composable<Route.Splash> {
             SplashScreen(navController)
@@ -55,7 +55,7 @@ fun NavGraph(
             ShowInviteScreen(navController)
         }
         composable<Route.NewEvent> {
-            ShowNewEventScreen(navController)
+            ShowNewEventScreen(navController, userViewModel)
         }
         composable<Route.Profile> {
             ShowProfileScreen(navController)
@@ -77,6 +77,16 @@ fun NavGraph(
         }
         composable<Route.ScoreBoard> {
             ScoreBoardScreen()
+        }
+    }
+}
+
+fun NavController.navigateSingleTop(route: Route) {
+    this.navigate(route) {
+        launchSingleTop = true
+        restoreState = true
+        popUpTo(this@navigateSingleTop.graph.startDestinationId) {
+            saveState = true
         }
     }
 }

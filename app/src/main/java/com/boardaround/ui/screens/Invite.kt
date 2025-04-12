@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
+import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.theme.PrimaryText
 
@@ -33,18 +34,14 @@ fun ShowInviteScreen(navController: NavController) {
 
             CustomButton(
                 onClick = {
-                    navController.navigate(Route.Homepage) {
-                        launchSingleTop = true
-                    }
+                    navController.navigateSingleTop(Route.Homepage)
                 },
                 text = "Si, partecipo all'evento"
             )
 
             CustomButton(
                 onClick = {
-                    navController.navigate(Route.Homepage) {
-                        launchSingleTop = true
-                    }
+                    navController.navigateSingleTop(Route.Homepage)
                 },
                 text = "Rifiuta invito"
             )

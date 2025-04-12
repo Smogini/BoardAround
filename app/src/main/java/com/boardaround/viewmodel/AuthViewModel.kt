@@ -20,7 +20,7 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-    fun registerUser(user: User, onResult: () -> Unit) {
+    fun registerUser(user: User) {
         viewModelScope.launch {
             userRepository.registerUser(user)
         }

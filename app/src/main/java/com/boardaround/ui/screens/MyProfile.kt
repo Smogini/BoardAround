@@ -1,24 +1,36 @@
 package com.boardaround.ui.screens
 
-import android.os.Bundle
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.boardaround.data.dao.UserDAO
+import com.boardaround.data.entities.Post
+import com.boardaround.data.entities.User
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.PostItem
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.PostViewModel
-import com.boardaround.data.entities.Post
-import com.boardaround.data.entities.User
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
@@ -29,7 +41,7 @@ fun ShowMyProfileScreen(
     userViewModel: UserViewModel // Aggiungi UserViewModel
 ) {
     val username = authViewModel.retrieveUsername()
-    val myPosts = postViewModel.myPosts.collectAsState(initial = emptyList<Post>())
+    val myPosts = postViewModel.myPosts.collectAsState(initial = emptyList())
 
     // Stato per memorizzare i dati dell'utente
     var user by remember { mutableStateOf<User?>(null) }
