@@ -24,4 +24,7 @@ class ViewModelFactory(context: Context) {
     fun provideUserViewModel(): UserViewModel = UserViewModel(userRepository, eventRepository, notificationRepository)
 
     fun providePostViewModel(): PostViewModel = PostViewModel(postRepository)
+
+    fun provideGameViewModel(): GameViewModel = GameViewModel()
+
 }

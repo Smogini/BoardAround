@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,7 +18,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavController
 import com.boardaround.data.entities.Event
-import com.boardaround.data.entities.User
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButtonIcon
@@ -25,14 +25,18 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.SearchResultCarousel
 import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryText
-import com.boardaround.utils.GameSearchResult
+import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun ShowHomePageScreen(navController: NavController, userViewModel: UserViewModel) {
+fun ShowHomePageScreen(
+    navController: NavController,
+    userViewModel: UserViewModel,
+    gameViewModel: GameViewModel
+) {
     val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
-    var games by remember { mutableStateOf(GameSearchResult(0, listOf())) }
-    var users by remember { mutableStateOf<List<User>>(emptyList()) }
+    val games by gameViewModel.gamesFound.collectAsState()
+    val users by userViewModel.usersFound.collectAsState()
     var events by remember { mutableStateOf<List<Event>>(emptyList()) }
     val focusManager = LocalFocusManager.current
 
@@ -58,12 +62,8 @@ fun ShowHomePageScreen(navController: NavController, userViewModel: UserViewMode
                             icon = Icons.Filled.Search,
                             iconColor = PrimaryText,
                             onClick = {
-                                userViewModel.searchGames(searchQuery.value.text) { result ->
-                                    games = result
-                                }
-                                userViewModel.searchUsers(searchQuery.value.text) { userList ->
-                                    users = userList
-                                }
+                                gameViewModel.searchGames(searchQuery.value.text)
+                                userViewModel.searchUsers(searchQuery.value.text)
                                 userViewModel.searchEvent(searchQuery.value.text) { eventsList ->
                                     events = eventsList
                                 }
@@ -93,14 +93,20 @@ fun ShowHomePageScreen(navController: NavController, userViewModel: UserViewMode
                 SearchResultCarousel(
                     title = "Utenti trovati",
                     items = users,
-                    onClick = { navController.navigateSingleTop(Route.Profile) },
+                    onClick = { user ->
+                        userViewModel.selectUser(user)
+                        navController.navigateSingleTop(Route.Profile)
+                    },
                     imageUrlProvider = { it.profilePic },
                     labelProvider = { it.username },
                 )
                 SearchResultCarousel(
                     title = "Giochi trovati",
                     items = games.games ?: emptyList(),
-                    onClick = { navController.navigateSingleTop(Route.GameInfo) },
+                    onClick = { game ->
+                        gameViewModel.selectGame(game)
+                        navController.navigateSingleTop(Route.GameInfo)
+                    },
                     imageUrlProvider = { it.imageUrl.toString() },
                     labelProvider = { it.nameElement.value },
                 )

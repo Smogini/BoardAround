@@ -1,58 +1,59 @@
 package com.boardaround.ui.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import org.osmdroid.util.GeoPoint
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.navigation.NavController
-import com.boardaround.navigation.Route
-import com.boardaround.ui.components.CustomButton
-import com.boardaround.ui.components.CustomTextField
-import com.boardaround.ui.theme.PrimaryText
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.boardaround.data.entities.Event
+import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
+import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomMapField
+import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.Customswitch
+import com.boardaround.ui.components.DateTimePicker
+import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.UserViewModel
+import org.osmdroid.util.GeoPoint
+import java.time.LocalDateTime
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowNewEventScreen(navController: NavController, userViewModel: UserViewModel) {
+    val context = LocalContext.current
     val eventNameState = remember { mutableStateOf(TextFieldValue()) }
     val descriptionState = remember { mutableStateOf(TextFieldValue()) }
-    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
-    var showDatePicker by remember { mutableStateOf(false) }
-    var showTimePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
-    val timePickerState = rememberTimePickerState()
     val addressState = remember { mutableStateOf(TextFieldValue()) }
-    val context = LocalContext.current
-    var isPrivateEvent by remember { mutableStateOf(false) }
+    var isPrivateEvent = false
     var selectedLocation by remember { mutableStateOf<GeoPoint?>(null) } // Stato per la posizione selezionata
     var selectedGame by remember { mutableStateOf("") } // Stato per il gioco selezionato
 
-    // Lista simulata di giochi (sostituire con i giochi dell'utente)
+    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
+    var showDateTimePicker by remember { mutableStateOf(false) }
+    var formattedDateTime by remember { mutableStateOf("Seleziona data e ora") }
+
     val gamesList = listOf("Monopoly", "Catan", "Risk", "Uno", "Jenga")
 
-    // Stato per il popup (dialog) che mostra i giochi
     var isDialogOpen by remember { mutableStateOf(false) }
-
-    val formattedDateTime = selectedDateTime?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.getDefault())) ?: "Seleziona data e ora"
 
     ScreenTemplate(
         title = "Crea nuovo evento",
@@ -68,45 +69,20 @@ fun ShowNewEventScreen(navController: NavController, userViewModel: UserViewMode
                 CustomTextField(label = "Inserisci descrizione", value = descriptionState.value, onValueChange = { descriptionState.value = it })
 
                 Text("Seleziona data e ora evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
-                CustomButton(onClick = { showDatePicker = true }, text = formattedDateTime)
+                CustomButton(onClick = { showDateTimePicker = true }, text = formattedDateTime)
 
-                if (showDatePicker) {
-                    DatePickerDialog(
-                        onDismissRequest = { showDatePicker = false },
-                        confirmButton = {
-                            CustomButton(onClick = {
-                                showDatePicker = false
-                                showTimePicker = true
-                            }, text = "Avanti")
+                if (showDateTimePicker) {
+                    DateTimePicker(
+                        initialDateTime = selectedDateTime,
+                        onDateTimeSelected = { dateTime, format ->
+                            selectedDateTime = dateTime
+                            formattedDateTime = format
+                            showDateTimePicker = false
                         },
-                        dismissButton = {
-                            CustomButton(onClick = { showDatePicker = false }, text = "Annulla")
-                        }
-                    ) {
-                        DatePicker(state = datePickerState)
-                    }
-                }
-
-                if (showTimePicker) {
-                    AlertDialog(
-                        onDismissRequest = { showTimePicker = false },
-                        title = { Text("Seleziona ora") },
-                        text = { TimePicker(state = timePickerState) },
-                        confirmButton = {
-                            CustomButton(onClick = {
-                                showTimePicker = false
-                                val selectedDateMillis = datePickerState.selectedDateMillis ?: 0L
-                                val selectedDate = Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.systemDefault()).toLocalDate()
-                                selectedDateTime = LocalDateTime.of(selectedDate.year, selectedDate.month, selectedDate.dayOfMonth, timePickerState.hour, timePickerState.minute)
-                            }, text = "OK")
-                        },
-                        dismissButton = {
-                            CustomButton(onClick = { showTimePicker = false }, text = "Annulla")
-                        }
+                        onDismiss = { showDateTimePicker = false }
                     )
                 }
 
-                // Sezione Indirizzo
                 Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
                 CustomMapField(
                     label = "Inserisci indirizzo evento",
@@ -118,11 +94,9 @@ fun ShowNewEventScreen(navController: NavController, userViewModel: UserViewMode
                     }
                 )
 
-                // Pulsante "A cosa si gioca?"
                 Text("Seleziona gioco per l'evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
                 CustomButton(onClick = { isDialogOpen = true }, text = if (selectedGame.isEmpty()) "A cosa si gioca?" else "Gioco selezionato: $selectedGame")
 
-                // Dialog per la selezione del gioco
                 if (isDialogOpen) {
                     AlertDialog(
                         onDismissRequest = { isDialogOpen = false },
@@ -132,7 +106,7 @@ fun ShowNewEventScreen(navController: NavController, userViewModel: UserViewMode
                                 gamesList.forEach { game ->
                                     TextButton(onClick = {
                                         selectedGame = game
-                                        isDialogOpen = false // Chiude il dialogo dopo la selezione
+                                        isDialogOpen = false
                                     }) {
                                         Text(game)
                                     }

@@ -23,8 +23,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val viewModelFactory = ViewModelFactory(this)
         val postViewModel = viewModelFactory.providePostViewModel()
+        val userViewModel = viewModelFactory.provideUserViewModel()
+        val authViewModel = viewModelFactory.provideAuthViewModel()
+        val gameViewModel = viewModelFactory.provideGameViewModel()
 
         setContent {
             val context = LocalContext.current
@@ -41,13 +45,12 @@ class MainActivity : ComponentActivity() {
             BoardAroundTheme(isDarkMode = isDarkMode.value) {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     val navController = rememberNavController()
-                    val userViewModel = viewModelFactory.provideUserViewModel()
-                    val authViewModel = viewModelFactory.provideAuthViewModel()
                     NavGraph(
                         navController,
                         userViewModel,
                         authViewModel,
                         postViewModel,
+                        gameViewModel,
                         onThemeChange = { newIsDarkMode ->
                             isDarkMode.value = newIsDarkMode
                             lifecycleScope.launch {

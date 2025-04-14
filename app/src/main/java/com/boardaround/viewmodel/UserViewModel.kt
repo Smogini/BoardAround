@@ -8,8 +8,6 @@ import com.boardaround.data.entities.User
 import com.boardaround.data.repositories.EventRepository
 import com.boardaround.data.repositories.NotificationRepository
 import com.boardaround.data.repositories.UserRepository
-import com.boardaround.network.RetrofitInstance
-import com.boardaround.utils.GameSearchResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,11 +21,20 @@ class UserViewModel(
     private val _hasNewNotifications = MutableStateFlow(false)
     val hasNewNotifications: StateFlow<Boolean> = _hasNewNotifications
 
-    fun searchUsers(query: String, onResult: (List<User>) -> Unit) {
+    private val _selectedUser = MutableStateFlow<User?>(null)
+    val selectedUser: StateFlow<User?> = _selectedUser
+
+    private val _usersFound = MutableStateFlow<List<User>>(emptyList())
+    val usersFound: StateFlow<List<User>> = _usersFound
+
+    fun selectUser(user: User) {
+        this._selectedUser.value = user
+    }
+
+    fun searchUsers(query: String) {
         viewModelScope.launch {
             try {
-                val usersFound = userRepository.searchUsersByUsername(query)
-                onResult(usersFound)
+                _usersFound.value = userRepository.searchUsersByUsername(query)
             } catch (e: Exception) {
                 Log.e("UserViewModel", "Errore nella ricerca utente: ${e.message}", e)
             }
@@ -42,18 +49,6 @@ class UserViewModel(
             } catch (e: Exception) {
                 Log.e("UserViewModel", "Errore nel recupero dell'utente: ${e.message}", e)
                 onResult(null) // In caso di errore, restituisci null
-            }
-        }
-    }
-
-    fun searchGames(query: String, onResult: (GameSearchResult) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val gamesFound = RetrofitInstance.api.searchGames(query)
-                onResult(gamesFound)
-                Log.d("UserViewModel", "Chiamata API completata con successo. Totale risultati: ${gamesFound.total}")
-            } catch (e: Exception) {
-                Log.e("UserViewModel", "Errore nella chiamata API: ${e.message}", e)
             }
         }
     }

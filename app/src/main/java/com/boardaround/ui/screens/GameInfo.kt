@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,9 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
+import com.boardaround.viewmodel.GameViewModel
 
 @Composable
-fun ShowGameInfo(navController: NavController) {
+fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
+    val gameToShow by gameViewModel.selectedGame.collectAsState()
     // Stato per il popup (dialog) che mostra la descrizione del gioco
     var isDialogOpen by remember { mutableStateOf(false) }
 
@@ -41,15 +44,13 @@ fun ShowGameInfo(navController: NavController) {
         println("Gioco aggiunto ai miei giochi!")
     }
 
-    // Contenuto principale della schermata
     ScreenTemplate(
-        title = "Scheda del gioco :",
+        title = "Scheda del gioco",
         currentRoute = Route.GameInfo,
         navController = navController,
         showBottomBar = true
     ) { contentPadding ->
 
-        // Layout principale
         Column(
             modifier = Modifier
                 .padding(contentPadding)
@@ -58,17 +59,15 @@ fun ShowGameInfo(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Titolo del gioco
             Text(
-                text = "Nome del Gioco", // Nome del gioco da visualizzare
+                text = gameToShow?.nameElement?.value.toString(),
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Breve descrizione del gioco
             Text(
-                text = "Gioco divertente e coinvolgente per tutti!",
+                text = gameToShow?.description.toString(),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onBackground
@@ -125,4 +124,3 @@ fun ShowGameInfo(navController: NavController) {
         }
     }
 }
-
