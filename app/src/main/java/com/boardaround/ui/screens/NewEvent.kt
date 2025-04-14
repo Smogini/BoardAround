@@ -89,7 +89,8 @@ fun ShowNewEventScreen(navController: NavController, userViewModel: UserViewMode
                     value = addressState.value,
                     onValueChange = { addressState.value = it },
                     onSuggestionClick = { suggestion ->
-                        addressState.value = TextFieldValue(suggestion.displayName)
+                        // Proteggi il valore per evitare che sia null
+                        addressState.value = TextFieldValue(suggestion.displayName ?: "")
                         selectedLocation = GeoPoint(suggestion.lat.toDouble(), suggestion.lon.toDouble())
                     }
                 )

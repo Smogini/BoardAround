@@ -53,21 +53,12 @@ class UserViewModel(
         }
     }
 
-    fun searchEvent(query: String, onResult: (List<Event>) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val eventFound = eventRepository.searchEvent(query)
-                onResult(eventFound)
-            } catch (e: Exception) {
-                Log.e("UserViewModel", "Errore nella ricerca dell'evento: ${e.message}", e)
-            }
-        }
-    }
 
-    fun createNewEvent(newEvent: Event) {
+
+    fun createNewEvent(insertEvent: Event) {
         viewModelScope.launch {
             try {
-                eventRepository.newEvent(newEvent)
+                eventRepository.insertEvent(event = insertEvent)
             } catch (e: Exception) {
                 Log.e("UserViewModel", "Errore nell'inserimento dell'evento': ${e.message}", e)
             }

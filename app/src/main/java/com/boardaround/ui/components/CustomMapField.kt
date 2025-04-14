@@ -44,18 +44,18 @@ fun CustomMapField(
                             if (response.isSuccessful) {
                                 suggestions = response.body() ?: emptyList()
                                 showSuggestions = suggestions.isNotEmpty()
-                                Log.d("CustomTextField", "API Response: ${response.body()}")
+                                Log.d("CustomMapField", "API Response: ${response.body()}")
                             } else {
                                 suggestions = emptyList()
                                 showSuggestions = false
-                                Log.e("CustomTextField", "API Error: ${response.code()} - ${response.message()}")
+                                Log.e("CustomMapField", "API Error: ${response.code()} - ${response.message()}")
                             }
                         }
 
                         override fun onFailure(call: retrofit2.Call<List<SearchResult>>, t: Throwable) {
                             suggestions = emptyList()
                             showSuggestions = false
-                            Log.e("CustomTextField", "API Failure: ${t.message}", t)
+                            Log.e("CustomMapField", "API Failure: ${t.message}", t)
                         }
                     })
                 } else {
@@ -86,7 +86,7 @@ fun CustomMapField(
                     LazyColumn(modifier = Modifier.padding(8.dp)) {
                         items(suggestions) { suggestion ->
                             Text(
-                                text = suggestion.displayName,
+                                text = suggestion.displayName ?: "",
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {

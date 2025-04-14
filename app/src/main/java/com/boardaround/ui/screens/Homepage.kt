@@ -27,12 +27,14 @@ import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
+import com.boardaround.viewmodel.EventViewModel
 
 @Composable
 fun ShowHomePageScreen(
     navController: NavController,
     userViewModel: UserViewModel,
-    gameViewModel: GameViewModel
+    gameViewModel: GameViewModel,
+    eventViewModel: EventViewModel
 ) {
     val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
     val games by gameViewModel.gamesFound.collectAsState()
@@ -64,9 +66,7 @@ fun ShowHomePageScreen(
                             onClick = {
                                 gameViewModel.searchGames(searchQuery.value.text)
                                 userViewModel.searchUsers(searchQuery.value.text)
-                                userViewModel.searchEvent(searchQuery.value.text) { eventsList ->
-                                    events = eventsList
-                                }
+
                                 focusManager.clearFocus()
                             }
                         )

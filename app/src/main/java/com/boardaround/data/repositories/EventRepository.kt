@@ -3,18 +3,12 @@ package com.boardaround.data.repositories
 import com.boardaround.data.dao.EventDAO
 import com.boardaround.data.entities.Event
 
-class EventRepository(private val eventDAO: EventDAO) {
+class EventRepository(private val eventDao: EventDAO) {
+    suspend fun insertEvent(event: Event) = eventDao.insertEvent(event)
+    suspend fun getAllEvents() = eventDao.getAllEvents()
 
-    suspend fun newEvent(newEvent: Event) {
-        eventDAO.inserEvent(newEvent)
+    suspend fun getEventsByUsername(username: String): List<Event> {
+        return eventDao.getEventsByUsername(username)
     }
 
-    suspend fun deleteEvent(toDelete: Event) {
-        eventDAO.deleteEvent(toDelete)
-    }
-
-    suspend fun searchEvent(eventName: String): List<Event> {
-        val eventFound = eventDAO.searchEvents(eventName)
-        return eventFound
-    }
 }

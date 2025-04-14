@@ -25,11 +25,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boardaround.data.entities.Post
+import com.boardaround.data.entities.Event
 import com.boardaround.data.entities.User
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
-import com.boardaround.ui.components.PostItem
+import com.boardaround.ui.components.EventItem
 import com.boardaround.viewmodel.AuthViewModel
+import com.boardaround.ui.components.PostItem
+import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
 
@@ -38,10 +41,12 @@ fun ShowMyProfileScreen(
     navController: NavController,
     authViewModel: AuthViewModel,
     postViewModel: PostViewModel,
-    userViewModel: UserViewModel // Aggiungi UserViewModel
+    userViewModel: UserViewModel,
+    eventViewModel: EventViewModel
 ) {
     val username = authViewModel.retrieveUsername()
     val myPosts = postViewModel.myPosts.collectAsState(initial = emptyList())
+    val myEvent = eventViewModel.myEvent.collectAsState(initial = emptyList())
 
     // Stato per memorizzare i dati dell'utente
     var user by remember { mutableStateOf<User?>(null) }
@@ -53,6 +58,7 @@ fun ShowMyProfileScreen(
             user = fetchedUser // Aggiorna lo stato con l'utente recuperato
         }
         postViewModel.getPostsByUser()  // Recupera i post
+        eventViewModel.getEventsByUser()
     }
 
     ScreenTemplate(
@@ -82,6 +88,13 @@ fun ShowMyProfileScreen(
             ExpandableSection(
                 title = "I miei post",
                 posts = myPosts.value
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ExpandableSectionForEvents(
+                title = "I miei eventi",
+                events = myEvent.value
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -128,6 +141,42 @@ fun ExpandableSection(
                 LazyColumn {
                     items(posts) { post: Post ->
                         PostItem(post = post) // Usa PostItem per ogni post
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ExpandableSectionForEvents(
+    title: String,
+    events: List<Event>
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    // Card che può essere espansa
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { isExpanded = !isExpanded }, // Gestione del clic per espandere o rimpicciolire la sezione
+        elevation = CardDefaults.elevatedCardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Titolo della sezione
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            // Mostra i post se la sezione è espansa
+            if (isExpanded) {
+                // Sezione espansa con lista di post
+                LazyColumn {
+                    items(events) { event: Event ->
+                        EventItem(event = event) // Usa PostItem per ogni post
                     }
                 }
             }

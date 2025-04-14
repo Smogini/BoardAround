@@ -9,12 +9,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.boardaround.ui.screens.ScoreBoardScreen
-import com.boardaround.ui.screens.ShowDiceScreen
 import com.boardaround.ui.screens.ShowEditMyProfile
 import com.boardaround.ui.screens.ShowGameInfo
 import com.boardaround.ui.screens.ShowHomePageScreen
 import com.boardaround.ui.screens.ShowInviteScreen
 import com.boardaround.ui.screens.ShowLoginScreen
+import com.boardaround.ui.screens.ShowDiceScreen
 import com.boardaround.ui.screens.ShowMyProfileScreen
 import com.boardaround.ui.screens.ShowNewEventScreen
 import com.boardaround.ui.screens.ShowNewPostScreen
@@ -22,6 +22,7 @@ import com.boardaround.ui.screens.ShowProfileScreen
 import com.boardaround.ui.screens.ShowRegisterScreen
 import com.boardaround.ui.screens.SplashScreen
 import com.boardaround.viewmodel.AuthViewModel
+import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
@@ -31,8 +32,9 @@ fun NavGraph(
     navController: NavHostController,
     userViewModel: UserViewModel,
     authViewModel: AuthViewModel,
-    postViewModel: PostViewModel,
     gameViewModel: GameViewModel,
+    postViewModel: PostViewModel,
+    eventViewModel: EventViewModel,
     onThemeChange: (Boolean) -> Unit
 ) {
     NavHost(
@@ -45,7 +47,7 @@ fun NavGraph(
             SplashScreen(navController)
         }
         composable<Route.Homepage> {
-            ShowHomePageScreen(navController, userViewModel, gameViewModel)
+            ShowHomePageScreen(navController, userViewModel, gameViewModel, eventViewModel)
         }
         composable<Route.Login> {
             ShowLoginScreen(navController, authViewModel)
@@ -60,16 +62,16 @@ fun NavGraph(
             ShowNewEventScreen(navController, userViewModel)
         }
         composable<Route.Profile> {
-            ShowProfileScreen(navController, userViewModel)
+            ShowProfileScreen(navController)
         }
         composable<Route.MyProfile> {
-            ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel)
+            ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel)
         }
         composable<Route.EditMyProfile> {
             ShowEditMyProfile(navController, onThemeChange = onThemeChange)
         }
         composable<Route.GameInfo> {
-            ShowGameInfo(navController, gameViewModel)
+            ShowGameInfo(navController)
         }
         composable<Route.Dice> {
             ShowDiceScreen(navController)

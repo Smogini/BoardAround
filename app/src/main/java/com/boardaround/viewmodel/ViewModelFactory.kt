@@ -19,12 +19,15 @@ class ViewModelFactory(context: Context) {
     private val notificationRepository = NotificationRepository()
     private val postRepository = PostRepository(postDAO)
 
-    fun provideAuthViewModel(): AuthViewModel = AuthViewModel(userRepository)
+    fun provideAuthViewModel(): AuthViewModel =
+        AuthViewModel(userRepository)
 
-    fun provideUserViewModel(): UserViewModel = UserViewModel(userRepository, eventRepository, notificationRepository)
+    fun provideUserViewModel(): UserViewModel =
+        UserViewModel(userRepository, eventRepository, notificationRepository)
 
-    fun providePostViewModel(): PostViewModel = PostViewModel(postRepository)
+    fun providePostViewModel(): PostViewModel =
+        PostViewModel(postRepository)
 
-    fun provideGameViewModel(): GameViewModel = GameViewModel()
-
+    fun provideEventViewModel(): EventViewModel =
+        EventViewModel(eventRepository)
 }
