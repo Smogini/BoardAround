@@ -20,8 +20,18 @@
 
     <application
         android:label="BoardAround"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo"
+        android:windowSoftInputMode="adjustResize"
+        android:immersive="true"
+        android:windowTranslucentStatus="true"
         android:theme="@style/Theme.BoardAround">
+
+        <meta-data
+            android:name="android.app.lib_name"
+            android:value="com.google.android.material"/>
+
+
+
 
         <activity android:name=".MainActivity"
             android:exported="true">

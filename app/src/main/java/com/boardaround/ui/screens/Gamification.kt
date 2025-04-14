@@ -1,11 +1,15 @@
-package com.boardaround.ui.screens
-
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,7 +37,9 @@ fun GamificationScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally, // Centra orizzontalmente
+        verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically) // Centra verticalmente e mantiene lo spazio
     ) {
         Text(
             text = "Gamification",
@@ -44,8 +50,9 @@ fun GamificationScreen(navController: NavController) {
         )
 
         // Grafico di progressione
+        val currentProgress = unlockedObjectives.count { it } / objectives.size.toFloat()
         ProgressBar(
-            progress = unlockedObjectives.count { it } / objectives.size.toFloat(),
+            progress = currentProgress,
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
@@ -72,22 +79,44 @@ fun GamificationScreen(navController: NavController) {
 
 @Composable
 fun ProgressBar(progress: Float, modifier: Modifier = Modifier) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = tween(durationMillis = 500), // Personalizza la durata dell'animazione
+        label = "Progress Animation"
+    )
+    val percentage = (animatedProgress * 100).toInt()
+    val progressColor = if (percentage == 100) {
+        Color(0xFF4CAF50) // Verde
+    } else {
+        MaterialTheme.colorScheme.primary // Colore primario predefinito
+    }
+    Box( // Utilizza un Box per sovrapporre il testo all'indicatore
+        contentAlignment = Alignment.Center,
+        modifier = modifier.size(200.dp) // Aumenta la dimensione
     ) {
-        Text(
-            text = "${(progress * 100).toInt()}% Completo",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.primary
+        CircularProgressIndicator(
+            progress = animatedProgress, // Usa animatedProgress qui
+            modifier = Modifier.fillMaxSize(), // Riempire il Box
+            color = progressColor, // Usa il colore condizionale
+            trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f),
+            strokeWidth = 12.dp // Aumenta lo spessore (valore predefinito è 4.dp)
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        LinearProgressIndicator(
-            progress = progress,
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f)
-        )
+        if (percentage == 100) {
+            Icon(
+                imageVector = Icons.Filled.CheckCircle,
+                contentDescription = "Obiettivi completati",
+                tint = progressColor,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(80.dp) // Regola la dimensione dell'icona
+            )
+        } else {
+            Text(
+                text = "$percentage%", // Mostra la percentuale al centro
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

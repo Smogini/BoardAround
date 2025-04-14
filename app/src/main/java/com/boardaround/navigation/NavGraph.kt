@@ -1,5 +1,6 @@
 package com.boardaround.navigation
 
+import GamificationScreen
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -8,7 +9,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.boardaround.ui.screens.GamificationScreen
 import com.boardaround.ui.screens.ScoreBoardScreen
 import com.boardaround.ui.screens.ShowEditMyProfile
 import com.boardaround.ui.screens.ShowEventInfoScreen

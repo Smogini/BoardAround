@@ -4,11 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
@@ -16,6 +22,7 @@ import com.boardaround.navigation.NavGraph
 import com.boardaround.ui.theme.BoardAroundTheme
 import com.boardaround.utils.PreferencesManager
 import com.boardaround.viewmodel.ViewModelFactory
+import com.google.accompanist.systemuicontroller.rememberSystemUiController // Importa
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -44,7 +51,13 @@ class MainActivity : ComponentActivity() {
             }
 
             BoardAroundTheme(isDarkMode = isDarkMode.value) {
-                Surface(color = MaterialTheme.colorScheme.background) {
+                // Gestione della barra di stato
+                SystemUiController(isDarkMode.value)
+
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     val navController = rememberNavController()
                     NavGraph(
                         navController = navController,
@@ -63,5 +76,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SystemUiController(isDarkMode: Boolean) {
+    val systemUiController = rememberSystemUiController()
+    val useDarkIcons = !isDarkMode // Determina se usare icone scure o chiare
+
+    DisposableEffect(systemUiController, useDarkIcons) {
+        // Aggiorna il colore della barra di stato
+        systemUiController.setStatusBarColor(
+            color = Color(0xFFEDE0D4), // Imposta il colore desiderato (es. trasparente)
+            darkIcons = useDarkIcons
+        )
+        onDispose {}
     }
 }
