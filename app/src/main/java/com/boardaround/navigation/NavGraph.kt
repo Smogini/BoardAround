@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.boardaround.ui.screens.GamificationScreen
 import com.boardaround.ui.screens.ScoreBoardScreen
 import com.boardaround.ui.screens.ShowEditMyProfile
 import com.boardaround.ui.screens.ShowEventInfoScreen
@@ -85,6 +86,9 @@ fun NavGraph(
         }
         composable<Route.EventInfo> {
             ShowEventInfoScreen(navController, userViewModel, eventViewModel)
+        }
+        composable<Route.Gamification> {
+            GamificationScreen(navController)
         }
     }
 }

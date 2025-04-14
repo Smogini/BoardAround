@@ -1,5 +1,6 @@
 package com.boardaround.ui.components
 
+import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Settings
@@ -29,13 +31,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.boardaround.R
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.theme.BottomBar
 import com.boardaround.ui.theme.Errors
 import com.boardaround.viewmodel.UserViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(
     title: String,
@@ -55,6 +58,19 @@ fun CustomTopAppBar(
                     fontWeight = FontWeight.Bold,
                 )
             },
+
+            // Aggiungiamo l'icona a sinistra (navigationIcon)
+            navigationIcon = {
+                CustomButtonIcon(
+                    title = "Game",
+                    icon = Icons.Filled.Favorite,  // Qui usiamo un'icona ImageVector
+                    iconColor = BottomBar,
+                    onClick = {
+                        navController.navigateSingleTop(Route.Gamification) // Azione del click
+                    }
+                )
+            },
+
             actions = {
                 Row(
                     modifier = Modifier.wrapContentSize(),
@@ -95,6 +111,8 @@ fun CustomTopAppBar(
     }
 }
 
+
+
 fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): List<Pair<String, ImageVector>> {
     val pagesWithoutNotifications = setOf(
         Route.Login,
@@ -109,6 +127,8 @@ fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): List<
     if (!pagesWithoutNotifications.contains(currentRoute)) {
         actionButtons.add("Notifications" to notificationIcon)
     }
+
+
 
     when (currentRoute) {
         Route.MyProfile -> actionButtons.add("Settings" to Icons.Filled.Settings)
