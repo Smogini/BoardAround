@@ -24,7 +24,7 @@ fun ScreenTemplate(
     currentRoute: Route,
     navController: NavController,
     userViewModel: UserViewModel? = null,
-    showBottomBar: Boolean = false,
+    showBottomBar: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current

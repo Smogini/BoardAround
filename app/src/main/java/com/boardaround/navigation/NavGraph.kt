@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.boardaround.ui.screens.ScoreBoardScreen
 import com.boardaround.ui.screens.ShowEditMyProfile
+import com.boardaround.ui.screens.ShowEventInfoScreen
 import com.boardaround.ui.screens.ShowGameInfo
 import com.boardaround.ui.screens.ShowHomePageScreen
 import com.boardaround.ui.screens.ShowInviteScreen
@@ -59,10 +60,10 @@ fun NavGraph(
             ShowInviteScreen(navController)
         }
         composable<Route.NewEvent> {
-            ShowNewEventScreen(navController, userViewModel)
+            ShowNewEventScreen(navController, eventViewModel)
         }
         composable<Route.Profile> {
-            ShowProfileScreen(navController)
+            ShowProfileScreen(navController, userViewModel)
         }
         composable<Route.MyProfile> {
             ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel)
@@ -71,7 +72,7 @@ fun NavGraph(
             ShowEditMyProfile(navController, onThemeChange = onThemeChange)
         }
         composable<Route.GameInfo> {
-            ShowGameInfo(navController)
+            ShowGameInfo(navController, gameViewModel)
         }
         composable<Route.Dice> {
             ShowDiceScreen(navController)
@@ -81,6 +82,9 @@ fun NavGraph(
         }
         composable<Route.ScoreBoard> {
             ScoreBoardScreen()
+        }
+        composable<Route.EventInfo> {
+            ShowEventInfoScreen(navController, userViewModel, eventViewModel)
         }
     }
 }

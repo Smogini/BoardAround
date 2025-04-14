@@ -10,32 +10,32 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class EventViewModel(
-    private val repository: EventRepository,
-//    private val authViewModel: AuthViewModel
+    private val repository: EventRepository
 ) : ViewModel() {
 
-    private val _myEvent = MutableStateFlow<List<Event>>(emptyList())
-    val myEvent: StateFlow<List<Event>> = _myEvent
+    private val _eventsFound = MutableStateFlow<List<Event>>(emptyList())
+    val eventsFound: StateFlow<List<Event>> = _eventsFound
 
-    fun insertEvent(name: String, description: String, address: String) {
+    private val _selectedEvent = MutableStateFlow<Event?>(null)
+    val selectedEvent: StateFlow<Event?> = _selectedEvent
+
+    fun selectEvent(event: Event) {
+        this._selectedEvent.value = event
+    }
+
+    fun insertEvent(newEvent: Event) {
         viewModelScope.launch {
-//            val username = authViewModel.retrieveUsername() ?: return@launch
-            val event = Event(
-                name = name,
-                description = description,
-                address = address,
-                dateTime = "",
-                isPrivate = false,
-                imageUrl = ""
-            )
-            repository.insertEvent(event)
+            repository.insertEvent(newEvent)
         }
     }
 
-    fun getEventsByUser() {
+    fun searchEvents(query: String) {
         viewModelScope.launch {
-//            val username = authViewModel.retrieveUsername() ?: return@launch
-            _myEvent.value = repository.getEventsByUsername("username")
+            try {
+                _eventsFound.value = repository.searchEventsByName(query)
+            } catch(e: Exception) {
+                Log.e("EventViewModel", "Errore nella ricerca degli eventi: ${e.message}")
+            }
         }
     }
 }

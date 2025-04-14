@@ -3,9 +3,7 @@ package com.boardaround.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boardaround.data.entities.Event
 import com.boardaround.data.entities.User
-import com.boardaround.data.repositories.EventRepository
 import com.boardaround.data.repositories.NotificationRepository
 import com.boardaround.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +12,6 @@ import kotlinx.coroutines.launch
 
 class UserViewModel(
     private val userRepository: UserRepository,
-    private val eventRepository: EventRepository,
     private val notificationRepository: NotificationRepository
 ): ViewModel() {
 
@@ -44,23 +41,10 @@ class UserViewModel(
     fun getUserData(username: String, onResult: (User?) -> Unit) {
         viewModelScope.launch {
             try {
-                val user = userRepository.getUserData(username) // Ottieni i dati dell'utente
-                onResult(user) // Passa i dati alla UI
+                val user = userRepository.getUserData(username)
+                onResult(user)
             } catch (e: Exception) {
                 Log.e("UserViewModel", "Errore nel recupero dell'utente: ${e.message}", e)
-                onResult(null) // In caso di errore, restituisci null
-            }
-        }
-    }
-
-
-
-    fun createNewEvent(insertEvent: Event) {
-        viewModelScope.launch {
-            try {
-                eventRepository.insertEvent(event = insertEvent)
-            } catch (e: Exception) {
-                Log.e("UserViewModel", "Errore nell'inserimento dell'evento': ${e.message}", e)
             }
         }
     }

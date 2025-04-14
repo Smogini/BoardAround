@@ -33,7 +33,6 @@ fun ShowDiceScreen(navController: NavController) {
         title = "Lancio Dadi",
         currentRoute = Route.Dice,
         navController = navController,
-        showBottomBar = true,
     ) { contentPadding ->
         Column(
             modifier = Modifier

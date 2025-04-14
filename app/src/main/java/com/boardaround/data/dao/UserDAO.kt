@@ -10,7 +10,7 @@ import com.boardaround.data.entities.User
 @Dao
 interface UserDAO {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User)
 
     @Delete

@@ -22,8 +22,7 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
     ScreenTemplate(
         title = "Profilo di ${userToShow?.username}",
         currentRoute = Route.Profile,
-        navController,
-        showBottomBar = true,
+        navController
     ) { contentPadding ->
         LazyColumn (
             modifier = Modifier.padding(contentPadding),

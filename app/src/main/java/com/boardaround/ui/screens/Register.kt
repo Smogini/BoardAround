@@ -45,9 +45,9 @@ import java.time.LocalDateTime
 
 @Composable
 fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
-    val context = LocalContext.current
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val currentContext = LocalContext.current
 
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val usernameState = remember { mutableStateOf(TextFieldValue()) }
     val nameState = remember { mutableStateOf(TextFieldValue()) }
     val emailState = remember { mutableStateOf(TextFieldValue()) }
@@ -68,7 +68,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
         if (isGranted) {
             pickImageLauncher.launch("image/*")
         } else {
-            Toast.makeText(context, "Permesso necessario per selezionare una foto", Toast.LENGTH_SHORT).show()
+            Toast.makeText(currentContext, "Permesso necessario per selezionare una foto", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -76,6 +76,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
         title = "Crea un nuovo profilo",
         currentRoute = Route.Register,
         navController,
+        showBottomBar = false
     ) { contentPadding ->
         LazyColumn(
             modifier = Modifier
@@ -88,7 +89,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                 Image(
                     painter = selectedImageUri?.let {
                         rememberAsyncImagePainter(
-                            ImageRequest.Builder(context)
+                            ImageRequest.Builder(currentContext)
                                 .data(it)
                                 .build()
                         )
@@ -155,8 +156,8 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                                 name = nameState.value.text,
                                 email = emailState.value.text,
                                 password = passwordState.value.text,
-                                dob = dobState.toString(),
-                                profilePic = "selectedImageUri.toString()"
+                                dob = dobState.component1().toString(),
+                                profilePic = selectedImageUri.toString()
                             )
                             authViewModel.registerUser(newUser)
                             navController.navigateSingleTop(Route.Login)

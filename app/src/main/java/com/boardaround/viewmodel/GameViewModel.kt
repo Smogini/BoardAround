@@ -26,7 +26,6 @@ class GameViewModel: ViewModel() {
         viewModelScope.launch {
             try {
                 _gamesFound.value = RetrofitInstance.api.searchGames(query)
-                Log.d("UserViewModel", "Chiamata API completata con successo. Totale risultati: ${_gamesFound.value.total}")
             } catch (e: Exception) {
                 Log.e("UserViewModel", "Errore nella chiamata API: ${e.message}", e)
             }

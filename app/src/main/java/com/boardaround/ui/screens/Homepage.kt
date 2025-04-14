@@ -11,13 +11,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavController
-import com.boardaround.data.entities.Event
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButtonIcon
@@ -25,9 +23,9 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.SearchResultCarousel
 import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
-import com.boardaround.viewmodel.EventViewModel
 
 @Composable
 fun ShowHomePageScreen(
@@ -39,13 +37,12 @@ fun ShowHomePageScreen(
     val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
     val games by gameViewModel.gamesFound.collectAsState()
     val users by userViewModel.usersFound.collectAsState()
-    var events by remember { mutableStateOf<List<Event>>(emptyList()) }
+    val events by eventViewModel.eventsFound.collectAsState()
     val focusManager = LocalFocusManager.current
 
     ScreenTemplate(
         title = "Homepage",
         currentRoute = Route.Homepage,
-        showBottomBar = true,
         navController = navController,
     ) {
         LazyColumn(
@@ -66,7 +63,7 @@ fun ShowHomePageScreen(
                             onClick = {
                                 gameViewModel.searchGames(searchQuery.value.text)
                                 userViewModel.searchUsers(searchQuery.value.text)
-
+                                eventViewModel.searchEvents(searchQuery.value.text)
                                 focusManager.clearFocus()
                             }
                         )
@@ -84,9 +81,12 @@ fun ShowHomePageScreen(
                 )
 
                 SearchResultCarousel(
-                    title = "I miei eventi",
+                    title = "Eventi trovati",
                     items = events,
-//                    onClick = { navController.navigateSingleTop(Route.) },
+                    onClick = { event ->
+                        eventViewModel.selectEvent(event)
+                        navController.navigateSingleTop(Route.EventInfo)
+                    },
                     imageUrlProvider = { it.imageUrl.toString() },
                     labelProvider = { it.name },
                 )

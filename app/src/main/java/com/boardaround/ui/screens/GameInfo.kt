@@ -39,16 +39,13 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
     // Funzione per aggiungere il gioco
     val addGameToFavorites = {
         isGameAdded = true
-        // Qui puoi aggiungere la logica per effettivamente aggiungere il gioco
-        // ad esempio, memorizzarlo nelle preferenze o in un database.
         println("Gioco aggiunto ai miei giochi!")
     }
 
     ScreenTemplate(
         title = "Scheda del gioco",
         currentRoute = Route.GameInfo,
-        navController = navController,
-        showBottomBar = true
+        navController = navController
     ) { contentPadding ->
 
         Column(

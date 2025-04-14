@@ -28,6 +28,7 @@ fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) 
         title = "Benvenuto su BoardAround!",
         currentRoute = Route.Login,
         navController,
+        showBottomBar = false
     ) { contentPadding ->
         Column(
             modifier = Modifier.padding(contentPadding),

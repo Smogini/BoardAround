@@ -33,19 +33,19 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.Customswitch
 import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.ui.theme.PrimaryText
-import com.boardaround.viewmodel.UserViewModel
+import com.boardaround.viewmodel.EventViewModel
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 
 @Composable
-fun ShowNewEventScreen(navController: NavController, userViewModel: UserViewModel) {
+fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewModel) {
     val context = LocalContext.current
     val eventNameState = remember { mutableStateOf(TextFieldValue()) }
     val descriptionState = remember { mutableStateOf(TextFieldValue()) }
     val addressState = remember { mutableStateOf(TextFieldValue()) }
     var isPrivateEvent = false
-    var selectedLocation by remember { mutableStateOf<GeoPoint?>(null) } // Stato per la posizione selezionata
-    var selectedGame by remember { mutableStateOf("") } // Stato per il gioco selezionato
+    var selectedLocation by remember { mutableStateOf<GeoPoint?>(null) }
+    var selectedGame by remember { mutableStateOf("") }
 
     var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var showDateTimePicker by remember { mutableStateOf(false) }
@@ -89,8 +89,7 @@ fun ShowNewEventScreen(navController: NavController, userViewModel: UserViewMode
                     value = addressState.value,
                     onValueChange = { addressState.value = it },
                     onSuggestionClick = { suggestion ->
-                        // Proteggi il valore per evitare che sia null
-                        addressState.value = TextFieldValue(suggestion.displayName ?: "")
+                        addressState.value = TextFieldValue(suggestion.displayName)
                         selectedLocation = GeoPoint(suggestion.lat.toDouble(), suggestion.lon.toDouble())
                     }
                 )
@@ -150,7 +149,7 @@ fun ShowNewEventScreen(navController: NavController, userViewModel: UserViewMode
                         if (selectedLocation != null) {
                             val message = if (isPrivateEvent) "Evento privato creato con successo" else "Evento pubblico creato con successo"
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                            userViewModel.createNewEvent(newEvent)
+                            eventViewModel.insertEvent(newEvent)
                             navController.navigateSingleTop(Route.Homepage)
                         } else {
                             Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()

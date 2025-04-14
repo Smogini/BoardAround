@@ -23,4 +23,5 @@ interface EventDAO {
 
     @Query("SELECT * FROM events WHERE address LIKE '%' || :username || '%'")
     suspend fun getEventsByUsername(username: String): List<Event>
+
 }

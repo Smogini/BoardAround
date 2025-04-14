@@ -23,11 +23,14 @@ class ViewModelFactory(context: Context) {
         AuthViewModel(userRepository)
 
     fun provideUserViewModel(): UserViewModel =
-        UserViewModel(userRepository, eventRepository, notificationRepository)
+        UserViewModel(userRepository, notificationRepository)
 
     fun providePostViewModel(): PostViewModel =
         PostViewModel(postRepository)
 
     fun provideEventViewModel(): EventViewModel =
         EventViewModel(eventRepository)
+
+    fun provideGameViewModel(): GameViewModel =
+        GameViewModel()
 }

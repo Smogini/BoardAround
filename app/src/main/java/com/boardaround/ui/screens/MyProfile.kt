@@ -46,9 +46,8 @@ fun ShowMyProfileScreen(
 ) {
     val username = authViewModel.retrieveUsername()
     val myPosts = postViewModel.myPosts.collectAsState(initial = emptyList())
-    val myEvent = eventViewModel.myEvent.collectAsState(initial = emptyList())
+    val myEvent = eventViewModel.eventsFound.collectAsState(initial = emptyList())
 
-    // Stato per memorizzare i dati dell'utente
     var user by remember { mutableStateOf<User?>(null) }
 
     // Quando la schermata si apre, carichiamo i dati dell'utente
@@ -57,8 +56,8 @@ fun ShowMyProfileScreen(
         userViewModel.getUserData(username) { fetchedUser ->
             user = fetchedUser // Aggiorna lo stato con l'utente recuperato
         }
-        postViewModel.getPostsByUser()  // Recupera i post
-        eventViewModel.getEventsByUser()
+        postViewModel.getPostsByUser()
+//        eventViewModel.getEventsByUser()
     }
 
     ScreenTemplate(
@@ -75,7 +74,6 @@ fun ShowMyProfileScreen(
 
             Text("I miei dati:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 30.sp))
 
-            // Mostra le informazioni dell'utente se sono disponibili
             user?.let {
                 Text(text = "Nome: ${it.name}", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
                 Text(text = "Email: ${it.email}", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
@@ -84,7 +82,6 @@ fun ShowMyProfileScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sezione "I miei post"
             ExpandableSection(
                 title = "I miei post",
                 posts = myPosts.value
@@ -183,4 +180,3 @@ fun ExpandableSectionForEvents(
         }
     }
 }
-
