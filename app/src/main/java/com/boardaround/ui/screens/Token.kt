@@ -23,7 +23,7 @@ fun TokenScreen(navController: NavController) {
 
 @Composable
 fun TokenContent() {
-    var tokenCount by remember { mutableStateOf(0) }
+    var tokenCount by remember { mutableIntStateOf(0) }
 
     Column(
         modifier = Modifier

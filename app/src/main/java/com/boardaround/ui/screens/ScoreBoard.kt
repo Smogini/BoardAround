@@ -6,18 +6,22 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,98 +30,134 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.boardaround.navigation.Route
+import com.boardaround.ui.components.CustomButton
+import com.boardaround.ui.components.CustomButtonIcon
+import com.boardaround.ui.components.CustomTextField
+import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.viewmodel.UserViewModel
 
-data class Player(var name: String, var points: Int)
+data class Player(
+    var name: MutableState<String>,
+    var points: MutableIntState = mutableIntStateOf(0)
+)
 
 @Composable
-fun ScoreBoardScreen() {
+fun ScoreBoardScreen(navController: NavController, userViewModel: UserViewModel) {
     var numPlayers by remember { mutableIntStateOf(2) }
-    val players by remember { mutableStateOf(List(6) { Player("Player ${it + 1}", 0) }) }
-    var playerName by remember { mutableStateOf(TextFieldValue("")) } // Per il campo di testo di rinomina
+    val players = remember {
+        mutableStateListOf(*List(6) { Player(name = mutableStateOf("Player ${it + 1}")) }.toTypedArray())
+    }
     var selectedPlayerIndex by remember { mutableIntStateOf(0) } // Indice del giocatore selezionato per rinominarlo
+    var playerName by remember { mutableStateOf(TextFieldValue(players[0].name.value)) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ScreenTemplate(
+        title = "Segna punti",
+        currentRoute = Route.ScoreBoard,
+        navController = navController,
+        userViewModel = userViewModel
     ) {
-        // Selezione del numero di giocatori
-        Text("Numero di giocatori: $numPlayers", color = PrimaryText)
-        Slider(
-            value = numPlayers.toFloat(),
-            onValueChange = { numPlayers = it.toInt() },
-            valueRange = 1f..6f,
-            steps = 5,
-            modifier = Modifier.fillMaxWidth(0.8f)
-        )
-
-        // Input per rinominare il giocatore selezionato
-        TextField(
-            value = playerName,
-            onValueChange = { playerName = it },
-            label = { Text("Rinomina Giocatore") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = numPlayers > 0
-        )
-
-        // Seleziona il giocatore da rinominare
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 100.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            (0 until numPlayers).forEach { index ->
-                Button(onClick = {
-                    selectedPlayerIndex = index
-                    playerName = TextFieldValue(players[index].name)  // Precompone il nome del giocatore selezionato
-                }) {
-                    Text(players[index].name)
-                }
-            }
-        }
+            item {
+                Text("Numero di giocatori: $numPlayers", color = PrimaryText)
+                Slider(
+                    value = numPlayers.toFloat(),
+                    onValueChange = { numPlayers = it.toInt() },
+                    valueRange = 1f..6f,
+                    steps = 5,
+                    modifier = Modifier.fillMaxWidth(0.8f)
+                )
 
-        // Button per rinominare il giocatore selezionato
-        Button(
-            onClick = {
-                players[selectedPlayerIndex].name = playerName.text
-            },
-            enabled = playerName.text.isNotEmpty()
-        ) {
-            Text("Rinomina Giocatore ${selectedPlayerIndex + 1}")
-        }
+                CustomTextField(
+                    label = "Rinomina giocatore",
+                    value = playerName,
+                    onValueChange = { playerName = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = numPlayers < 0,
+                    trailingIcon = {
+                        if (playerName.text.isNotEmpty()) {
+                            CustomButtonIcon(
+                                title = "Clear",
+                                icon = Icons.Filled.Clear,
+                                iconColor = Errors,
+                                onClick = { playerName = TextFieldValue("") }
+                            )
+                        }
+                    },
+                )
 
-        // Mostra la lista di giocatori e i punteggi
-        Column {
-            players.take(numPlayers).forEachIndexed { _, player ->
-                val maxPoints = players.take(numPlayers).maxOf { it.points }
-                val minPoints = players.take(numPlayers).minOf { it.points }
-                val textColor = when(player.points) {
-                    maxPoints -> Color.Green
-                    minPoints -> Color.Red
-                    else -> PrimaryText
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.wrapContentSize()
                 ) {
-                    Text(
-                        text = player.name,
-                        color = textColor,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = "Punti: ${player.points}",
-                        color = textColor
-                    )
-                    IconButton(onClick = { player.points++ }) {
-                        Icon(Icons.Filled.Add, contentDescription = "Aggiungi Punti")
+                    items(numPlayers) { index ->
+                        Button(onClick = {
+                            selectedPlayerIndex = index
+                            playerName =
+                                TextFieldValue(players[index].name.value)
+                        }) {
+                            Text(players[index].name.value)
+                        }
                     }
-                    IconButton(onClick = { if (player.points > 0) player.points-- }) {
-                        Icon(Icons.Filled.Remove, contentDescription = "Rimuovi Punti")
+                }
+
+                CustomButton(
+                    onClick = {
+                        if (playerName.text.isNotEmpty()) {
+                            players[selectedPlayerIndex].name.value = playerName.text
+                        }
+                    },
+                    text = "Rinomina ${players[selectedPlayerIndex].name.value}"
+                )
+
+                // Mostra la lista di giocatori e i punteggi
+                Column {
+                    players.take(numPlayers).forEachIndexed { _, player ->
+                        val maxPoints = players.take(numPlayers).maxOf { it.points.intValue }
+                        val minPoints = players.take(numPlayers).minOf { it.points.intValue }
+                        val textColor = when (player.points.intValue) {
+                            maxPoints -> Color.Green
+                            minPoints -> Color.Red
+                            else -> PrimaryText
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = player.name.value,
+                                color = textColor,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                text = "Punti: ${player.points.intValue}",
+                                color = textColor
+                            )
+                            CustomButtonIcon(
+                                title = "Aggiungi punti",
+                                icon = Icons.Filled.Add,
+                                iconColor = PrimaryText,
+                                onClick = { player.points.intValue++ }
+                            )
+                            CustomButtonIcon(
+                                title = "Rimuovi punti",
+                                icon = Icons.Filled.Remove,
+                                iconColor = PrimaryText,
+                                onClick = { player.points.intValue-- }
+                            )
+                        }
                     }
                 }
             }

@@ -9,10 +9,10 @@ plugins {
 
 buildscript {
     repositories {
-        google()  // Assicurati di avere questo repository
+        google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.google.gms:google-services:4.4.2")  // Aggiungi questa dipendenza
+        classpath(libs.google.services)
     }
 }

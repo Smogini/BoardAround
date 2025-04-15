@@ -1,77 +1,80 @@
+package com.boardaround.ui.screens
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boardaround.R
+import com.boardaround.navigation.Route
+import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun GamificationScreen(navController: NavController) {
-    // Lista di obiettivi
-    val objectives = listOf(
-        "Registrati a BoardAround!",
-        "Pubblica il tuo primo post!",
-        "Crea il tuo primo evento!",
-        "Attiva il tema scuro!",
-        "Invita un amico a un tuo evento!"
-    )
+fun GamificationScreen(navController: NavController, userViewModel: UserViewModel) {
+    val objectives by userViewModel.objectives.collectAsState()
 
-    // Stato per il progresso degli obiettivi (true = sbloccato, false = bloccato)
-    var unlockedObjectives by remember { mutableStateOf(listOf(false, false, false, false, false)) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally, // Centra orizzontalmente
-        verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterVertically) // Centra verticalmente e mantiene lo spazio
+    ScreenTemplate(
+        title = "Obiettivi",
+        currentRoute = Route.Gamification,
+        navController = navController,
+        userViewModel = userViewModel
     ) {
-        Text(
-            text = "Gamification",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            fontSize = 28.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Grafico di progressione
-        val currentProgress = unlockedObjectives.count { it } / objectives.size.toFloat()
-        ProgressBar(
-            progress = currentProgress,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(
+                16.dp,
+                alignment = Alignment.CenterVertically
+            )
         ) {
-            items(objectives.size) { index ->
-                ObjectiveItem(
-                    title = objectives[index],
-                    isUnlocked = unlockedObjectives[index],
-                    onClick = {
-                        // Quando l'utente clicca su un obiettivo
-                        unlockedObjectives = unlockedObjectives.toMutableList().apply {
-                            this[index] = true // Sblocca l'obiettivo
-                        }
-                    },
-                    objectiveIndex = index + 1 // Per indicare l'obiettivo (1, 2, 3, etc.)
-                )
+            // Grafico di progressione
+            val currentProgress = objectives.values.count { it } / objectives.size.toFloat()
+            ProgressBar(
+                progress = currentProgress,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize().padding(bottom = 100.dp)
+            ) {
+                items(objectives.size) { objectiveIndex ->
+                    val (currentObjective, isUnlocked) = objectives.entries.elementAt(objectiveIndex)
+
+                    ObjectiveItem(
+                        title = currentObjective,
+                        isUnlocked = isUnlocked,
+                        onClick = { userViewModel.unlockObjective(currentObjective) }
+                    )
+                }
             }
         }
     }
@@ -81,7 +84,7 @@ fun GamificationScreen(navController: NavController) {
 fun ProgressBar(progress: Float, modifier: Modifier = Modifier) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
-        animationSpec = tween(durationMillis = 500), // Personalizza la durata dell'animazione
+        animationSpec = tween(durationMillis = 500),
         label = "Progress Animation"
     )
     val percentage = (animatedProgress * 100).toInt()
@@ -95,11 +98,11 @@ fun ProgressBar(progress: Float, modifier: Modifier = Modifier) {
         modifier = modifier.size(200.dp) // Aumenta la dimensione
     ) {
         CircularProgressIndicator(
-            progress = animatedProgress, // Usa animatedProgress qui
-            modifier = Modifier.fillMaxSize(), // Riempire il Box
-            color = progressColor, // Usa il colore condizionale
+            progress = { animatedProgress },
+            modifier = Modifier.fillMaxSize(),
+            color = progressColor,
+            strokeWidth = 12.dp,
             trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f),
-            strokeWidth = 12.dp // Aumenta lo spessore (valore predefinito è 4.dp)
         )
         if (percentage == 100) {
             Icon(
@@ -121,7 +124,14 @@ fun ProgressBar(progress: Float, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ObjectiveItem(title: String, isUnlocked: Boolean, onClick: () -> Unit, objectiveIndex: Int) {
+fun ObjectiveItem(title: String, isUnlocked: Boolean, onClick: () -> Unit) {
+    val gamificationIcon = listOf(
+        R.drawable.gamification1,
+        R.drawable.gamification2,
+        R.drawable.gamification3,
+        R.drawable.gamification4,
+        R.drawable.gamification5,
+    )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -132,16 +142,8 @@ fun ObjectiveItem(title: String, isUnlocked: Boolean, onClick: () -> Unit, objec
         // Se l'obiettivo è sbloccato, cambia l'icona
         val iconRes = if (isUnlocked) {
             // Se l'obiettivo è sbloccato, mostra l'icona corrispondente gamification-1, gamification-2, etc.
-            when (objectiveIndex) {
-                1 -> R.drawable.gamification1
-                2 -> R.drawable.gamification2
-                3 -> R.drawable.gamification3
-                4 -> R.drawable.gamification4
-                5 -> R.drawable.gamification5
-                else -> R.drawable.gamification1
-            }
+            gamificationIcon.random()
         } else {
-            // Se l'obiettivo è bloccato, mostra l'icona di lock
             R.drawable.lock
         }
         Image(

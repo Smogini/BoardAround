@@ -18,11 +18,26 @@ class UserViewModel(
     private val _hasNewNotifications = MutableStateFlow(false)
     val hasNewNotifications: StateFlow<Boolean> = _hasNewNotifications
 
+    private val _objectives = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    val objectives: StateFlow<Map<String, Boolean>> = _objectives
+
     private val _selectedUser = MutableStateFlow<User?>(null)
     val selectedUser: StateFlow<User?> = _selectedUser
 
     private val _usersFound = MutableStateFlow<List<User>>(emptyList())
     val usersFound: StateFlow<List<User>> = _usersFound
+
+    init {
+        _objectives.value =
+            mutableListOf(
+                "Registrati a BoardAround!",
+                "Pubblica il tuo primo post!",
+                "Crea il tuo primo evento!",
+                "Attiva il tema scuro!",
+                "Invita un amico a un tuo evento!",
+                "Aggiungi un gioco nella libreria"
+            ).associateWith { false }.toMutableMap()
+    }
 
     fun selectUser(user: User) {
         this._selectedUser.value = user
@@ -49,10 +64,16 @@ class UserViewModel(
         }
     }
 
-    fun refreshNotificationStatus() {
-        viewModelScope.launch {
-            val newNotifications = notificationRepository.hasUnread()
-            _hasNewNotifications.value = newNotifications
-        }
+    fun unlockObjective(objective: String) {
+        val updatedObjects = _objectives.value.toMutableMap()
+        updatedObjects[objective] = true
+        _objectives.value = updatedObjects
     }
+
+//    fun refreshNotificationStatus() {
+//        viewModelScope.launch {
+//            val newNotifications = notificationRepository.hasUnread()
+//            _hasNewNotifications.value = newNotifications
+//        }
+//    }
 }

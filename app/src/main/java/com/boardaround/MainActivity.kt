@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -22,7 +21,7 @@ import com.boardaround.navigation.NavGraph
 import com.boardaround.ui.theme.BoardAroundTheme
 import com.boardaround.utils.PreferencesManager
 import com.boardaround.viewmodel.ViewModelFactory
-import com.google.accompanist.systemuicontroller.rememberSystemUiController // Importa
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -81,6 +80,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun SystemUiController(isDarkMode: Boolean) {
+    /* TODO: cambiare funzione deprecata */
     val systemUiController = rememberSystemUiController()
     val useDarkIcons = !isDarkMode // Determina se usare icone scure o chiare
 
