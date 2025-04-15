@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.retrofit)
+    implementation(libs.coil.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.converter.simplexml)
     implementation(libs.tikxml.annotation)
