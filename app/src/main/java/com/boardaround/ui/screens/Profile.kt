@@ -28,6 +28,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.boardaround.R
 import com.boardaround.navigation.Route
+import com.boardaround.ui.components.CustomButton
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
@@ -106,6 +107,15 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
+                    CustomButton(
+                        onClick = {
+                            navController.navigate(Route.Login) {
+                                launchSingleTop = true
+                            }
+                        },
+                        text = "Invia richiesta di amicizia"
+                    )
+
                 }
             }
         }

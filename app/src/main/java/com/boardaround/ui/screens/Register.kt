@@ -46,6 +46,7 @@ import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.AuthViewModel
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -157,7 +158,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                                 Toast.makeText(currentContext, "Devi avere almeno 12 anni", Toast.LENGTH_SHORT).show()
                             } else {
                                 dobState.value = selectedDate
-                                formattedDateTime.value = format
+
                             }
                             showDatePicker.value = false
                         },
@@ -190,7 +191,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                                     name = nameState.value.text,
                                     email = emailState.value.text,
                                     password = passwordState.value.text,
-                                    dob = dobState.component1().toString(),
+                                    dob = dobState.value!!.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
                                     profilePic = selectedImageUri.toString()
                                 )
                                 authViewModel.registerUser(newUser)
