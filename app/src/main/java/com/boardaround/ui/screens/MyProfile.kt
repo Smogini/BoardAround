@@ -96,6 +96,9 @@ fun ShowMyProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            Text("I miei giochi:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
+
+
             CustomButton(
                 onClick = {
                     authViewModel.logout()
