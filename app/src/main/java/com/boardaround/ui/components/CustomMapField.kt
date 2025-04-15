@@ -38,14 +38,20 @@ fun CustomMapField(
             value = value,
             onValueChange = {
                 onValueChange(it)
+
+                // Se il testo non è vuoto, esegui la ricerca
                 if (it.text.isNotEmpty()) {
+                    // Chiamata API solo se il testo è valido
                     NominatimClient.instance.search(query = it.text).enqueue(object : retrofit2.Callback<List<SearchResult>> {
                         override fun onResponse(call: retrofit2.Call<List<SearchResult>>, response: retrofit2.Response<List<SearchResult>>) {
                             if (response.isSuccessful) {
-                                suggestions = response.body() ?: emptyList()
+                                val responseBody = response.body() ?: emptyList()
+                                suggestions = responseBody
                                 showSuggestions = suggestions.isNotEmpty()
-                                Log.d("CustomMapField", "API Response: ${response.body()}")
+
+                                Log.d("CustomMapField", "API Response: $responseBody")
                             } else {
+                                // Gestisci errore nella risposta
                                 suggestions = emptyList()
                                 showSuggestions = false
                                 Log.e("CustomMapField", "API Error: ${response.code()} - ${response.message()}")
@@ -53,12 +59,14 @@ fun CustomMapField(
                         }
 
                         override fun onFailure(call: retrofit2.Call<List<SearchResult>>, t: Throwable) {
+                            // Gestisci il fallimento della chiamata API
                             suggestions = emptyList()
                             showSuggestions = false
                             Log.e("CustomMapField", "API Failure: ${t.message}", t)
                         }
                     })
                 } else {
+                    // Se il testo è vuoto, non fare chiamate API e nascondi le suggerimenti
                     suggestions = emptyList()
                     showSuggestions = false
                 }
@@ -70,6 +78,7 @@ fun CustomMapField(
             trailingIcon = trailingIcon // Utilizzo del parametro trailingIcon
         )
 
+        // Mostra i suggerimenti solo se ci sono
         if (showSuggestions && onSuggestionClick != null) {
             Popup(
                 alignment = Alignment.BottomStart,
@@ -90,6 +99,7 @@ fun CustomMapField(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
+                                        // Quando un suggerimento viene cliccato, invoca la funzione
                                         onSuggestionClick(suggestion)
                                         showSuggestions = false
                                     }

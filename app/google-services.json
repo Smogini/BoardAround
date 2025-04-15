@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "246244545858",
+    "project_id": "boardaround",
+    "storage_bucket": "boardaround.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246244545858:android:3fe2fdaf514a0baa5424db",
+        "android_client_info": {
+          "package_name": "com.boardaround"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJpqsQ5WrFFpA7Y57-eyLqT2AHmRMnNW8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

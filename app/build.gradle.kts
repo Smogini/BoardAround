@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
     id("com.google.devtools.ksp") version "2.0.21-1.0.27"
+    id("com.google.gms.google-services") version "4.4.2" apply false
     id("kotlin-kapt")
 }
 
@@ -51,6 +52,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+    implementation("com.google.firebase:firebase-messaging:23.2.0")
+    implementation("com.google.firebase:firebase-analytics")
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.retrofit)
@@ -89,3 +93,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+apply(plugin = "com.google.gms.google-services")
