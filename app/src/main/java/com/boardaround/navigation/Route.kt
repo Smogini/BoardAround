@@ -19,4 +19,6 @@ sealed interface Route {
     @Serializable data object NewPost : Route
     @Serializable data object EventInfo : Route
     @Serializable data object Gamification : Route
+    @Serializable data object Token : Route
+    @Serializable data object HeadsOrTails : Route
 }

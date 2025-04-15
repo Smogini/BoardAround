@@ -94,7 +94,7 @@ fun BottomBar(navController: NavController) {
                         DropdownMenuItem(
                             text = { Text("Token") },
                             onClick = {
-                                navController.navigateSingleTop(Route.Homepage)
+                                navController.navigateSingleTop(Route.Token)
                                 expanded = false
                             }
                         )
@@ -109,6 +109,13 @@ fun BottomBar(navController: NavController) {
                             text = { Text("Segna punti") },
                             onClick = {
                                 navController.navigateSingleTop(Route.ScoreBoard)
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Testa o Croce") },
+                            onClick = {
+                                navController.navigateSingleTop(Route.HeadsOrTails)
                                 expanded = false
                             }
                         )

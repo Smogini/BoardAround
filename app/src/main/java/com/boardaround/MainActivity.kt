@@ -84,10 +84,16 @@ fun SystemUiController(isDarkMode: Boolean) {
     val systemUiController = rememberSystemUiController()
     val useDarkIcons = !isDarkMode // Determina se usare icone scure o chiare
 
+    val statusBarColor = if (isDarkMode) {
+        Color.Black // Colore nero per il tema scuro
+    } else {
+        Color(0xFFEDE0D4) // Colore per il tema chiaro
+    }
+
     DisposableEffect(systemUiController, useDarkIcons) {
         // Aggiorna il colore della barra di stato
         systemUiController.setStatusBarColor(
-            color = Color(0xFFEDE0D4), // Imposta il colore desiderato (es. trasparente)
+            color = statusBarColor,
             darkIcons = useDarkIcons
         )
         onDispose {}

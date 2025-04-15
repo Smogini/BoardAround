@@ -1,16 +1,25 @@
 package com.boardaround.ui.screens
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +29,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -36,6 +47,7 @@ import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
 
+
 @Composable
 fun ShowMyProfileScreen(
     navController: NavController,
@@ -50,6 +62,13 @@ fun ShowMyProfileScreen(
 
     var user by remember { mutableStateOf<User?>(null) }
 
+    // Dati di esempio per giochi e amici (rimuovi questa parte quando avrai il backend)
+    var myGames by remember { mutableStateOf(listOf("Carcassonne", "7 Wonders", "Ticket to Ride")) }
+    val myFriends = remember { listOf("Alice", "Bob", "Charlie") }
+
+    var showGames by remember { mutableStateOf(false) }
+    var showFriends by remember { mutableStateOf(false) }
+
     // Quando la schermata si apre, carichiamo i dati dell'utente
     LaunchedEffect(username) {
         // Carica l'utente dal ViewModel
@@ -57,7 +76,12 @@ fun ShowMyProfileScreen(
             user = fetchedUser // Aggiorna lo stato con l'utente recuperato
         }
         postViewModel.getPostsByUser()
-//        eventViewModel.getEventsByUser()
+        // eventViewModel.getEventsByUser()
+    }
+
+    fun removeGame(game: String) {
+        myGames = myGames.filter { it != game }
+        // In futuro, qui dovrai anche comunicare con il backend per rimuovere il gioco dall'utente
     }
 
     ScreenTemplate(
@@ -96,8 +120,70 @@ fun ShowMyProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("I miei giochi:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showGames = !showGames },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("I miei giochi:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
+                Icon(
+                    imageVector = if (showGames) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+                    contentDescription = if (showGames) "Mostra meno" else "Mostra di più"
+                )
+            }
+            if (showGames) {
+                if (myGames.isNotEmpty()) {
+                    LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) { // Altezza massima per la lista
+                        items(myGames) { game ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 16.dp, end = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = game)
+                                IconButton(onClick = { removeGame(game) }) {
+                                    Icon(Icons.Filled.Delete, contentDescription = "Rimuovi gioco")
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Text("Nessun gioco disponibile", modifier = Modifier.padding(start = 16.dp))
+                }
+            }
 
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showFriends = !showFriends },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("I miei amici:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
+                Icon(
+                    imageVector = if (showFriends) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+                    contentDescription = if (showFriends) "Mostra meno" else "Mostra di più"
+                )
+            }
+            if (showFriends) {
+                if (myFriends.isNotEmpty()) {
+                    LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
+                        items(myFriends) { friend ->
+                            Text(text = friend, modifier = Modifier.padding(start = 16.dp))
+                        }
+                    }
+                } else {
+                    Text("Nessun amico disponibile", modifier = Modifier.padding(start = 16.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(250.dp))
 
             CustomButton(
                 onClick = {
@@ -111,6 +197,7 @@ fun ShowMyProfileScreen(
         }
     }
 }
+
 
 @Composable
 fun ExpandableSection(
