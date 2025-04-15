@@ -1,6 +1,8 @@
 package com.boardaround.ui.screens
 
 import android.Manifest
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+import android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -16,7 +18,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,11 +60,26 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
     val showDatePicker = remember { mutableStateOf(false) }
     val formattedDateTime = remember { mutableStateOf("Seleziona la data") }
 
+    var registrationError by remember { mutableStateOf(false) }
+
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        selectedImageUri = uri
+        uri?.let {
+            val contentResolver = currentContext.contentResolver
+            val takeFlags = FLAG_GRANT_READ_URI_PERMISSION or FLAG_GRANT_WRITE_URI_PERMISSION
+
+            try {
+                // Richiedi accesso persistente all'immagine
+                contentResolver.takePersistableUriPermission(it, takeFlags)
+            } catch (e: SecurityException) {
+                Log.e("ImageAccess", "Errore nel prendere il permesso persistente: ${e.message}")
+            }
+
+            selectedImageUri = it
+        }
     }
+
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -131,8 +150,15 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                     DateTimePicker(
                         initialDateTime = null,
                         onDateTimeSelected = { selectedDate, format ->
-                            dobState.value = selectedDate
-                            formattedDateTime.value = format
+                            val today = LocalDateTime.now()
+                            val minAllowedDate = today.minusYears(12)
+
+                            if (selectedDate.isAfter(minAllowedDate)) {
+                                Toast.makeText(currentContext, "Devi avere almeno 12 anni", Toast.LENGTH_SHORT).show()
+                            } else {
+                                dobState.value = selectedDate
+                                formattedDateTime.value = format
+                            }
                             showDatePicker.value = false
                         },
                         onDismiss = { showDatePicker.value = false },
@@ -150,24 +176,45 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
 
                 CustomButton(
                     onClick = {
-                        try {
-                            val newUser = User(
-                                username = usernameState.value.text,
-                                name = nameState.value.text,
-                                email = emailState.value.text,
-                                password = passwordState.value.text,
-                                dob = dobState.component1().toString(),
-                                profilePic = selectedImageUri.toString()
-                            )
-                            authViewModel.registerUser(newUser)
-                            navController.navigateSingleTop(Route.Login)
-                        } catch (e: Exception) {
-                            Log.e("Register", "Errore durante la registrazione: ${e.message}")
+                        if (usernameState.value.text.isBlank() ||
+                            nameState.value.text.isBlank() ||
+                            emailState.value.text.isBlank() ||
+                            passwordState.value.text.isBlank() ||
+                            dobState.value == null
+                        ) {
+                            registrationError = true
+                        } else {
+                            try {
+                                val newUser = User(
+                                    username = usernameState.value.text,
+                                    name = nameState.value.text,
+                                    email = emailState.value.text,
+                                    password = passwordState.value.text,
+                                    dob = dobState.component1().toString(),
+                                    profilePic = selectedImageUri.toString()
+                                )
+                                authViewModel.registerUser(newUser)
+                                navController.navigateSingleTop(Route.Login)
+                            } catch (e: Exception) {
+                                Log.e("Register", "Errore durante la registrazione: ${e.message}")
+                            }
                         }
                     },
                     text = "Registrati"
                 )
             }
         }
+    }
+    if (registrationError) {
+        AlertDialog(
+            onDismissRequest = { registrationError = false },
+            title = { Text("Errore di registrazione") },
+            text = { Text("Uno o più campi vuoti") },
+            confirmButton = {
+                TextButton(onClick = { registrationError = false }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }
