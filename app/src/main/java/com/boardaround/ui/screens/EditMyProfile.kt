@@ -1,7 +1,9 @@
 package com.boardaround.ui.screens
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.provider.ContactsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -17,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
+import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.Customswitch
 import com.boardaround.ui.theme.LocalIsDarkMode
 
@@ -27,6 +30,29 @@ fun ShowEditMyProfile(
 ) {
     val isDarkMode = LocalIsDarkMode.current
     val context = LocalContext.current
+
+    val pickContactLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickContact()
+    ) { uri ->
+        uri?.let { contactUri ->
+            val cursor = context.contentResolver.query(
+                contactUri,
+                null,
+                null,
+                null,
+                null
+            )
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                    if (numberIndex >= 0) {
+                        val phoneNumber = it.getString(numberIndex)
+                        sendInviteMessage(context, phoneNumber)
+                    }
+                }
+            }
+        }
+    }
 
     // Stati per le autorizzazioni
     var cameraPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) }
@@ -93,7 +119,29 @@ fun ShowEditMyProfile(
             }) {
                 Text("Richiedi autorizzazioni")
             }
+
+
+            Button(
+                onClick = {
+                    pickContactLauncher.launch(null)
+                }
+            ) {
+                Text("Invita amici su BoardAround")
+            }
         }
+
+    }
+}
+
+fun sendInviteMessage(context: android.content.Context, phoneNumber: String) {
+    val message = "Unisciti a BoardAround!"
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra("address", phoneNumber)
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
     }
 }
 

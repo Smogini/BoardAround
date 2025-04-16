@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -114,6 +115,8 @@ fun ShowNewPostScreen(navController: NavController) {
                     contentScale = ContentScale.Crop
                 )
             }
+
+            Spacer(modifier = Modifier.height(300.dp))
 
             CustomButton(
                 onClick = {
