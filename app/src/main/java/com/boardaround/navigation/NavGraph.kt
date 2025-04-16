@@ -63,7 +63,7 @@ fun NavGraph(
             ShowInviteScreen(navController)
         }
         composable<Route.NewEvent> {
-            ShowNewEventScreen(navController, eventViewModel)
+            ShowNewEventScreen(navController, eventViewModel, userViewModel, authViewModel)
         }
         composable<Route.Profile> {
             ShowProfileScreen(navController, userViewModel, authViewModel)

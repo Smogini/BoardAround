@@ -13,6 +13,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,17 +34,19 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.Customswitch
 import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
+import com.boardaround.viewmodel.UserViewModel
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 
 @Composable
-fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewModel) {
+fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewModel, userViewModel: UserViewModel, authViewModel: AuthViewModel) {
     val context = LocalContext.current
     val eventNameState = remember { mutableStateOf(TextFieldValue()) }
     val descriptionState = remember { mutableStateOf(TextFieldValue()) }
     val addressState = remember { mutableStateOf(TextFieldValue()) }
-    var isPrivateEvent = false
+    var isPrivateEvent by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<GeoPoint?>(null) }
     var selectedGame by remember { mutableStateOf("") }
 
@@ -51,7 +54,8 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
     var showDateTimePicker by remember { mutableStateOf(false) }
     var formattedDateTime by remember { mutableStateOf("Seleziona data e ora") }
 
-    val gamesList = listOf("Monopoly", "Catan", "Risk", "Uno", "Jenga")
+    val username = authViewModel.retrieveUsername()
+    val userGames by userViewModel.getUserGames(username).collectAsState(initial = emptyList())
 
     var isDialogOpen by remember { mutableStateOf(false) }
 
@@ -103,7 +107,7 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                         title = { Text("Seleziona un gioco") },
                         text = {
                             Column {
-                                gamesList.forEach { game ->
+                                userGames.forEach { game -> // Usa userGames invece di gamesList
                                     TextButton(onClick = {
                                         selectedGame = game
                                         isDialogOpen = false
@@ -144,7 +148,7 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                             description = descriptionState.value.text,
                             address = addressState.value.text,
                             dateTime = selectedDateTime.toString(),
-                            isPrivate = isPrivateEvent
+                            isPrivate = isPrivateEvent,
                         )
                         if (selectedLocation != null) {
                             val message = if (isPrivateEvent) "Evento privato creato con successo" else "Evento pubblico creato con successo"
