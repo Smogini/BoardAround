@@ -66,7 +66,7 @@ fun NavGraph(
             ShowNewEventScreen(navController, eventViewModel)
         }
         composable<Route.Profile> {
-            ShowProfileScreen(navController, userViewModel)
+            ShowProfileScreen(navController, userViewModel, authViewModel)
         }
         composable<Route.MyProfile> {
             ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel)

@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,11 +29,18 @@ import coil.request.ImageRequest
 import com.boardaround.R
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
+import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.UserViewModel
+import android.content.Context
 
 @Composable
-fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel) {
+fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel, authViewModel: AuthViewModel) {
     val userToShow by userViewModel.selectedUser.collectAsState()
+    val currentUsername = authViewModel.retrieveUsername()
+    val myFriends by userViewModel.getFriends(currentUsername).collectAsState(initial = emptyList())
+    val isFriend = remember(myFriends, userToShow) {
+        myFriends.any { it.username == userToShow?.username }
+    }
 
     ScreenTemplate(
         title = "Profilo di ${userToShow?.username}",
@@ -93,7 +101,7 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    Column(Modifier.weight(1f)) { // Data di nascita
+                    Column(Modifier.weight(1f)) {
                         Text(
                             text = "Data di nascita:",
                             style = MaterialTheme.typography.titleMedium,
@@ -106,14 +114,23 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    CustomButton(
-                        onClick = {
-                            navController.navigate(Route.Login) {
-                                launchSingleTop = true
-                            }
-                        },
-                        text = "Invia richiesta di amicizia"
-                    )
+                    if (userToShow != null && currentUsername != null && userToShow!!.username != currentUsername) {
+                        if (isFriend) {
+                            CustomButton(
+                                onClick = {
+                                    userViewModel.removeFriend(currentUsername, userToShow!!.username)
+                                },
+                                text = "Rimuovi amico"
+                            )
+                        } else {
+                            CustomButton(
+                                onClick = {
+                                    userViewModel.addFriend(currentUsername, userToShow!!.username)
+                                },
+                                text = "Aggiungi amico"
+                            )
+                        }
+                    }
 
                 }
             }

@@ -167,7 +167,7 @@ fun ShowMyProfileScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(250.dp))
+            Spacer(modifier = Modifier.height(180.dp))
 
             CustomButton(
                 onClick = {
