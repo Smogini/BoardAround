@@ -16,6 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -152,7 +155,7 @@ fun MiniTrivia(
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .padding(8.dp),
+                .padding(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -181,7 +184,7 @@ fun MiniTrivia(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(backgroundColor)
-                            .padding(vertical = 2.dp, horizontal = 8.dp)
+                            .padding(vertical = 2.dp, horizontal = 10.dp)
                     ) {
                         RadioButton(
                             selected = selectedAnswer == answer,

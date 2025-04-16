@@ -1,15 +1,20 @@
 package com.boardaround.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.Customswitch
@@ -18,9 +23,28 @@ import com.boardaround.ui.theme.LocalIsDarkMode
 @Composable
 fun ShowEditMyProfile(
     navController: NavController,
-    onThemeChange: (Boolean) -> Unit // <--- aggiunto
+    onThemeChange: (Boolean) -> Unit
 ) {
-    val isDarkMode = LocalIsDarkMode.current // Ottiene il tema dal CompositionLocal
+    val isDarkMode = LocalIsDarkMode.current
+    val context = LocalContext.current
+
+    // Stati per le autorizzazioni
+    var cameraPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) }
+    var contactsPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) }
+    var locationPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) }
+    var notificationsPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) }
+    var photosPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) }
+
+    // Launcher per richiedere le autorizzazioni
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        cameraPermissionGranted = permissions[Manifest.permission.CAMERA] ?: cameraPermissionGranted
+        contactsPermissionGranted = permissions[Manifest.permission.READ_CONTACTS] ?: contactsPermissionGranted
+        locationPermissionGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: locationPermissionGranted
+        notificationsPermissionGranted = permissions[Manifest.permission.POST_NOTIFICATIONS] ?: notificationsPermissionGranted
+        photosPermissionGranted = permissions[Manifest.permission.READ_MEDIA_IMAGES] ?: photosPermissionGranted
+    }
 
     ScreenTemplate(
         title = "Modifica profilo",
@@ -33,7 +57,7 @@ fun ShowEditMyProfile(
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -43,10 +67,43 @@ fun ShowEditMyProfile(
                 Customswitch(
                     checked = isDarkMode,
                     onCheckedChange = { newIsDarkMode ->
-                        onThemeChange(newIsDarkMode) // <--- chiami la funzione
+                        onThemeChange(newIsDarkMode)
                     }
                 )
             }
+
+            Text("Autorizzazioni del dispositivo")
+
+            PermissionRow("Fotocamera", cameraPermissionGranted)
+            PermissionRow("Contatti", contactsPermissionGranted)
+            PermissionRow("Posizione", locationPermissionGranted)
+            PermissionRow("Notifiche", notificationsPermissionGranted)
+            PermissionRow("Foto", photosPermissionGranted)
+
+            Button(onClick = {
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    )
+                )
+            }) {
+                Text("Richiedi autorizzazioni")
+            }
         }
+    }
+}
+
+@Composable
+fun PermissionRow(permissionName: String, isGranted: Boolean) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(permissionName)
+        Text(if (isGranted) "Concessa" else "Negata")
     }
 }
