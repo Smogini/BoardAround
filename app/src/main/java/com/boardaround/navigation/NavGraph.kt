@@ -25,6 +25,7 @@ import com.boardaround.ui.screens.ShowProfileScreen
 import com.boardaround.ui.screens.ShowRegisterScreen
 import com.boardaround.ui.screens.SplashScreen
 import com.boardaround.ui.screens.TokenScreen
+import com.boardaround.ui.screens.TriviaScreen
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
@@ -97,6 +98,9 @@ fun NavGraph(
         }
         composable<Route.HeadsOrTails> {
             HeadsOrTailsScreen(navController)
+        }
+        composable<Route.Trivia> {
+            TriviaScreen()
         }
     }
 }

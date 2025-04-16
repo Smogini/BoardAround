@@ -22,6 +22,9 @@ import com.boardaround.ui.theme.BoardAroundTheme
 import com.boardaround.utils.PreferencesManager
 import com.boardaround.viewmodel.ViewModelFactory
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -29,6 +32,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
+        Firebase.analytics.logEvent("test_event", null)
 
         val viewModelFactory = ViewModelFactory(this)
         val userViewModel = viewModelFactory.provideUserViewModel()

@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -39,6 +42,7 @@ import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
+import com.boardaround.viewmodel.TriviaViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 data class SuggestedGame(
@@ -59,6 +63,9 @@ fun ShowHomePageScreen(
     val users by userViewModel.usersFound.collectAsState()
     val events by eventViewModel.eventsFound.collectAsState()
     val focusManager = LocalFocusManager.current
+    val triviaViewModel: TriviaViewModel = viewModel()
+    val triviaQuestions by triviaViewModel.questions.collectAsState()
+    val isTriviaVisible = remember { mutableStateOf(false) }
 
     val suggestedGames = listOf(
         SuggestedGame(
@@ -167,6 +174,21 @@ fun ShowHomePageScreen(
                         // Per ora lasciamolo vuoto o fai un log
                     }
                 )
+
+                if (isTriviaVisible.value) {
+                    MiniTrivia(
+                        questions = triviaQuestions,
+                        onQuizFinished = { isTriviaVisible.value = false }
+                    )
+                } else {
+                    Button(onClick = {
+                        triviaViewModel.loadTriviaQuestions() // Carica le domande
+                        isTriviaVisible.value = true // Mostra MiniTrivia
+                    }) {
+                        Text("Gioca a Trivia")
+                    }
+                }
+
             }
         }
     }

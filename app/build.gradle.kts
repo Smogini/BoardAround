@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.serialization)
     id("com.google.devtools.ksp") version "2.0.21-1.0.27"
-    id("com.google.gms.google-services") version "4.4.2" apply false
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
 }
 
 android {
