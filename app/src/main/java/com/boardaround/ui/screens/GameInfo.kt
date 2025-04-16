@@ -1,5 +1,6 @@
 package com.boardaround.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,27 +20,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
+import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.GameViewModel
+import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
+fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel, userViewModel: UserViewModel, authViewModel: AuthViewModel) {
     val gameToShow by gameViewModel.selectedGame.collectAsState()
+    val username = authViewModel.retrieveUsername()
+    val context = LocalContext.current
+
     // Stato per il popup (dialog) che mostra la descrizione del gioco
     var isDialogOpen by remember { mutableStateOf(false) }
-
-    // Funzione per chiudere il dialog
     val closeDialog: () -> Unit = { isDialogOpen = false }
 
-    // Stato per "Aggiungi ai miei giochi"
-    var isGameAdded by remember { mutableStateOf(false) }
+    // Ottieni la lista dei giochi dell'utente
+    val userGames by userViewModel.getUserGames(username).collectAsState(initial = emptyList())
 
-    // Funzione per aggiungere il gioco
-    val addGameToFavorites = {
-        isGameAdded = true
-        println("Gioco aggiunto ai miei giochi!")
+    // Controlla se il gioco è già nella lista dell'utente
+    val isGameAdded = remember(userGames, gameToShow) {
+        userGames.contains(gameToShow?.nameElement?.value.toString())
     }
 
     ScreenTemplate(
@@ -88,19 +92,21 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
 
             // Pulsante "Aggiungi ai miei giochi"
             Button(
-                onClick = { addGameToFavorites() },
+                onClick = {
+                    if (gameToShow != null) {
+                        val gameName = gameToShow!!.nameElement!!.value.toString()
+                        if (isGameAdded) {
+                            userViewModel.removeGame(username, gameName)
+                            Toast.makeText(context, "Gioco rimosso dai tuoi giochi", Toast.LENGTH_SHORT).show()
+                        } else {
+                            userViewModel.addGame(username, gameName)
+                            Toast.makeText(context, "Gioco aggiunto ai tuoi giochi", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
                 modifier = Modifier.padding(top = 16.dp)
             ) {
-                Text("Aggiungi ai miei giochi")
-            }
-
-            // Stato del gioco aggiunto
-            if (isGameAdded) {
-                Text(
-                    text = "Gioco aggiunto ai tuoi giochi!",
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+                Text(if (isGameAdded) "Rimuovi dai miei giochi" else "Aggiungi ai miei giochi")
             }
 
             // Dialog che mostra la descrizione del gioco quando il tasto viene premuto

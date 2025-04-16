@@ -13,6 +13,7 @@ data class User(
     val password: String,
     val dob: String,
     val profilePic: String,
+    val games: List<String> = emptyList()
 )
 
 @Entity(

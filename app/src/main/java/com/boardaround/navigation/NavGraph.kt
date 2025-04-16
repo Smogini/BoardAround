@@ -75,7 +75,7 @@ fun NavGraph(
             ShowEditMyProfile(navController, onThemeChange = onThemeChange)
         }
         composable<Route.GameInfo> {
-            ShowGameInfo(navController, gameViewModel)
+            ShowGameInfo(navController, gameViewModel, userViewModel, authViewModel)
         }
         composable<Route.Dice> {
             ShowDiceScreen(navController)

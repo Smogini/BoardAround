@@ -63,7 +63,7 @@ fun ShowMyProfileScreen(
     var user by remember { mutableStateOf<User?>(null) }
 
 
-    var myGames by remember { mutableStateOf(listOf("Carcassonne", "7 Wonders", "Ticket to Ride")) }
+    val myGames by userViewModel.getUserGames(username).collectAsState(initial = emptyList())
     val myFriends by userViewModel.getFriends(username).collectAsState(initial = emptyList())
 
     var showGames by remember { mutableStateOf(false) }
@@ -77,11 +77,6 @@ fun ShowMyProfileScreen(
         }
         postViewModel.getPostsByUser()
         // eventViewModel.getEventsByUser()
-    }
-
-    fun removeGame(game: String) {
-        myGames = myGames.filter { it != game }
-        // In futuro, qui dovrai anche comunicare con il backend per rimuovere il gioco dall'utente
     }
 
     ScreenTemplate(
@@ -145,7 +140,7 @@ fun ShowMyProfileScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(text = game)
-                                IconButton(onClick = { removeGame(game) }) {
+                                IconButton(onClick = { /*TODO*/ }) {
                                     Icon(Icons.Filled.Delete, contentDescription = "Rimuovi gioco")
                                 }
                             }

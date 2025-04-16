@@ -12,10 +12,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import com.boardaround.data.entities.Friendship
 import com.boardaround.data.repositories.FriendshipRepository
+import com.boardaround.data.repositories.GameRepository
 
 class UserViewModel(
     private val userRepository: UserRepository,
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    private val gameRepository: GameRepository
 ): ViewModel() {
 
     private lateinit var friendshipRepository: FriendshipRepository
@@ -94,6 +96,23 @@ class UserViewModel(
         val updatedObjects = _objectives.value.toMutableMap()
         updatedObjects[objective] = true
         _objectives.value = updatedObjects
+    }
+
+    fun addGame(username: String, game: String) {
+        viewModelScope.launch {
+            gameRepository.addGame(username, game)
+        }
+    }
+
+    fun getUserGames(username: String): Flow<List<String>> {
+        return userRepository.getUserGames(username)
+    }
+
+
+    fun removeGame(username: String, game: String) {
+        viewModelScope.launch {
+            gameRepository.removeGame(username, game)
+        }
     }
 
 //    fun refreshNotificationStatus() {
