@@ -8,12 +8,17 @@ import com.boardaround.data.repositories.NotificationRepository
 import com.boardaround.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import com.boardaround.data.entities.Friendship
+import com.boardaround.data.repositories.FriendshipRepository
 
 class UserViewModel(
     private val userRepository: UserRepository,
     private val notificationRepository: NotificationRepository
 ): ViewModel() {
+
+    private lateinit var friendshipRepository: FriendshipRepository
 
     private val _hasNewNotifications = MutableStateFlow(false)
     val hasNewNotifications: StateFlow<Boolean> = _hasNewNotifications
@@ -42,6 +47,27 @@ class UserViewModel(
     fun selectUser(user: User) {
         this._selectedUser.value = user
     }
+
+    fun setFriendshipRepository(repository: FriendshipRepository) {
+        this.friendshipRepository = repository
+    }
+
+    fun getFriends(username: String): Flow<List<User>> {
+        return friendshipRepository.getFriends(username)
+    }
+
+    fun addFriend(userUsername: String, friendUsername: String) {
+        viewModelScope.launch {
+            friendshipRepository.addFriend(userUsername, friendUsername)
+        }
+    }
+
+    fun removeFriend(userUsername: String, friendUsername: String) {
+        viewModelScope.launch {
+            friendshipRepository.removeFriend(userUsername, friendUsername)
+        }
+    }
+
 
     fun searchUsers(query: String) {
         viewModelScope.launch {

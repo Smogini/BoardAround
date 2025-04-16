@@ -6,6 +6,7 @@ import com.boardaround.data.repositories.EventRepository
 import com.boardaround.data.repositories.NotificationRepository
 import com.boardaround.data.repositories.PostRepository
 import com.boardaround.data.repositories.UserRepository
+import com.boardaround.data.repositories.FriendshipRepository
 
 class ViewModelFactory(context: Context) {
 
@@ -18,12 +19,16 @@ class ViewModelFactory(context: Context) {
     private val eventRepository = EventRepository(eventDAO)
     private val notificationRepository = NotificationRepository()
     private val postRepository = PostRepository(postDAO)
+    private val friendshipRepository = FriendshipRepository(userDao)
 
     fun provideAuthViewModel(): AuthViewModel =
         AuthViewModel(userRepository)
 
-    fun provideUserViewModel(): UserViewModel =
-        UserViewModel(userRepository, notificationRepository)
+    fun provideUserViewModel(): UserViewModel {
+        val userViewModel = UserViewModel(userRepository, notificationRepository)
+        userViewModel.setFriendshipRepository(friendshipRepository)
+        return userViewModel
+    }
 
     fun providePostViewModel(): PostViewModel =
         PostViewModel(postRepository)

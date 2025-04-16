@@ -45,6 +45,7 @@ import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @Composable
@@ -52,7 +53,7 @@ fun ShowMyProfileScreen(
     navController: NavController,
     authViewModel: AuthViewModel,
     postViewModel: PostViewModel,
-    userViewModel: UserViewModel,
+    userViewModel: UserViewModel = viewModel(),
     eventViewModel: EventViewModel
 ) {
     val username = authViewModel.retrieveUsername()
@@ -61,9 +62,9 @@ fun ShowMyProfileScreen(
 
     var user by remember { mutableStateOf<User?>(null) }
 
-    // Dati di esempio per giochi e amici (rimuovi questa parte quando avrai il backend)
+
     var myGames by remember { mutableStateOf(listOf("Carcassonne", "7 Wonders", "Ticket to Ride")) }
-    val myFriends = remember { listOf("Alice", "Bob", "Charlie") }
+    val myFriends by userViewModel.getFriends(username).collectAsState(initial = emptyList())
 
     var showGames by remember { mutableStateOf(false) }
     var showFriends by remember { mutableStateOf(false) }
@@ -157,30 +158,14 @@ fun ShowMyProfileScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showFriends = !showFriends },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("I miei amici:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
-                Icon(
-                    imageVector = if (showFriends) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-                    contentDescription = if (showFriends) "Mostra meno" else "Mostra di più"
-                )
-            }
-            if (showFriends) {
-                if (myFriends.isNotEmpty()) {
-                    LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
-                        items(myFriends) { friend ->
-                            Text(text = friend, modifier = Modifier.padding(start = 16.dp))
-                        }
-                    }
-                } else {
-                    Text("Nessun amico disponibile", modifier = Modifier.padding(start = 16.dp))
+            ExpandableFriendsSection(
+                friends = myFriends,
+                showFriends = showFriends,
+                onShowFriendsChange = { showFriends = it },
+                onRemoveFriend = { friendUsername ->
+                    userViewModel.removeFriend(username, friendUsername)
                 }
-            }
+            )
 
             Spacer(modifier = Modifier.height(250.dp))
 
@@ -196,6 +181,53 @@ fun ShowMyProfileScreen(
         }
     }
 }
+
+@Composable
+fun ExpandableFriendsSection(
+    friends: List<User>,
+    showFriends: Boolean,
+    onShowFriendsChange: (Boolean) -> Unit,
+    onRemoveFriend: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onShowFriendsChange(!showFriends) },
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("I miei amici:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
+        Icon(
+            imageVector = if (showFriends) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+            contentDescription = if (showFriends) "Mostra meno" else "Mostra di più"
+        )
+    }
+    if (showFriends) {
+        if (friends.isNotEmpty()) {
+            LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
+                items(friends) { friend ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = friend.username)
+                        IconButton(onClick = { onRemoveFriend(friend.username) }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Rimuovi amico")
+                        }
+                    }
+                }
+            }
+        } else {
+            Text("Nessun amico disponibile", modifier = Modifier.padding(start = 16.dp))
+        }
+    }
+}
+
+
+
 
 
 @Composable
