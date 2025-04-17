@@ -1,10 +1,15 @@
 package com.boardaround.ui.components
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -21,16 +26,31 @@ fun CustomTextField(
     trailingIcon: (@Composable () -> Unit)? = null,
     isPasswordField: Boolean = false
 ) {
-    Column(modifier = modifier) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            label = { Text(label) },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = readOnly,
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
-            visualTransformation = if(isPasswordField) PasswordVisualTransformation() else VisualTransformation.None
-        )
-    }
+    val passwordVisible = remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text = label) },
+        modifier = modifier.fillMaxWidth(),
+        readOnly = readOnly,
+        leadingIcon = leadingIcon,
+        trailingIcon = {
+            if (isPasswordField) {
+                val icon = if (passwordVisible.value) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
+                CustomButtonIcon(
+                    title = "Toggle password visibility",
+                    icon = icon,
+                    iconColor = MaterialTheme.colorScheme.onBackground,
+                    onClick = {
+                        passwordVisible.value = !passwordVisible.value
+                    }
+                )
+            }
+            if (trailingIcon != null) {
+                trailingIcon()
+            }
+        },
+        visualTransformation = if (isPasswordField && !passwordVisible.value) PasswordVisualTransformation() else VisualTransformation.None
+    )
 }

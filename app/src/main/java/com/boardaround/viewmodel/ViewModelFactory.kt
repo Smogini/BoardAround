@@ -27,7 +27,7 @@ class ViewModelFactory(context: Context) {
         AuthViewModel(userRepository)
 
     fun provideUserViewModel(): UserViewModel {
-        val userViewModel = UserViewModel(userRepository, notificationRepository, gameRepository)
+        val userViewModel = UserViewModel(userRepository, notificationRepository)
         userViewModel.setFriendshipRepository(friendshipRepository)
         return userViewModel
     }
@@ -39,5 +39,5 @@ class ViewModelFactory(context: Context) {
         EventViewModel(eventRepository)
 
     fun provideGameViewModel(): GameViewModel =
-        GameViewModel()
+        GameViewModel(gameRepository)
 }

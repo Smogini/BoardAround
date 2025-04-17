@@ -4,20 +4,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.User
+import com.boardaround.data.repositories.FriendshipRepository
 import com.boardaround.data.repositories.NotificationRepository
 import com.boardaround.data.repositories.UserRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import com.boardaround.data.entities.Friendship
-import com.boardaround.data.repositories.FriendshipRepository
-import com.boardaround.data.repositories.GameRepository
 
 class UserViewModel(
     private val userRepository: UserRepository,
-    private val notificationRepository: NotificationRepository,
-    private val gameRepository: GameRepository
+    private val notificationRepository: NotificationRepository
 ): ViewModel() {
 
     private lateinit var friendshipRepository: FriendshipRepository
@@ -46,6 +43,10 @@ class UserViewModel(
             ).associateWith { false }.toMutableMap()
     }
 
+    fun getCurrentUser(): User? {
+        return userRepository.getCurrentUser()
+    }
+
     fun selectUser(user: User) {
         this._selectedUser.value = user
     }
@@ -70,7 +71,6 @@ class UserViewModel(
         }
     }
 
-
     fun searchUsers(query: String) {
         viewModelScope.launch {
             try {
@@ -81,38 +81,10 @@ class UserViewModel(
         }
     }
 
-    fun getUserData(username: String, onResult: (User?) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val user = userRepository.getUserData(username)
-                onResult(user)
-            } catch (e: Exception) {
-                Log.e("UserViewModel", "Errore nel recupero dell'utente: ${e.message}", e)
-            }
-        }
-    }
-
     fun unlockObjective(objective: String) {
         val updatedObjects = _objectives.value.toMutableMap()
         updatedObjects[objective] = true
         _objectives.value = updatedObjects
-    }
-
-    fun addGame(username: String, game: String) {
-        viewModelScope.launch {
-            gameRepository.addGame(username, game)
-        }
-    }
-
-    fun getUserGames(username: String): Flow<List<String>> {
-        return userRepository.getUserGames(username)
-    }
-
-
-    fun removeGame(username: String, game: String) {
-        viewModelScope.launch {
-            gameRepository.removeGame(username, game)
-        }
     }
 
 //    fun refreshNotificationStatus() {

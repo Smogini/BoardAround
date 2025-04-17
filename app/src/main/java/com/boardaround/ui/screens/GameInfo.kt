@@ -24,14 +24,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel, userViewModel: UserViewModel, authViewModel: AuthViewModel) {
+fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel, userViewModel: UserViewModel) {
     val gameToShow by gameViewModel.selectedGame.collectAsState()
-    val username = authViewModel.retrieveUsername()
+    val username = userViewModel.getCurrentUser()!!.username
     val context = LocalContext.current
 
     // Stato per il popup (dialog) che mostra la descrizione del gioco
@@ -39,7 +38,7 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel, use
     val closeDialog: () -> Unit = { isDialogOpen = false }
 
     // Ottieni la lista dei giochi dell'utente
-    val userGames by userViewModel.getUserGames(username).collectAsState(initial = emptyList())
+    val userGames by gameViewModel.getUserGames(username).collectAsState(initial = emptyList())
 
     // Controlla se il gioco è già nella lista dell'utente
     val isGameAdded = remember(userGames, gameToShow) {
@@ -94,12 +93,12 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel, use
             Button(
                 onClick = {
                     if (gameToShow != null) {
-                        val gameName = gameToShow!!.nameElement!!.value.toString()
+                        val gameName = gameToShow!!.nameElement.value
                         if (isGameAdded) {
-                            userViewModel.removeGame(username, gameName)
+                            gameViewModel.removeGame(username, gameName)
                             Toast.makeText(context, "Gioco rimosso dai tuoi giochi", Toast.LENGTH_SHORT).show()
                         } else {
-                            userViewModel.addGame(username, gameName)
+                            gameViewModel.addGame(username, gameName)
                             Toast.makeText(context, "Gioco aggiunto ai tuoi giochi", Toast.LENGTH_SHORT).show()
                         }
                     }

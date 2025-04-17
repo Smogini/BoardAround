@@ -5,15 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.User
 import com.boardaround.data.repositories.UserRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-    fun login(username: String, password: String, onResult: (Boolean) -> Unit) {
+    private val _loginSuccess = MutableStateFlow(false)
+    val loginSuccess: StateFlow<Boolean> = _loginSuccess
+
+    fun login(username: String, password: String) {
         viewModelScope.launch {
             try {
                 val isSuccess = userRepository.login(username, password)
-                onResult(isSuccess)
+                _loginSuccess.value = isSuccess
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Errore: ${e.message}")
             }
@@ -29,7 +34,5 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
     fun logout() = userRepository.logout()
 
     fun isUserLoggedIn(): Boolean = userRepository.isUserLoggedIn()
-
-    fun retrieveUsername(): String = userRepository.retrieveUsername()
 
 }

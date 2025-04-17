@@ -36,6 +36,11 @@ import com.boardaround.ui.theme.BottomBar
 import com.boardaround.ui.theme.Errors
 import com.boardaround.viewmodel.UserViewModel
 
+data class TopBarButton(
+    val navigationIcons: MutableList<Pair<String, ImageVector>>,
+    val actionIcons: MutableList<Pair<String, ImageVector>>
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTopAppBar(
@@ -45,6 +50,9 @@ fun CustomTopAppBar(
     currentRoute: Route
 ) {
     val hasNotifications = userViewModel?.hasNewNotifications?.collectAsState()?.value ?: false
+    val actionIcons = remember(currentRoute, hasNotifications) {
+        calculateActionButtons(currentRoute, hasNotifications)
+    }
 
     Column {
         CenterAlignedTopAppBar(
@@ -57,16 +65,16 @@ fun CustomTopAppBar(
                 )
             },
 
-            // Aggiungiamo l'icona a sinistra (navigationIcon)
             navigationIcon = {
-                CustomButtonIcon(
-                    title = "Game",
-                    icon = Icons.Filled.Favorite,  // Qui usiamo un'icona ImageVector
-                    iconColor = BottomBar,
-                    onClick = {
-                        navController.navigateSingleTop(Route.Gamification) // Azione del click
-                    }
-                )
+                val gamificationIcon = actionIcons.navigationIcons
+                gamificationIcon.forEach { (title, icon) ->
+                    CustomButtonIcon(
+                        title = title,
+                        icon = icon,
+                        iconColor = BottomBar,
+                        onClick = { navController.navigateSingleTop(Route.Gamification) }
+                    )
+                }
             },
 
             actions = {
@@ -75,9 +83,8 @@ fun CustomTopAppBar(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val actionButtons = remember { calculateActionButtons(currentRoute, hasNotifications) }
-
-                    actionButtons.forEach { (title, icon) ->
+                    val trailingIcons = actionIcons.actionIcons
+                    trailingIcons.forEach { (title, icon) ->
                         CustomButtonIcon(
                             title = title,
                             icon = icon,
@@ -109,10 +116,8 @@ fun CustomTopAppBar(
     }
 }
 
-
-
-fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): List<Pair<String, ImageVector>> {
-    val pagesWithoutNotifications = setOf(
+fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): TopBarButton {
+    val excludedRoutes = setOf(
         Route.Login,
         Route.Register,
         Route.EditMyProfile,
@@ -121,16 +126,18 @@ fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): List<
     )
     val actionButtons = mutableListOf<Pair<String, ImageVector>>()
     val notificationIcon = if(hasNotification) Icons.Filled.Notifications else Icons.Filled.NotificationsNone
+    val navigationButtons = mutableListOf<Pair<String, ImageVector>>()
 
-    if (!pagesWithoutNotifications.contains(currentRoute)) {
+    if (!excludedRoutes.contains(currentRoute)) {
         actionButtons.add("Notifications" to notificationIcon)
+        navigationButtons.add("Gamification" to Icons.Filled.Favorite)
     }
 
     when (currentRoute) {
         Route.MyProfile -> actionButtons.add("Settings" to Icons.Filled.Settings)
         Route.EditMyProfile -> actionButtons.add("Return" to Icons.Filled.Cancel)
-        else -> {  }
+        else -> {}
     }
 
-    return actionButtons
+    return TopBarButton(navigationButtons, actionButtons)
 }

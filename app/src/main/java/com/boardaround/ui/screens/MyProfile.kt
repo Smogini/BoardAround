@@ -1,5 +1,6 @@
 package com.boardaround.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,14 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,20 +30,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.boardaround.data.entities.Event
-import com.boardaround.data.entities.Post
-import com.boardaround.data.entities.User
 import com.boardaround.navigation.Route
+import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
+import com.boardaround.ui.components.CustomButtonIcon
 import com.boardaround.ui.components.EventItem
 import com.boardaround.ui.components.PostItem
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
+import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-
 
 @Composable
 fun ShowMyProfileScreen(
@@ -54,30 +50,24 @@ fun ShowMyProfileScreen(
     authViewModel: AuthViewModel,
     postViewModel: PostViewModel,
     userViewModel: UserViewModel = viewModel(),
-    eventViewModel: EventViewModel
+    eventViewModel: EventViewModel,
+    gameViewModel: GameViewModel
 ) {
-    val username = authViewModel.retrieveUsername()
+    val user by remember { mutableStateOf(userViewModel.getCurrentUser()) }
+    val username = user?.username ?: ""
+
+    val myGames = gameViewModel.getUserGames(username).collectAsState(initial = emptyList())
+    val myFriends = userViewModel.getFriends(username).collectAsState(initial = emptyList())
     val myPosts = postViewModel.myPosts.collectAsState(initial = emptyList())
     val myEvent = eventViewModel.eventsFound.collectAsState(initial = emptyList())
 
-    var user by remember { mutableStateOf<User?>(null) }
-
-
-    val myGames by userViewModel.getUserGames(username).collectAsState(initial = emptyList())
-    val myFriends by userViewModel.getFriends(username).collectAsState(initial = emptyList())
-
     var showGames by remember { mutableStateOf(false) }
+    var showEvents by remember { mutableStateOf(false) }
+    var showPosts by remember { mutableStateOf(false) }
     var showFriends by remember { mutableStateOf(false) }
 
-    // Quando la schermata si apre, carichiamo i dati dell'utente
-    LaunchedEffect(username) {
-        // Carica l'utente dal ViewModel
-        userViewModel.getUserData(username) { fetchedUser ->
-            user = fetchedUser // Aggiorna lo stato con l'utente recuperato
-        }
-        postViewModel.getPostsByUser()
-        // eventViewModel.getEventsByUser()
-    }
+    postViewModel.getPostsByUser()
+    // eventViewModel.getEventsByUser()
 
     ScreenTemplate(
         title = "Profilo di $username",
@@ -85,213 +75,164 @@ fun ShowMyProfileScreen(
         navController = navController,
         showBottomBar = true,
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .padding(bottom = 100.dp)
         ) {
-
-            Text("I miei dati:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 30.sp))
-
-            user?.let {
-                Text(text = "Nome: ${it.name}", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
-                Text(text = "Email: ${it.email}", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
-                Text(text = "Data di Nascita: ${it.dob}", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ExpandableSection(
-                title = "I miei post",
-                posts = myPosts.value
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            ExpandableSectionForEvents(
-                title = "I miei eventi",
-                events = myEvent.value
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showGames = !showGames },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("I miei giochi:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
-                Icon(
-                    imageVector = if (showGames) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-                    contentDescription = if (showGames) "Mostra meno" else "Mostra di più"
+            item {
+                Text(
+                    "I miei dati:",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 30.sp)
                 )
-            }
-            if (showGames) {
-                if (myGames.isNotEmpty()) {
-                    LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) { // Altezza massima per la lista
-                        items(myGames) { game ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 16.dp, end = 16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = game)
-                                IconButton(onClick = { /*TODO*/ }) {
-                                    Icon(Icons.Filled.Delete, contentDescription = "Rimuovi gioco")
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    Text("Nessun gioco disponibile", modifier = Modifier.padding(start = 16.dp))
+
+                user?.let {
+                    Text(
+                        text = "Nome: ${it.name}",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp)
+                    )
+                    Text(
+                        text = "Email: ${it.email}",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp)
+                    )
+                    Text(
+                        text = "Data di Nascita: ${it.dob}",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp)
+                    )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            ExpandableFriendsSection(
-                friends = myFriends,
-                showFriends = showFriends,
-                onShowFriendsChange = { showFriends = it },
-                onRemoveFriend = { friendUsername ->
-                    userViewModel.removeFriend(username, friendUsername)
-                }
-            )
+                ExpandableSection(
+                    title = "I miei post",
+                    items = myPosts.value,
+                    itemContent = { post ->
+                        PostItem(post)
+                    },
+                    isExpanded = showPosts,
+                    onExpandChange = { showPosts = !showPosts }
+                )
 
-            Spacer(modifier = Modifier.height(180.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            CustomButton(
-                onClick = {
-                    authViewModel.logout()
-                    navController.navigate(Route.Login) {
-                        launchSingleTop = true
-                    }
-                },
-                text = "Esci dal profilo"
-            )
-        }
-    }
-}
+                ExpandableSection(
+                    title = "I miei eventi",
+                    items = myEvent.value,
+                    itemContent = { event ->
+                        EventItem(event)
+                    },
+                    isExpanded = showEvents,
+                    onExpandChange = { showEvents = !showEvents }
+                )
 
-@Composable
-fun ExpandableFriendsSection(
-    friends: List<User>,
-    showFriends: Boolean,
-    onShowFriendsChange: (Boolean) -> Unit,
-    onRemoveFriend: (String) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onShowFriendsChange(!showFriends) },
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("I miei amici:", style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp))
-        Icon(
-            imageVector = if (showFriends) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-            contentDescription = if (showFriends) "Mostra meno" else "Mostra di più"
-        )
-    }
-    if (showFriends) {
-        if (friends.isNotEmpty()) {
-            LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
-                items(friends) { friend ->
+                Spacer(modifier = Modifier.height(24.dp))
+
+                /* TODO: formattare correttamente la lista visualizzata */
+                ExpandableSection(
+                    title = "I miei giochi",
+                    items = myGames.value,
+                    isExpanded = showGames,
+                    onExpandChange = { showGames = !showGames }
+                ) { game ->
+                    Log.d("myprofile", "${ myGames.value }")
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp),
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = game)
+                        CustomButtonIcon(
+                            title = "Rimuovi gioco",
+                            icon = Icons.Filled.Delete,
+                            iconColor = MaterialTheme.colorScheme.tertiary,
+                            onClick = { gameViewModel.removeGame(username, game) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                ExpandableSection(
+                    title = "I miei amici:",
+                    items = myFriends.value,
+                    isExpanded = showFriends,
+                    onExpandChange = { showFriends = !showFriends }
+                ) { friend ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = friend.username)
-                        IconButton(onClick = { onRemoveFriend(friend.username) }) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Rimuovi amico")
-                        }
+                        CustomButtonIcon(
+                            title = "Rimuovi amico",
+                            icon = Icons.Filled.Delete,
+                            iconColor = MaterialTheme.colorScheme.tertiary,
+                            onClick = { userViewModel.removeFriend(username, friend.username) }
+                        )
                     }
                 }
-            }
-        } else {
-            Text("Nessun amico disponibile", modifier = Modifier.padding(start = 16.dp))
-        }
-    }
-}
 
+                Spacer(modifier = Modifier.height(180.dp))
 
-
-
-
-@Composable
-fun ExpandableSection(
-    title: String,
-    posts: List<Post>
-) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    // Card che può essere espansa
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { isExpanded = !isExpanded }, // Gestione del clic per espandere o rimpicciolire la sezione
-        elevation = CardDefaults.elevatedCardElevation(4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Titolo della sezione
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            // Mostra i post se la sezione è espansa
-            if (isExpanded) {
-                // Sezione espansa con lista di post
-                LazyColumn {
-                    items(posts) { post: Post ->
-                        PostItem(post = post) // Usa PostItem per ogni post
-                    }
-                }
+                CustomButton(
+                    onClick = {
+                        authViewModel.logout()
+                        navController.navigateSingleTop(Route.Login)
+                    },
+                    text = "Esci dal profilo"
+                )
             }
         }
     }
 }
 
 @Composable
-fun ExpandableSectionForEvents(
+fun <T> ExpandableSection(
     title: String,
-    events: List<Event>
+    items: List<T>,
+    isExpanded: Boolean,
+    onExpandChange: (Boolean) -> Unit,
+    emptyMessage: String = "Nessun elemento disponibile",
+    itemContent: @Composable (T) -> Unit
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    // Card che può essere espansa
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { isExpanded = !isExpanded }, // Gestione del clic per espandere o rimpicciolire la sezione
-        elevation = CardDefaults.elevatedCardElevation(4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Titolo della sezione
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onExpandChange(!isExpanded) }
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
             )
+            Icon(
+                imageVector = if (isExpanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
+                contentDescription = if (isExpanded) "Mostra meno" else "Mostra di più"
+            )
+        }
 
-            // Mostra i post se la sezione è espansa
-            if (isExpanded) {
-                // Sezione espansa con lista di post
-                LazyColumn {
-                    items(events) { event: Event ->
-                        EventItem(event = event) // Usa PostItem per ogni post
+        if (isExpanded) {
+            if (items.isNotEmpty()) {
+                LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
+                    items(items) { item ->
+                        itemContent(item)
                     }
                 }
+            } else {
+                Text(
+                    text = emptyMessage,
+                    modifier = Modifier.padding(start = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }

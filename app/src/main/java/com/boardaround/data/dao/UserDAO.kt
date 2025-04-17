@@ -19,9 +19,6 @@ interface UserDAO {
     suspend fun deleteUser(user: User)
 
     @Query("SELECT * FROM users WHERE username = :username")
-    suspend fun retrieveUser(username: String): User?
-
-    @Query("SELECT * FROM users WHERE username = :username")
     suspend fun getUser(username: String): User?
 
     @Query("SELECT * FROM users WHERE username LIKE '%' || :username || '%'")

@@ -34,14 +34,14 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.Customswitch
 import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.ui.theme.PrimaryText
-import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
+import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 
 @Composable
-fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewModel, userViewModel: UserViewModel, authViewModel: AuthViewModel) {
+fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewModel, userViewModel: UserViewModel, gameViewModel: GameViewModel) {
     val context = LocalContext.current
     val eventNameState = remember { mutableStateOf(TextFieldValue()) }
     val descriptionState = remember { mutableStateOf(TextFieldValue()) }
@@ -54,8 +54,8 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
     var showDateTimePicker by remember { mutableStateOf(false) }
     var formattedDateTime by remember { mutableStateOf("Seleziona data e ora") }
 
-    val username = authViewModel.retrieveUsername()
-    val userGames by userViewModel.getUserGames(username).collectAsState(initial = emptyList())
+    val username = userViewModel.getCurrentUser()!!.username
+    val userGames by gameViewModel.getUserGames(username).collectAsState(initial = emptyList())
 
     var isDialogOpen by remember { mutableStateOf(false) }
 

@@ -29,14 +29,12 @@ import coil.request.ImageRequest
 import com.boardaround.R
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
-import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.UserViewModel
-import android.content.Context
 
 @Composable
-fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel, authViewModel: AuthViewModel) {
+fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel) {
     val userToShow by userViewModel.selectedUser.collectAsState()
-    val currentUsername = authViewModel.retrieveUsername()
+    val currentUsername = userViewModel.getCurrentUser()!!.username
     val myFriends by userViewModel.getFriends(currentUsername).collectAsState(initial = emptyList())
     val isFriend = remember(myFriends, userToShow) {
         myFriends.any { it.username == userToShow?.username }
@@ -114,7 +112,7 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    if (userToShow != null && currentUsername != null && userToShow!!.username != currentUsername) {
+                    if (userToShow != null && userToShow!!.username != currentUsername) {
                         if (isFriend) {
                             CustomButton(
                                 onClick = {

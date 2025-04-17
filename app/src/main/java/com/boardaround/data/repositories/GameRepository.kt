@@ -1,10 +1,10 @@
 package com.boardaround.data.repositories
 
-
 import com.boardaround.data.dao.UserDAO
 import kotlinx.coroutines.flow.Flow
 
 class GameRepository(private val userDao: UserDAO) {
+
     fun getUserGames(username: String): Flow<List<String>> {
         return userDao.getUserGames(username)
     }

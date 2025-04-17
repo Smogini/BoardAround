@@ -64,19 +64,19 @@ fun NavGraph(
             ShowInviteScreen(navController)
         }
         composable<Route.NewEvent> {
-            ShowNewEventScreen(navController, eventViewModel, userViewModel, authViewModel)
+            ShowNewEventScreen(navController, eventViewModel, userViewModel, gameViewModel)
         }
         composable<Route.Profile> {
-            ShowProfileScreen(navController, userViewModel, authViewModel)
+            ShowProfileScreen(navController, userViewModel)
         }
         composable<Route.MyProfile> {
-            ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel)
+            ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel, gameViewModel)
         }
         composable<Route.EditMyProfile> {
             ShowEditMyProfile(navController, onThemeChange = onThemeChange)
         }
         composable<Route.GameInfo> {
-            ShowGameInfo(navController, gameViewModel, userViewModel, authViewModel)
+            ShowGameInfo(navController, gameViewModel, userViewModel)
         }
         composable<Route.Dice> {
             ShowDiceScreen(navController)
