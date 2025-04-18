@@ -15,13 +15,14 @@ class ViewModelFactory(context: Context) {
     private val userDao = database.userDAO()
     private val eventDAO = database.eventDAO()
     private val postDAO = database.postDAO()
+    private val gameDAO = database.gameDAO()
 
     private val userRepository = UserRepository(context, userDao)
     private val eventRepository = EventRepository(eventDAO)
     private val notificationRepository = NotificationRepository()
     private val postRepository = PostRepository(postDAO)
     private val friendshipRepository = FriendshipRepository(userDao)
-    private val gameRepository = GameRepository(userDao)
+    private val gameRepository = GameRepository(gameDAO)
 
     fun provideAuthViewModel(): AuthViewModel =
         AuthViewModel(userRepository)

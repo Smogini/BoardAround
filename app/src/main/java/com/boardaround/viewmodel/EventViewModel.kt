@@ -34,7 +34,17 @@ class EventViewModel(
             try {
                 _eventsFound.value = repository.searchEventsByName(query)
             } catch(e: Exception) {
-                Log.e("EventViewModel", "Errore nella ricerca degli eventi: ${e.message}")
+                Log.e("EventViewModel", "Errore nella ricerca degli eventi: ${e.message}", e)
+            }
+        }
+    }
+
+    fun searchEventsByUsername(username: String) {
+        viewModelScope.launch {
+            try {
+                _eventsFound.value = repository.getEventsByUsername(username)
+            } catch (e: Exception) {
+                Log.e("EventViewModel", "Errore nella ricerca degli eventi: ${e.message}", e)
             }
         }
     }

@@ -5,10 +5,10 @@ import com.boardaround.data.entities.Post
 
 class PostRepository(private val postDao: PostDao) {
     suspend fun insertPost(post: Post) = postDao.insertPost(post)
+
     suspend fun getAllPosts() = postDao.getAllPosts()
 
-    suspend fun getPostsByUsername(username: String): List<Post> {
-        return postDao.getPostsByUsername(username)
-    }
+    suspend fun getPostsByUsername(username: String): List<Post> =
+        postDao.getPostsByUsername(username)
 
 }

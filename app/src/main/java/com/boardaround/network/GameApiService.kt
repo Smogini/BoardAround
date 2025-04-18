@@ -1,6 +1,6 @@
 package com.boardaround.network
 
-import com.boardaround.utils.GameSearchResult
+import com.boardaround.data.entities.GameSearchResult
 import retrofit2.http.GET
 import retrofit2.http.Query
 

@@ -7,20 +7,23 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.boardaround.data.Converters
 import com.boardaround.data.dao.EventDAO
+import com.boardaround.data.dao.GameDAO
 import com.boardaround.data.dao.PostDao
 import com.boardaround.data.dao.UserDAO
 import com.boardaround.data.entities.Event
-import com.boardaround.data.entities.Post
-import com.boardaround.data.entities.User
 import com.boardaround.data.entities.Friendship
+import com.boardaround.data.entities.Post
+import com.boardaround.data.entities.SavedGame
+import com.boardaround.data.entities.User
 
-@Database(entities = [User::class, Event::class, Post::class, Friendship::class], version = 4)
+@Database(entities = [User::class, Event::class, Post::class, Friendship::class, SavedGame::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun userDAO(): UserDAO
     abstract fun eventDAO(): EventDAO
     abstract fun postDAO(): PostDao
+    abstract fun gameDAO(): GameDAO
 
     companion object {
         @Volatile

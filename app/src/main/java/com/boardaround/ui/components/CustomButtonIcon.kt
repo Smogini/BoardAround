@@ -16,10 +16,11 @@ fun CustomButtonIcon(
     icon: ImageVector,
     iconColor: Color,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     IconButton(
         onClick = onClick,
-        modifier = Modifier.wrapContentSize()
+        modifier = modifier.wrapContentSize()
     ) {
         Icon(
             icon,

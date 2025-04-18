@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.boardaround.data.entities.toSavedGame
 import com.boardaround.navigation.Route
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
@@ -38,12 +39,15 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel, use
     val closeDialog: () -> Unit = { isDialogOpen = false }
 
     // Ottieni la lista dei giochi dell'utente
-    val userGames by gameViewModel.getUserGames(username).collectAsState(initial = emptyList())
+    val userGames by gameViewModel.userGames.collectAsState(initial = emptyList())
 
     // Controlla se il gioco è già nella lista dell'utente
     val isGameAdded = remember(userGames, gameToShow) {
-        userGames.contains(gameToShow?.nameElement?.value.toString())
+        userGames.contains(gameToShow?.toSavedGame(username))
+//        userGames.contains(gameToShow?.nameElement?.value.toString())
     }
+
+    gameViewModel.getUserGames(username)
 
     ScreenTemplate(
         title = "Scheda del gioco",
@@ -93,12 +97,12 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel, use
             Button(
                 onClick = {
                     if (gameToShow != null) {
-                        val gameName = gameToShow!!.nameElement.value
+                        val gameToSave = gameToShow!!.toSavedGame(username)
                         if (isGameAdded) {
-                            gameViewModel.removeGame(username, gameName)
+                            gameViewModel.removeSavedGame(gameToSave)
                             Toast.makeText(context, "Gioco rimosso dai tuoi giochi", Toast.LENGTH_SHORT).show()
                         } else {
-                            gameViewModel.addGame(username, gameName)
+                            gameViewModel.addGame(gameToSave)
                             Toast.makeText(context, "Gioco aggiunto ai tuoi giochi", Toast.LENGTH_SHORT).show()
                         }
                     }

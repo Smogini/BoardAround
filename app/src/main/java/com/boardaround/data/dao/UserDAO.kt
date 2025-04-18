@@ -5,9 +5,9 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.boardaround.data.entities.Friendship
 import com.boardaround.data.entities.User
 import kotlinx.coroutines.flow.Flow
-import com.boardaround.data.entities.Friendship
 
 @Dao
 interface UserDAO {
@@ -33,9 +33,4 @@ interface UserDAO {
     @Query("DELETE FROM friendships WHERE userUsername = :userUsername AND friendUsername = :friendUsername")
     suspend fun removeFriend(userUsername: String, friendUsername: String)
 
-    @Query("SELECT games FROM users WHERE username = :username")
-    fun getUserGames(username: String): Flow<List<String>>
-
-    @Query("UPDATE users SET games = :games WHERE username = :username")
-    suspend fun updateUserGames(username: String, games: List<String>)
 }

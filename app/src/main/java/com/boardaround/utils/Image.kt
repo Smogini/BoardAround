@@ -10,7 +10,7 @@ import android.os.SystemClock
 import android.provider.MediaStore
 import java.io.FileNotFoundException
 
-fun uriToBitmap(imageUri: Uri, contentResolver: ContentResolver): Bitmap {
+private fun uriToBitmap(imageUri: Uri, contentResolver: ContentResolver): Bitmap {
     val bitmap = when {
         Build.VERSION.SDK_INT < 28 -> {
             @Suppress("DEPRECATION")

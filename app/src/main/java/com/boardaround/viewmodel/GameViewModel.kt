@@ -3,11 +3,11 @@ package com.boardaround.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boardaround.data.entities.Game
+import com.boardaround.data.entities.GameSearchResult
+import com.boardaround.data.entities.SavedGame
 import com.boardaround.data.repositories.GameRepository
 import com.boardaround.network.RetrofitInstance
-import com.boardaround.utils.Game
-import com.boardaround.utils.GameSearchResult
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,6 +19,9 @@ class GameViewModel(private val gameRepository: GameRepository): ViewModel() {
 
     private val _selectedGame = MutableStateFlow<Game?>(null)
     val selectedGame: StateFlow<Game?> = _selectedGame
+
+    private val _userGames = MutableStateFlow<List<SavedGame>>(emptyList())
+    val userGames: StateFlow<List<SavedGame>> = _userGames
 
     fun selectGame(game: Game) {
         _selectedGame.value = game
@@ -34,19 +37,27 @@ class GameViewModel(private val gameRepository: GameRepository): ViewModel() {
         }
     }
 
-    fun addGame(username: String, game: String) {
+    fun addGame(newGame: SavedGame) {
         viewModelScope.launch {
-            gameRepository.addGame(username, game)
+            gameRepository.addGame(newGame)
         }
     }
 
-    fun getUserGames(username: String): Flow<List<String>> {
-        return gameRepository.getUserGames(username)
-    }
-
-    fun removeGame(username: String, game: String) {
+    fun getUserGames(username: String) {
         viewModelScope.launch {
-            gameRepository.removeGame(username, game)
+            try {
+                _userGames.value= gameRepository.getUserGames(username)
+            } catch(e: Exception) {
+                Log.e("UserViewModel", "Errore nell'ottenere i giochi: ${e.message}", e)
+            }
         }
     }
+
+    fun removeSavedGame(toRemove: SavedGame) {
+        viewModelScope.launch {
+            gameRepository.removeSavedGame(toRemove)
+            getUserGames(toRemove.user)
+        }
+    }
+
 }

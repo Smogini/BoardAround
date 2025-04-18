@@ -15,27 +15,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.boardaround.data.entities.Post
 
 @Composable
-fun PostItem(post: Post) {
+fun CustomItem(
+    title: String,
+    description: String,
+    imageUrl: String ?= "No image"
+) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(8.dp),
-        elevation = CardDefaults.elevatedCardElevation(4.dp) // Usa CardDefaults.elevation per l'elevation
+        elevation = CardDefaults.elevatedCardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Titolo del post
-            Text(text = post.title, style = MaterialTheme.typography.headlineLarge)
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(title, style = MaterialTheme.typography.headlineMedium)
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
-            // Contenuto del post
-            Text(text = post.content, style = MaterialTheme.typography.headlineMedium)
+            Text(description, style = MaterialTheme.typography.headlineMedium)
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
-            // Immagine del post (se presente)
-            post.imageUri?.let { uri ->
+            imageUrl?.let { uri ->
                 Image(
                     painter = rememberAsyncImagePainter(uri),
                     contentDescription = "Post image",

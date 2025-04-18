@@ -1,4 +1,4 @@
-package com.boardaround.utils
+package com.boardaround.data.entities
 
 import com.tickaroo.tikxml.annotation.Attribute
 import com.tickaroo.tikxml.annotation.Element
@@ -13,7 +13,7 @@ data class GameSearchResult(
 
     @Element(name = "item")
     val games: List<Game>? = null,
-    
+
     @Attribute(name = "termsofuse")
     val termsofuse: String? = ""
 )

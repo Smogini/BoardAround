@@ -3,7 +3,7 @@ package com.boardaround.data.trivia
 import com.google.gson.annotations.SerializedName
 
 data class TriviaResponse(
-    val response_code: Int,
+    val responseCode: Int,
     val results: List<TriviaQuestion>
 )
 

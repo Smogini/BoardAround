@@ -13,6 +13,6 @@ class EventRepository(private val eventDao: EventDAO) {
         eventDao.getEventsByUsername(username)
 
     suspend fun searchEventsByName(name: String): List<Event> =
-        eventDao.searchEvents(name)
+        eventDao.searchEventsByName(name)
 
 }

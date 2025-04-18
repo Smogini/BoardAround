@@ -13,6 +13,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,7 +30,6 @@ import com.boardaround.data.entities.Event
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
-import com.boardaround.ui.components.CustomMapField
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.Customswitch
 import com.boardaround.ui.components.DateTimePicker
@@ -55,9 +55,13 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
     var formattedDateTime by remember { mutableStateOf("Seleziona data e ora") }
 
     val username = userViewModel.getCurrentUser()!!.username
-    val userGames by gameViewModel.getUserGames(username).collectAsState(initial = emptyList())
+    val userGames by gameViewModel.userGames.collectAsState(initial = emptyList())
 
     var isDialogOpen by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        gameViewModel.getUserGames(username)
+    }
 
     ScreenTemplate(
         title = "Crea nuovo evento",
@@ -88,14 +92,19 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                 }
 
                 Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
-                CustomMapField(
-                    label = "Inserisci indirizzo evento",
+//                CustomMapField(
+//                    label = "Inserisci indirizzo evento",
+//                    value = addressState.value,
+//                    onValueChange = { addressState.value = it },
+//                    onSuggestionClick = { suggestion ->
+//                        addressState.value = TextFieldValue(suggestion.displayName)
+//                        selectedLocation = GeoPoint(suggestion.lat.toDouble(), suggestion.lon.toDouble())
+//                    }
+//                )
+                CustomTextField(
+                    label = "Inserisci indirizzo",
                     value = addressState.value,
-                    onValueChange = { addressState.value = it },
-                    onSuggestionClick = { suggestion ->
-                        addressState.value = TextFieldValue(suggestion.displayName)
-                        selectedLocation = GeoPoint(suggestion.lat.toDouble(), suggestion.lon.toDouble())
-                    }
+                    onValueChange = { addressState.value = it }
                 )
 
                 Text("Seleziona gioco per l'evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
@@ -109,10 +118,10 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                             Column {
                                 userGames.forEach { game -> // Usa userGames invece di gamesList
                                     TextButton(onClick = {
-                                        selectedGame = game
+                                        selectedGame = game.name
                                         isDialogOpen = false
                                     }) {
-                                        Text(game)
+                                        Text(game.name)
                                     }
                                 }
                             }
@@ -145,19 +154,20 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                     onClick = {
                         val newEvent = Event(
                             name = eventNameState.value.text,
+                            user = username,
                             description = descriptionState.value.text,
                             address = addressState.value.text,
                             dateTime = selectedDateTime.toString(),
                             isPrivate = isPrivateEvent,
                         )
-                        if (selectedLocation != null) {
+//                        if (selectedLocation != null) {
                             val message = if (isPrivateEvent) "Evento privato creato con successo" else "Evento pubblico creato con successo"
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             eventViewModel.insertEvent(newEvent)
                             navController.navigateSingleTop(Route.Homepage)
-                        } else {
-                            Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()
-                        }
+//                        } else {
+//                            Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()
+//                        }
                     },
                     text = "Crea evento"
                 )
