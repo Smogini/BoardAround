@@ -2,7 +2,6 @@ package com.boardaround.ui.screens
 
 import android.Manifest
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -25,22 +24,20 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
-import com.boardaround.viewmodel.ViewModelFactory
+import com.boardaround.viewmodel.PostViewModel
 
 @Composable
-fun ShowNewPostScreen(navController: NavController) {
-
-    val context = LocalContext.current
-    val postViewModel = remember { ViewModelFactory(context).providePostViewModel() }
-
+fun ShowNewPostScreen(navController: NavController, postViewModel: PostViewModel) {
 
     var title by remember { mutableStateOf(TextFieldValue("")) }
     var content by remember { mutableStateOf(TextFieldValue("")) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var hasImagePermission by remember { mutableStateOf(false) }
+    val username = LocalContext.current.getCurrentUser().username
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -92,11 +89,7 @@ fun ShowNewPostScreen(navController: NavController) {
                 CustomButton(
                     onClick = {
                         val permissionToRequest =
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                Manifest.permission.READ_MEDIA_IMAGES
-                            } else {
-                                Manifest.permission.READ_EXTERNAL_STORAGE
-                            }
+                            Manifest.permission.READ_MEDIA_IMAGES
                         if (hasImagePermission) {
                             imagePickerLauncher.launch("image/*")
                         } else {
@@ -125,7 +118,8 @@ fun ShowNewPostScreen(navController: NavController) {
                         postViewModel.insertPost(
                             title = title.text,
                             content = content.text,
-                            imageUri = selectedImageUri?.toString()
+                            imageUri = selectedImageUri?.toString(),
+                            author = username
                         )
                         navController.popBackStack()
                     },

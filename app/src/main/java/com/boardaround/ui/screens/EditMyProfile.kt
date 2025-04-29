@@ -3,11 +3,9 @@ package com.boardaround.ui.screens
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.provider.ContactsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +29,6 @@ import com.boardaround.navigation.Route
 import com.boardaround.ui.components.Customswitch
 import com.boardaround.ui.theme.LocalIsDarkMode
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun ShowEditMyProfile(
     navController: NavController,

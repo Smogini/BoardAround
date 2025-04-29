@@ -21,7 +21,7 @@ interface EventDAO {
     @Query("SELECT * FROM events ORDER BY name DESC")
     suspend fun getAllEvents(): List<Event>
 
-    @Query("SELECT * FROM events WHERE user = :username")
+    @Query("SELECT * FROM events WHERE author = :username")
     suspend fun getEventsByUsername(username: String): List<Event>
 
 }

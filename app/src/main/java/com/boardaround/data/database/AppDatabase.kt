@@ -16,7 +16,7 @@ import com.boardaround.data.entities.Post
 import com.boardaround.data.entities.SavedGame
 import com.boardaround.data.entities.User
 
-@Database(entities = [User::class, Event::class, Post::class, Friendship::class, SavedGame::class], version = 2)
+@Database(entities = [User::class, Event::class, Post::class, Friendship::class, SavedGame::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
 
@@ -32,10 +32,10 @@ abstract class AppDatabase: RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "app_database"
-                ).fallbackToDestructiveMigration().build()
+                                context.applicationContext,
+                                AppDatabase::class.java,
+                                "app_database"
+                ).fallbackToDestructiveMigration(true).build()
 
                 INSTANCE = instance
 

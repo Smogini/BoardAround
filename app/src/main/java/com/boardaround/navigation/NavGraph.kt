@@ -1,7 +1,5 @@
 package com.boardaround.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,7 +32,6 @@ import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.UserViewModel
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun NavGraph(
     navController: NavHostController,
@@ -67,7 +64,7 @@ fun NavGraph(
             ShowInviteScreen(navController)
         }
         composable<Route.NewEvent> {
-            ShowNewEventScreen(navController, eventViewModel, userViewModel, gameViewModel)
+            ShowNewEventScreen(navController, eventViewModel, gameViewModel)
         }
         composable<Route.Profile> {
             ShowProfileScreen(navController, userViewModel)
@@ -79,13 +76,13 @@ fun NavGraph(
             ShowEditMyProfile(navController, onThemeChange = onThemeChange)
         }
         composable<Route.GameInfo> {
-            ShowGameInfo(navController, gameViewModel, userViewModel)
+            ShowGameInfo(navController, gameViewModel)
         }
         composable<Route.Dice> {
             ShowDiceScreen(navController)
         }
         composable<Route.NewPost> {
-            ShowNewPostScreen(navController)
+            ShowNewPostScreen(navController, postViewModel)
         }
         composable<Route.ScoreBoard> {
             ScoreBoardScreen(navController, userViewModel)

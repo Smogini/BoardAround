@@ -24,15 +24,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.data.entities.toSavedGame
+import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
 import com.boardaround.viewmodel.GameViewModel
-import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel, userViewModel: UserViewModel) {
+fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
     val gameToShow by gameViewModel.selectedGame.collectAsState()
-    val username = userViewModel.getCurrentUser()!!.username
     val context = LocalContext.current
+    val username = context.getCurrentUser().username
 
     // Stato per il popup (dialog) che mostra la descrizione del gioco
     var isDialogOpen by remember { mutableStateOf(false) }

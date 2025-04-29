@@ -12,6 +12,11 @@ class UserRepository(
 
     private val sessionManager = UserSessionManager(context)
 
+    suspend fun deleteUser(toDelete: User) {
+        userDao.deleteUser(toDelete)
+    }
+
+
     suspend fun registerUser(user: User) {
         userDao.insertUser(user)
     }
@@ -34,10 +39,6 @@ class UserRepository(
     suspend fun searchUsersByUsername(username: String): List<User> {
         val users = userDao.retrieveUsersByUsername(username)
         return users
-    }
-
-    fun getCurrentUser(): User? {
-        return sessionManager.getCurrentUser()
     }
 
 }

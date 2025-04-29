@@ -1,12 +1,25 @@
 package com.boardaround.data.entities
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.ForeignKey
+import androidx.room.Index
 
-@Entity(tableName = "events")
+@Entity(
+    tableName = "events",
+    primaryKeys = ["name", "author"],
+    foreignKeys = [
+        ForeignKey(
+            entity = User::class,
+            parentColumns = ["username"],
+            childColumns = ["author"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("author")]
+)
 data class Event(
-    @PrimaryKey val name: String,
-    val user: String,
+    val name: String,
+    val author: String,
     val description: String,
     val address: String,
     val dateTime: String,

@@ -24,7 +24,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateTimePicker(
-    initialDateTime: LocalDateTime? = null,
+    initialDateTime: LocalDateTime,
     onDateTimeSelected: (LocalDateTime, String) -> Unit,
     onDismiss: () -> Unit,
     showTimePicker: Boolean = true
@@ -47,8 +47,8 @@ fun DateTimePicker(
                         showDatePickerState.value = false
                         if(!showTimePicker) {
                             selectedDateTime = selectDateTime(datePickerState, timePickerState)
-                            formattedDateTime = formatDateTime(selectedDateTime!!, false)
-                            onDateTimeSelected(selectedDateTime!!, formattedDateTime)
+                            formattedDateTime = formatDateTime(selectedDateTime, false)
+                            onDateTimeSelected(selectedDateTime, formattedDateTime)
                         } else {
                             showTimePickerState.value = true
                         }
@@ -73,8 +73,8 @@ fun DateTimePicker(
                 CustomButton(
                     onClick = {
                         selectedDateTime = selectDateTime(datePickerState, timePickerState)
-                        formattedDateTime = formatDateTime(selectedDateTime!!, true)
-                        onDateTimeSelected(selectedDateTime!!, formattedDateTime)
+                        formattedDateTime = formatDateTime(selectedDateTime, true)
+                        onDateTimeSelected(selectedDateTime, formattedDateTime)
                     },
                     text = "OK"
                 )
@@ -102,6 +102,6 @@ private fun selectDateTime(datePickerState: DatePickerState, timePickerState: Ti
 }
 
 private fun formatDateTime(dateTime: LocalDateTime, withTime: Boolean): String {
-    val pattern = if (withTime) "dd/MM/yyyy HH:mm" else "dd/MM/yyyy"
+    val pattern = if(withTime) "dd/MM/yyyy HH:mm" else "dd/MM/yyyy"
     return dateTime.format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
 }

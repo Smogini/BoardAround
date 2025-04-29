@@ -43,10 +43,6 @@ class UserViewModel(
             ).associateWith { false }.toMutableMap()
     }
 
-    fun getCurrentUser(): User? {
-        return userRepository.getCurrentUser()
-    }
-
     fun selectUser(user: User) {
         this._selectedUser.value = user
     }

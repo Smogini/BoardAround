@@ -2,7 +2,6 @@ package com.boardaround.ui.screens
 
 import android.Manifest
 import android.net.Uri
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -100,11 +99,7 @@ fun ShowEventInfoScreen(
                     modifier = Modifier
                         .size(70.dp)
                         .clickable {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                            } else {
-                                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                            }
+                            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                         }
                 )
             }

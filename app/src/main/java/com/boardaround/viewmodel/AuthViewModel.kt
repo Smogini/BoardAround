@@ -25,6 +25,13 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
+    fun deleteUser(user: User) {
+        viewModelScope.launch {
+            userRepository.deleteUser(user)
+            logout()
+        }
+    }
+
     fun registerUser(user: User) {
         viewModelScope.launch {
             userRepository.registerUser(user)

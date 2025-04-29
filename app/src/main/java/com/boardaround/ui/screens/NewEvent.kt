@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.data.entities.Event
+import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
@@ -36,12 +37,11 @@ import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
-import com.boardaround.viewmodel.UserViewModel
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 
 @Composable
-fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewModel, userViewModel: UserViewModel, gameViewModel: GameViewModel) {
+fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewModel, gameViewModel: GameViewModel) {
     val context = LocalContext.current
     val eventNameState = remember { mutableStateOf(TextFieldValue()) }
     val descriptionState = remember { mutableStateOf(TextFieldValue()) }
@@ -50,11 +50,10 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
     var selectedLocation by remember { mutableStateOf<GeoPoint?>(null) }
     var selectedGame by remember { mutableStateOf("") }
 
-    var selectedDateTime by remember { mutableStateOf<LocalDateTime?>(null) }
+    var selectedDateTime by remember { mutableStateOf("Seleziona data e ora") }
     var showDateTimePicker by remember { mutableStateOf(false) }
-    var formattedDateTime by remember { mutableStateOf("Seleziona data e ora") }
 
-    val username = userViewModel.getCurrentUser()!!.username
+    val username = context.getCurrentUser().username
     val userGames by gameViewModel.userGames.collectAsState(initial = emptyList())
 
     var isDialogOpen by remember { mutableStateOf(false) }
@@ -77,14 +76,13 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                 CustomTextField(label = "Inserisci descrizione", value = descriptionState.value, onValueChange = { descriptionState.value = it })
 
                 Text("Seleziona data e ora evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
-                CustomButton(onClick = { showDateTimePicker = true }, text = formattedDateTime)
+                CustomButton(onClick = { showDateTimePicker = true }, text = selectedDateTime)
 
                 if (showDateTimePicker) {
                     DateTimePicker(
-                        initialDateTime = selectedDateTime,
-                        onDateTimeSelected = { dateTime, format ->
-                            selectedDateTime = dateTime
-                            formattedDateTime = format
+                        initialDateTime = LocalDateTime.now(),
+                        onDateTimeSelected = { _, formattedDateTime ->
+                            selectedDateTime = formattedDateTime
                             showDateTimePicker = false
                         },
                         onDismiss = { showDateTimePicker = false }
@@ -154,10 +152,10 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                     onClick = {
                         val newEvent = Event(
                             name = eventNameState.value.text,
-                            user = username,
+                            author = username,
                             description = descriptionState.value.text,
                             address = addressState.value.text,
-                            dateTime = selectedDateTime.toString(),
+                            dateTime = selectedDateTime,
                             isPrivate = isPrivateEvent,
                         )
 //                        if (selectedLocation != null) {

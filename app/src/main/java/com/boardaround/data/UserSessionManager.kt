@@ -2,7 +2,6 @@ package com.boardaround.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import com.boardaround.data.entities.User
 import com.google.gson.Gson
 
@@ -27,15 +26,25 @@ class UserSessionManager(context: Context) {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
     }
 
-    fun getCurrentUser(): User? {
+//    fun getCurrentUser(): User? {
+//        val userJson = prefs.getString(KEY_USER_JSON, null)
+//        return userJson?.let {
+//            try {
+//                gson.fromJson(it, User::class.java)
+//            } catch (e: Exception) {
+//                Log.e("UserSessionManager", "Errore nel parsing dell'utente: ${e.message}")
+//                null
+//            }
+//        }
+//    }
+    fun getCurrentUser(): User {
         val userJson = prefs.getString(KEY_USER_JSON, null)
-        return userJson?.let {
-            try {
-                gson.fromJson(it, User::class.java)
-            } catch (e: Exception) {
-                Log.e("UserSessionManager", "Errore nel parsing dell'utente: ${e.message}")
-                null
-            }
+            ?: throw IllegalStateException("Utente non salvato nelle preferenze")
+
+        return try {
+            gson.fromJson(userJson, User::class.java)
+        } catch (e: Exception) {
+            throw IllegalStateException("Errore nel parsing dell'utente: ${e.message}")
         }
     }
 
@@ -44,4 +53,8 @@ class UserSessionManager(context: Context) {
         editor.remove(KEY_USER_JSON)
         editor.apply()
     }
+}
+
+fun Context.getCurrentUser(): User {
+    return UserSessionManager(this).getCurrentUser()
 }

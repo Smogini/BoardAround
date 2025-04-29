@@ -1,5 +1,6 @@
 package com.boardaround.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.boardaround.R
+import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.viewmodel.UserViewModel
@@ -34,11 +36,13 @@ import com.boardaround.viewmodel.UserViewModel
 @Composable
 fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel) {
     val userToShow by userViewModel.selectedUser.collectAsState()
-    val currentUsername = userViewModel.getCurrentUser()!!.username
-    val myFriends by userViewModel.getFriends(currentUsername).collectAsState(initial = emptyList())
+    val currentUserUsername = LocalContext.current.getCurrentUser().username
+    val myFriends by userViewModel.getFriends(currentUserUsername).collectAsState(initial = emptyList())
     val isFriend = remember(myFriends, userToShow) {
         myFriends.any { it.username == userToShow?.username }
     }
+
+    Log.d("profile", "To show: $userToShow")
 
     ScreenTemplate(
         title = "Profilo di ${userToShow?.username}",
@@ -112,18 +116,18 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    if (userToShow != null && userToShow!!.username != currentUsername) {
+                    if (userToShow != null && userToShow!!.username != currentUserUsername) {
                         if (isFriend) {
                             CustomButton(
                                 onClick = {
-                                    userViewModel.removeFriend(currentUsername, userToShow!!.username)
+                                    userViewModel.removeFriend(currentUserUsername, userToShow!!.username)
                                 },
                                 text = "Rimuovi amico"
                             )
                         } else {
                             CustomButton(
                                 onClick = {
-                                    userViewModel.addFriend(currentUsername, userToShow!!.username)
+                                    userViewModel.addFriend(currentUserUsername, userToShow!!.username)
                                 },
                                 text = "Aggiungi amico"
                             )

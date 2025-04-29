@@ -10,29 +10,34 @@ import kotlinx.coroutines.launch
 
 class PostViewModel(
     private val repository: PostRepository,
-//    private val authViewModel: AuthViewModel
 ) : ViewModel() {
 
-    private val _myPosts = MutableStateFlow<List<Post>>(emptyList())
-    val myPosts: StateFlow<List<Post>> = _myPosts
+    private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
+    val userPosts: StateFlow<List<Post>> = _userPosts
 
-    fun insertPost(title: String, content: String, imageUri: String?) {
+    private val _selectedPost = MutableStateFlow<Post?>(null)
+    val selectedPost: StateFlow<Post?> = _selectedPost
+
+    fun selectPost(selected: Post) {
+        _selectedPost.value = selected
+    }
+
+    fun insertPost(title: String, content: String, imageUri: String?, author: String) {
         viewModelScope.launch {
-//            val username = authViewModel.retrieveUsername() ?: return@launch
             val post = Post(
                 title = title,
                 content = content,
                 imageUri = imageUri,
-                author = "username"
+                author = author
             )
             repository.insertPost(post)
         }
     }
 
-    fun getPostsByUser() {
+    fun getPostsByUsername(username: String) {
         viewModelScope.launch {
-//            val username = authViewModel.retrieveUsername() ?: return@launch
-            _myPosts.value = repository.getPostsByUsername("username")
+            val posts = repository.getPostsByUsername(username)
+            _userPosts.value = posts
         }
     }
 }

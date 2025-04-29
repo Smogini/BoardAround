@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -46,7 +45,6 @@ import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.ui.theme.PrimaryText
 import com.boardaround.viewmodel.AuthViewModel
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -57,9 +55,8 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
     val nameState = remember { mutableStateOf(TextFieldValue()) }
     val emailState = remember { mutableStateOf(TextFieldValue()) }
     val passwordState = remember { mutableStateOf(TextFieldValue()) }
-    val dobState = remember { mutableStateOf<LocalDateTime?>(null) }
+    val dobState = remember { mutableStateOf("Seleziona la data") }
     val showDatePicker = remember { mutableStateOf(false) }
-    val formattedDateTime = remember { mutableStateOf("Seleziona la data") }
 
     var registrationError by remember { mutableStateOf(false) }
 
@@ -118,11 +115,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                     modifier = Modifier
                         .size(70.dp)
                         .clickable {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                            } else {
-                                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                            }
+                            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                         }
                 )
 
@@ -145,20 +138,19 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                 CustomTextField(label = "Email", value = emailState.value, onValueChange = { emailState.value = it })
 
                 Text("Data di nascita", textAlign = TextAlign.Center, color = PrimaryText)
-                CustomButton(onClick = { showDatePicker.value = true }, text = formattedDateTime.value)
+                CustomButton(onClick = { showDatePicker.value = true }, text = dobState.value)
 
                 if (showDatePicker.value) {
                     DateTimePicker(
-                        initialDateTime = null,
-                        onDateTimeSelected = { selectedDate, format ->
+                        initialDateTime = LocalDateTime.now(),
+                        onDateTimeSelected = { selectedDate, formattedDate ->
                             val today = LocalDateTime.now()
                             val minAllowedDate = today.minusYears(12)
 
                             if (selectedDate.isAfter(minAllowedDate)) {
                                 Toast.makeText(currentContext, "Devi avere almeno 12 anni", Toast.LENGTH_SHORT).show()
                             } else {
-                                dobState.value = selectedDate
-
+                                dobState.value = formattedDate
                             }
                             showDatePicker.value = false
                         },
@@ -181,7 +173,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                             nameState.value.text.isBlank() ||
                             emailState.value.text.isBlank() ||
                             passwordState.value.text.isBlank() ||
-                            dobState.value == null
+                            dobState.value.isBlank()
                         ) {
                             registrationError = true
                         } else {
@@ -191,7 +183,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                                     name = nameState.value.text,
                                     email = emailState.value.text,
                                     password = passwordState.value.text,
-                                    dob = dobState.value!!.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE),
+                                    dob = dobState.value,
                                     profilePic = selectedImageUri.toString()
                                 )
                                 authViewModel.registerUser(newUser)
