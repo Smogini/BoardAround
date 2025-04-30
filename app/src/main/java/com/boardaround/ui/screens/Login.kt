@@ -28,7 +28,7 @@ import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
-import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.AuthViewModel
 
 @Composable
@@ -58,7 +58,7 @@ fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Username", textAlign = TextAlign.Center, color = PrimaryText)
+            Text("Username", textAlign = TextAlign.Center, color = PrimaryBrown)
             OutlinedTextField(
                 label = {
                     Text(
@@ -71,7 +71,7 @@ fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) 
                 onValueChange = { usernameState.value = it }
             )
 
-            Text("Password", textAlign = TextAlign.Center, color = PrimaryText)
+            Text("Password", textAlign = TextAlign.Center, color = PrimaryBrown)
             CustomTextField(
                 label = "Inserisci password",
                 value = passwordState.value,

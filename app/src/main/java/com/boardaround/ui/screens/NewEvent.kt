@@ -34,7 +34,7 @@ import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.Customswitch
 import com.boardaround.ui.components.DateTimePicker
-import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import org.osmdroid.util.GeoPoint
@@ -69,13 +69,13 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
     ) {
         LazyColumn {
             item {
-                Text("Inserisci nome evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
+                Text("Inserisci nome evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
                 CustomTextField(label = "Inserisci nome evento", value = eventNameState.value, onValueChange = { eventNameState.value = it })
 
-                Text("Inserisci descrizione", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
+                Text("Inserisci descrizione", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
                 CustomTextField(label = "Inserisci descrizione", value = descriptionState.value, onValueChange = { descriptionState.value = it })
 
-                Text("Seleziona data e ora evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
+                Text("Seleziona data e ora evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
                 CustomButton(onClick = { showDateTimePicker = true }, text = selectedDateTime)
 
                 if (showDateTimePicker) {
@@ -89,7 +89,7 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                     )
                 }
 
-                Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
+                Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
 //                CustomMapField(
 //                    label = "Inserisci indirizzo evento",
 //                    value = addressState.value,
@@ -105,7 +105,7 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                     onValueChange = { addressState.value = it }
                 )
 
-                Text("Seleziona gioco per l'evento", textAlign = TextAlign.Center, color = PrimaryText, modifier = Modifier.fillMaxWidth())
+                Text("Seleziona gioco per l'evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
                 CustomButton(onClick = { isDialogOpen = true }, text = if (selectedGame.isEmpty()) "A cosa si gioca?" else "Gioco selezionato: $selectedGame")
 
                 if (isDialogOpen) {
@@ -141,7 +141,7 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Evento privato", color = PrimaryText)
+                    Text("Evento privato", color = PrimaryBrown)
                     Customswitch(
                         checked = isPrivateEvent,
                         onCheckedChange = { isPrivateEvent = it }

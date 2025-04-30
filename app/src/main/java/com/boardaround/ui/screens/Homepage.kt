@@ -27,8 +27,9 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.GameRulesDialog
 import com.boardaround.ui.components.SearchResultCarousel
 import com.boardaround.ui.components.SuggestedGamesCarousel
+import com.boardaround.ui.screens.tools.MiniTrivia
 import com.boardaround.ui.theme.Errors
-import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.TriviaViewModel
@@ -111,7 +112,7 @@ fun ShowHomePageScreen(
                         CustomButtonIcon(
                             title = "Search",
                             icon = Icons.Filled.Search,
-                            iconColor = PrimaryText,
+                            iconColor = PrimaryBrown,
                             onClick = {
                                 gameViewModel.searchGames(searchQuery.value.text)
                                 userViewModel.searchUsers(searchQuery.value.text)
@@ -156,7 +157,8 @@ fun ShowHomePageScreen(
                     title = "Giochi trovati",
                     items = games.games ?: emptyList(),
                     onClick = { game ->
-                        gameViewModel.selectGame(game)
+//                        gameViewModel.selectGame(game)
+                        gameViewModel.getGameInfo(game.id)
                         navController.navigateSingleTop(Route.GameInfo)
                     },
                     imageUrlProvider = { it.imageUrl.toString() },

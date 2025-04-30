@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created to manage the reception of information in CLEARTEXT of the game via https,
+ otherwise it gives an error when calls the API -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">boardgamegeek.com</domain>
+    </domain-config>
+</network-security-config>

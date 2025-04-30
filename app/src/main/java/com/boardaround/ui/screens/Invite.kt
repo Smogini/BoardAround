@@ -12,7 +12,7 @@ import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
-import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.ui.theme.PrimaryBrown
 
 @Composable
 fun ShowInviteScreen(navController: NavController) {
@@ -26,11 +26,11 @@ fun ShowInviteScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Descrizione dell'evento", textAlign = TextAlign.Center, color = PrimaryText)
-            Text("Gioco dell'evento", textAlign = TextAlign.Center, color = PrimaryText)
-            Text("Partecipanti", textAlign = TextAlign.Center, color = PrimaryText)
-            Text("Luogo dell'evento", textAlign = TextAlign.Center, color = PrimaryText)
-            Text("Data e orario evento", textAlign = TextAlign.Center, color = PrimaryText)
+            Text("Descrizione dell'evento", textAlign = TextAlign.Center, color = PrimaryBrown)
+            Text("Gioco dell'evento", textAlign = TextAlign.Center, color = PrimaryBrown)
+            Text("Partecipanti", textAlign = TextAlign.Center, color = PrimaryBrown)
+            Text("Luogo dell'evento", textAlign = TextAlign.Center, color = PrimaryBrown)
+            Text("Data e orario evento", textAlign = TextAlign.Center, color = PrimaryBrown)
 
             CustomButton(
                 onClick = {

@@ -17,7 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.ui.theme.PrimaryBrown
 
 @Composable
 fun <T> SearchResultCarousel(
@@ -32,7 +32,7 @@ fun <T> SearchResultCarousel(
     Column {
         Text(
             title,
-            color = PrimaryText,
+            color = PrimaryBrown,
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(start = 16.dp)
         )

@@ -10,7 +10,7 @@ import com.boardaround.data.entities.SavedGame
 @Dao
 interface GameDAO {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addGameToUser(newGame: SavedGame)
 
     @Delete

@@ -1,12 +1,12 @@
 package com.boardaround.data.repositories
 
 import com.boardaround.data.trivia.TriviaQuestion
-import com.boardaround.network.RetrofitInstance
+import com.boardaround.network.ApiService
 
 class TriviaRepository {
     suspend fun getTriviaQuestions(amount: Int = 10, category: Int? = null, difficulty: String? = null): List<TriviaQuestion> {
         return try {
-            val response = RetrofitInstance.triviaApi.getTriviaQuestions(amount, category, difficulty)
+            val response = ApiService.triviaApi.getTriviaQuestions(amount, category, difficulty)
             if (response.responseCode == 0) { // 0 indica successo in OTDB
                 response.results
             } else {

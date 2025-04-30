@@ -1,4 +1,4 @@
-package com.boardaround.ui.screens
+package com.boardaround.ui.screens.tools
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -10,23 +10,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.R
-import com.boardaround.navigation.Route
+import com.boardaround.ui.screens.ScreenTemplate
 import kotlin.random.Random
 
 @Composable
-fun HeadsOrTailsScreen(navController: NavController) {
+fun ShowCoinFlip(navController: NavController) {
     ScreenTemplate(
         title = "Testa o Croce",
-        currentRoute = Route.HeadsOrTails,
         navController = navController,
-        showBottomBar = true
     ) {
-        HeadsOrTailsContent()
+        CoinFlipContent()
     }
 }
 
 @Composable
-fun HeadsOrTailsContent() {
+fun CoinFlipContent() {
     var result by remember { mutableStateOf<String?>(null) }
 
     Column(

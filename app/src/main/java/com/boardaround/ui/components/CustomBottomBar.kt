@@ -18,17 +18,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,15 +31,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
+import com.boardaround.ui.screens.ToolsMenu
 
 @Composable
 fun BottomBar(navController: NavController) {
     var showExtraFabs by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) } // Stato per il menu a tendina
+    val isExpanded = remember { mutableStateOf(false) }
     val transition = updateTransition(targetState = showExtraFabs, label = "Extra Fabs Position")
     val verticalOffset by transition.animateDp(
         label = "Vertical Offset",
@@ -73,54 +69,7 @@ fun BottomBar(navController: NavController) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Box {
-                    IconButton(
-                        onClick = { expanded = !expanded },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowUpward,
-                            contentDescription = "Menu",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    // Menu a tendina che appare quando expanded è true
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier.padding(top = 2.dp)
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Token") },
-                            onClick = {
-                                navController.navigateSingleTop(Route.Token)
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Lancio dei dadi") },
-                            onClick = {
-                                navController.navigateSingleTop(Route.Dice)
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Segna punti") },
-                            onClick = {
-                                navController.navigateSingleTop(Route.ScoreBoard)
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Testa o Croce") },
-                            onClick = {
-                                navController.navigateSingleTop(Route.HeadsOrTails)
-                                expanded = false
-                            }
-                        )
-                    }
-                }
+                ToolsMenu(navController, isExpanded)
 
                 CustomButtonIcon(
                     title = "Account",
@@ -146,7 +95,12 @@ fun BottomBar(navController: NavController) {
                         },
                         modifier = Modifier
                             .size(55.dp)
-                            .offset(x = (-20).dp, y = verticalOffset),
+                            .offset {
+                                IntOffset(
+                                    x = (-20).dp.roundToPx(),
+                                    y = verticalOffset.roundToPx()
+                                )
+                            },
                         icon = Icons.Filled.Create
                     )
                     CustomFloatingActionButton(
@@ -156,7 +110,12 @@ fun BottomBar(navController: NavController) {
                         },
                         modifier = Modifier
                             .size(55.dp)
-                            .offset(x = 20.dp, y = verticalOffset),
+                            .offset {
+                                IntOffset(
+                                    x = (-20).dp.roundToPx(),
+                                    y = verticalOffset.roundToPx()
+                                )
+                            },
                         icon = Icons.Filled.PostAdd
                     )
                 }

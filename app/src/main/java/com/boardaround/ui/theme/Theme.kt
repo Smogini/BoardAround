@@ -9,29 +9,29 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFFFFC107),
-    secondary =  Color(0xFF3E2723),
-    tertiary = Color.Red,
-    background =  Color(0xFF121212), // Sfondo scuro
-    surface = Color(0xFF1E1E1E),    // Superficie scura
+    primary = PrimaryGold,
+    secondary =  PrimaryBrown,
+    tertiary = Errors,
+    background =  Background,
+    surface = Color(0xFF1E1E1E),
     onPrimary = Color.Black,
-    onSecondary = Color(0xFF3E2723),
-    primaryContainer = Color(0xFF3E2723),
+    onSecondary = PrimaryBrown,
+    primaryContainer = PrimaryBrown,
     onTertiary = Color.White,
-    onBackground = Color(0xFF3E2723),
+    onBackground = PrimaryBrown,
     onSurface = Color.White,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFFFFC107),
-    secondary =  Color(0xFF3E2723),
-    tertiary = Color.Red,
+    primary = PrimaryGold,
+    secondary =  PrimaryBrown,
+    tertiary = Errors,
     background =  Color(0xFFEDE0D4),
     surface = Color(0xFF5D4037),
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.White,
-    onBackground = Color(0xFF3E2723),
+    onBackground = PrimaryBrown,
     onSurface = Color(0xFF1C1B1F),
 )
 
@@ -39,7 +39,7 @@ val LocalIsDarkMode = staticCompositionLocalOf { false }
 
 @Composable
 fun BoardAroundTheme(
-    isDarkMode: Boolean, // <--- aggiunto parametro
+    isDarkMode: Boolean,
     content: @Composable () -> Unit
 ) {
     CompositionLocalProvider(LocalIsDarkMode provides isDarkMode) {

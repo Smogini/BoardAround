@@ -1,4 +1,4 @@
-package com.boardaround.ui.screens
+package com.boardaround.ui.screens.tools
 
 import android.util.Log
 import androidx.compose.foundation.Canvas
@@ -40,7 +40,7 @@ import com.boardaround.data.trivia.TriviaQuestion
 import com.boardaround.viewmodel.TriviaViewModel
 
 @Composable
-fun TriviaScreen() {
+fun ShowTriviaScreen() {
     val viewModel: TriviaViewModel = viewModel()
     val questions by viewModel.questions.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

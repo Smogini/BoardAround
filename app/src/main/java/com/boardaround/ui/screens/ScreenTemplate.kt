@@ -21,7 +21,7 @@ import com.boardaround.viewmodel.UserViewModel
 @Composable
 fun ScreenTemplate(
     title: String,
-    currentRoute: Route,
+    currentRoute: Route = Route.Splash,
     navController: NavController,
     userViewModel: UserViewModel? = null,
     showBottomBar: Boolean = true,

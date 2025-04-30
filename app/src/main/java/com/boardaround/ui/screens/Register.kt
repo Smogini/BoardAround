@@ -42,7 +42,7 @@ import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.DateTimePicker
-import com.boardaround.ui.theme.PrimaryText
+import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.AuthViewModel
 import java.time.LocalDateTime
 
@@ -68,7 +68,6 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
             val takeFlags = FLAG_GRANT_READ_URI_PERMISSION or FLAG_GRANT_WRITE_URI_PERMISSION
 
             try {
-                // Richiedi accesso persistente all'immagine
                 contentResolver.takePersistableUriPermission(it, takeFlags)
             } catch (e: SecurityException) {
                 Log.e("ImageAccess", "Errore nel prendere il permesso persistente: ${e.message}")
@@ -122,22 +121,22 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                 Text(
                     text = "Clicca sull'immagine per modificarla",
                     textAlign = TextAlign.Center,
-                    color = PrimaryText,
+                    color = PrimaryBrown,
                     modifier = Modifier.padding(top = 4.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Username", textAlign = TextAlign.Center, color = PrimaryText)
+                Text("Username", textAlign = TextAlign.Center, color = PrimaryBrown)
                 CustomTextField(label = "Username", value = usernameState.value, onValueChange = { usernameState.value = it })
 
-                Text("Nome", textAlign = TextAlign.Center, color = PrimaryText)
+                Text("Nome", textAlign = TextAlign.Center, color = PrimaryBrown)
                 CustomTextField(label = "Nome", value = nameState.value, onValueChange = { nameState.value = it })
 
-                Text("Email", textAlign = TextAlign.Center, color = PrimaryText)
+                Text("Email", textAlign = TextAlign.Center, color = PrimaryBrown)
                 CustomTextField(label = "Email", value = emailState.value, onValueChange = { emailState.value = it })
 
-                Text("Data di nascita", textAlign = TextAlign.Center, color = PrimaryText)
+                Text("Data di nascita", textAlign = TextAlign.Center, color = PrimaryBrown)
                 CustomButton(onClick = { showDatePicker.value = true }, text = dobState.value)
 
                 if (showDatePicker.value) {
@@ -159,7 +158,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                     )
                 }
 
-                Text("Password", textAlign = TextAlign.Center, color = PrimaryText)
+                Text("Password", textAlign = TextAlign.Center, color = PrimaryBrown)
                 CustomTextField(
                     label = "Password",
                     value = passwordState.value,

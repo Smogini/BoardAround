@@ -12,7 +12,7 @@ data class GameSearchResult(
     val total: Int,
 
     @Element(name = "item")
-    val games: List<Game>? = null,
+    val games: List<Game>? = emptyList(),
 
     @Attribute(name = "termsofuse")
     val termsofuse: String? = ""

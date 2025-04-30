@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import com.boardaround.data.Converters
 import com.boardaround.data.dao.EventDAO
 import com.boardaround.data.dao.GameDAO
 import com.boardaround.data.dao.PostDao
@@ -17,7 +15,6 @@ import com.boardaround.data.entities.SavedGame
 import com.boardaround.data.entities.User
 
 @Database(entities = [User::class, Event::class, Post::class, Friendship::class, SavedGame::class], version = 1)
-@TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun userDAO(): UserDAO
@@ -34,7 +31,7 @@ abstract class AppDatabase: RoomDatabase() {
                 val instance = Room.databaseBuilder(
                                 context.applicationContext,
                                 AppDatabase::class.java,
-                                "app_database"
+                                "boardaround_db"
                 ).fallbackToDestructiveMigration(true).build()
 
                 INSTANCE = instance

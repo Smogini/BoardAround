@@ -9,9 +9,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.boardaround.ui.screens.GamificationScreen
-import com.boardaround.ui.screens.HeadsOrTailsScreen
-import com.boardaround.ui.screens.ScoreBoardScreen
-import com.boardaround.ui.screens.ShowDiceScreen
 import com.boardaround.ui.screens.ShowEditMyProfile
 import com.boardaround.ui.screens.ShowEventInfoScreen
 import com.boardaround.ui.screens.ShowGameInfo
@@ -23,9 +20,8 @@ import com.boardaround.ui.screens.ShowNewEventScreen
 import com.boardaround.ui.screens.ShowNewPostScreen
 import com.boardaround.ui.screens.ShowProfileScreen
 import com.boardaround.ui.screens.ShowRegisterScreen
+import com.boardaround.ui.screens.ShowToolScreen
 import com.boardaround.ui.screens.SplashScreen
-import com.boardaround.ui.screens.TokenScreen
-import com.boardaround.ui.screens.TriviaScreen
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
@@ -78,14 +74,8 @@ fun NavGraph(
         composable<Route.GameInfo> {
             ShowGameInfo(navController, gameViewModel)
         }
-        composable<Route.Dice> {
-            ShowDiceScreen(navController)
-        }
         composable<Route.NewPost> {
             ShowNewPostScreen(navController, postViewModel)
-        }
-        composable<Route.ScoreBoard> {
-            ScoreBoardScreen(navController, userViewModel)
         }
         composable<Route.EventInfo> {
             ShowEventInfoScreen(navController, userViewModel, eventViewModel)
@@ -93,14 +83,8 @@ fun NavGraph(
         composable<Route.Gamification> {
             GamificationScreen(navController, userViewModel)
         }
-        composable<Route.Token> {
-            TokenScreen(navController)
-        }
-        composable<Route.HeadsOrTails> {
-            HeadsOrTailsScreen(navController)
-        }
-        composable<Route.Trivia> {
-            TriviaScreen()
+        composable<Route.UtilTools> {
+            ShowToolScreen(navController)
         }
     }
 }

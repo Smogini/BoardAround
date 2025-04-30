@@ -1,5 +1,6 @@
 package com.boardaround.ui.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,21 +31,17 @@ import com.boardaround.viewmodel.GameViewModel
 
 @Composable
 fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
-    val gameToShow by gameViewModel.selectedGame.collectAsState()
     val context = LocalContext.current
     val username = context.getCurrentUser().username
+    val gameToShow by gameViewModel.selectedGameInfo.collectAsState()
 
-    // Stato per il popup (dialog) che mostra la descrizione del gioco
     var isDialogOpen by remember { mutableStateOf(false) }
     val closeDialog: () -> Unit = { isDialogOpen = false }
 
-    // Ottieni la lista dei giochi dell'utente
     val userGames by gameViewModel.userGames.collectAsState(initial = emptyList())
 
-    // Controlla se il gioco è già nella lista dell'utente
     val isGameAdded = remember(userGames, gameToShow) {
         userGames.contains(gameToShow?.toSavedGame(username))
-//        userGames.contains(gameToShow?.nameElement?.value.toString())
     }
 
     gameViewModel.getUserGames(username)
@@ -102,6 +99,7 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
                             gameViewModel.removeSavedGame(gameToSave)
                             Toast.makeText(context, "Gioco rimosso dai tuoi giochi", Toast.LENGTH_SHORT).show()
                         } else {
+                            Log.d("gameinfo", "$gameToSave")
                             gameViewModel.addGame(gameToSave)
                             Toast.makeText(context, "Gioco aggiunto ai tuoi giochi", Toast.LENGTH_SHORT).show()
                         }

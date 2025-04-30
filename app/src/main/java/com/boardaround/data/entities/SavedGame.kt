@@ -6,7 +6,7 @@ import androidx.room.Index
 
 @Entity(
     tableName = "saved_game",
-    primaryKeys = ["user", "name"],
+    primaryKeys = ["id", "user"],
     foreignKeys = [
         ForeignKey(
             entity = User::class,

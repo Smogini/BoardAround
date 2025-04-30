@@ -1,4 +1,4 @@
-package com.boardaround.ui.screens
+package com.boardaround.ui.screens.tools
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,13 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomButtonIcon
 import com.boardaround.ui.components.CustomTextField
+import com.boardaround.ui.screens.ScreenTemplate
 import com.boardaround.ui.theme.Errors
-import com.boardaround.ui.theme.PrimaryText
-import com.boardaround.viewmodel.UserViewModel
+import com.boardaround.ui.theme.PrimaryBrown
 
 data class Player(
     var name: MutableState<String>,
@@ -45,7 +44,7 @@ data class Player(
 )
 
 @Composable
-fun ScoreBoardScreen(navController: NavController, userViewModel: UserViewModel) {
+fun ShowScoreBoard(navController: NavController) {
     var numPlayers by remember { mutableIntStateOf(2) }
     val players = remember {
         mutableStateListOf(*List(6) { Player(name = mutableStateOf("Player ${it + 1}")) }.toTypedArray())
@@ -55,9 +54,7 @@ fun ScoreBoardScreen(navController: NavController, userViewModel: UserViewModel)
 
     ScreenTemplate(
         title = "Segna punti",
-        currentRoute = Route.ScoreBoard,
-        navController = navController,
-        userViewModel = userViewModel
+        navController = navController
     ) {
         LazyColumn(
             modifier = Modifier
@@ -68,7 +65,7 @@ fun ScoreBoardScreen(navController: NavController, userViewModel: UserViewModel)
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text("Numero di giocatori: $numPlayers", color = PrimaryText)
+                Text("Numero di giocatori: $numPlayers", color = PrimaryBrown)
                 Slider(
                     value = numPlayers.toFloat(),
                     onValueChange = { numPlayers = it.toInt() },
@@ -127,7 +124,7 @@ fun ScoreBoardScreen(navController: NavController, userViewModel: UserViewModel)
                         val textColor = when (player.points.intValue) {
                             maxPoints -> Color.Green
                             minPoints -> Color.Red
-                            else -> PrimaryText
+                            else -> PrimaryBrown
                         }
 
                         Row(
@@ -148,13 +145,13 @@ fun ScoreBoardScreen(navController: NavController, userViewModel: UserViewModel)
                             CustomButtonIcon(
                                 title = "Aggiungi punti",
                                 icon = Icons.Filled.Add,
-                                iconColor = PrimaryText,
+                                iconColor = PrimaryBrown,
                                 onClick = { player.points.intValue++ }
                             )
                             CustomButtonIcon(
                                 title = "Rimuovi punti",
                                 icon = Icons.Filled.Remove,
-                                iconColor = PrimaryText,
+                                iconColor = PrimaryBrown,
                                 onClick = { player.points.intValue-- }
                             )
                         }
