@@ -1,13 +1,12 @@
 package com.boardaround.ui.screens
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -24,19 +23,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.boardaround.data.entities.toSavedGame
 import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
+import com.boardaround.navigation.navigateSingleTop
+import com.boardaround.ui.components.ExpandableSection
 import com.boardaround.viewmodel.GameViewModel
 
 @Composable
 fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
     val context = LocalContext.current
     val username = context.getCurrentUser().username
-    val gameToShow by gameViewModel.selectedGameInfo.collectAsState()
+    val gameToShow by gameViewModel.selectedGame.collectAsState()
 
-    var isDialogOpen by remember { mutableStateOf(false) }
-    val closeDialog: () -> Unit = { isDialogOpen = false }
+    var showGameDescription by remember { mutableStateOf(false) }
+    var showExpansions by remember { mutableStateOf(false) }
+    val closeDialog: () -> Unit = { showGameDescription = false }
 
     val userGames by gameViewModel.userGames.collectAsState(initial = emptyList())
 
@@ -52,7 +56,7 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
         navController = navController
     ) { contentPadding ->
 
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(contentPadding)
                 .fillMaxSize()
@@ -60,70 +64,109 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = gameToShow?.nameElement?.value.toString(),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Text(
-                text = gameToShow?.description.toString(),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            // Numero di giocatori (minimo e massimo)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Giocatori: Minimo 2, Massimo 6", style = MaterialTheme.typography.bodyMedium)
-            }
-
-            // Pulsante "Come si gioca?" che apre il dialog con la descrizione
-            Button(
-                onClick = { isDialogOpen = true },
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                Text("Come si gioca?")
-            }
-
-            // Pulsante "Aggiungi ai miei giochi"
-            Button(
-                onClick = {
-                    if (gameToShow != null) {
-                        val gameToSave = gameToShow!!.toSavedGame(username)
-                        if (isGameAdded) {
-                            gameViewModel.removeSavedGame(gameToSave)
-                            Toast.makeText(context, "Gioco rimosso dai tuoi giochi", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Log.d("gameinfo", "$gameToSave")
-                            gameViewModel.addGame(gameToSave)
-                            Toast.makeText(context, "Gioco aggiunto ai tuoi giochi", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                },
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                Text(if (isGameAdded) "Rimuovi dai miei giochi" else "Aggiungi ai miei giochi")
-            }
-
-            // Dialog che mostra la descrizione del gioco quando il tasto viene premuto
-            if (isDialogOpen) {
-                AlertDialog(
-                    onDismissRequest = closeDialog,
-                    title = { Text("Come si gioca") },
-                    text = {
-                        Text("Questo gioco è un'avventura epica dove i giocatori devono cooperare per superare ostacoli e risolvere enigmi!")
-                    },
-                    confirmButton = {
-                        TextButton(onClick = closeDialog) {
-                            Text("Chiudi")
-                        }
-                    }
+            item {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(gameToShow?.imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    modifier = Modifier.size(200.dp)
                 )
+
+                Text(
+                    text = "Nome del gioco: " + gameToShow?.name,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "Editore: " + gameToShow?.publisher,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "Numero giocatori",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "Minimo: ${gameToShow?.minPlayers}, Massimo: ${gameToShow?.maxPlayers}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "Tempo di gioco: ${gameToShow?.playingTime} minuti",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                ExpandableSection(
+                    title = "Espansioni",
+                    items = gameToShow?.expansions ?: emptyList(),
+                    isExpanded = showExpansions,
+                    onExpandChange = { showExpansions = !showExpansions },
+                    onItemClick = { game ->
+                        gameViewModel.getGameInfo(game.id)
+                        navController.navigateSingleTop(Route.GameInfo)
+                    }
+                ) { game ->
+                    Text(game.title)
+                }
+
+                Button(
+                    onClick = { showGameDescription = true },
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    Text("Come si gioca?")
+                }
+
+                // Pulsante "Aggiungi ai miei giochi"
+                Button(
+                    onClick = {
+                        if (gameToShow != null) {
+                            val gameToSave = gameToShow!!.toSavedGame(username)
+                            if (isGameAdded) {
+                                gameViewModel.removeSavedGame(gameToSave)
+                                Toast.makeText(context, "Gioco rimosso dai tuoi giochi", Toast.LENGTH_SHORT).show()
+                            } else {
+                                gameViewModel.addGame(gameToSave)
+                                Toast.makeText(context, "Gioco aggiunto ai tuoi giochi", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    Text(if (isGameAdded) "Rimuovi dai miei giochi" else "Aggiungi ai miei giochi")
+                }
+
+                // Dialog che mostra la descrizione del gioco quando il tasto viene premuto
+                if (showGameDescription) {
+                    AlertDialog(
+                        onDismissRequest = closeDialog,
+                        title = { Text("Come si gioca") },
+                        text = {
+                            LazyColumn {
+                                item {
+                                    Text("${gameToShow?.description}")
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = closeDialog) {
+                                Text("Chiudi")
+                            }
+                        }
+                    )
+                }
             }
         }
     }

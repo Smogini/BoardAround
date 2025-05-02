@@ -50,7 +50,7 @@ fun ShowHomePageScreen(
     eventViewModel: EventViewModel
 ) {
     val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
-    val games by gameViewModel.gamesFound.collectAsState()
+    val searchGamesResult by gameViewModel.gamesFound.collectAsState()
     val users by userViewModel.usersFound.collectAsState()
     val events by eventViewModel.eventsFound.collectAsState()
     val focusManager = LocalFocusManager.current
@@ -155,14 +155,14 @@ fun ShowHomePageScreen(
                 )
                 SearchResultCarousel(
                     title = "Giochi trovati",
-                    items = games.games ?: emptyList(),
+                    items = searchGamesResult.games ?: emptyList(),
                     onClick = { game ->
-//                        gameViewModel.selectGame(game)
                         gameViewModel.getGameInfo(game.id)
                         navController.navigateSingleTop(Route.GameInfo)
                     },
-                    imageUrlProvider = { it.imageUrl.toString() },
-                    labelProvider = { it.nameElement.value },
+                    // TODO
+                    imageUrlProvider = { "" },
+                    labelProvider = { it.name.value },
                 )
 
                 SuggestedGamesCarousel(

@@ -29,16 +29,16 @@ data class SavedGame(
 fun Game.toSavedGame(user: String): SavedGame = SavedGame(
     id = this.id,
     user = user,
-    name = this.nameElement.value,
-    yearPublished = this.yearPublished?.value,
+    name = this.name,
+    yearPublished = this.yearPublished,
     imageUrl = this.imageUrl,
     description = this.description
 )
 
 fun SavedGame.toGame(): Game = Game(
     id = this.id,
-    nameElement = NameElement(this.name),
+    name = this.name,
     imageUrl = this.imageUrl,
     description = this.description,
-    yearPublished = this.yearPublished?.let { YearPublished(it) }
+    yearPublished = this.yearPublished
 )

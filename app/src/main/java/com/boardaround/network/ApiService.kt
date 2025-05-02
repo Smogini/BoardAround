@@ -1,5 +1,6 @@
 package com.boardaround.network
 
+import com.boardaround.data.entities.GameDetailsResult
 import com.boardaround.data.entities.GameSearchResult
 import com.tickaroo.tikxml.TikXml
 import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
@@ -35,10 +36,6 @@ object ApiService {
         createApi("https://boardgamegeek.com/", GameApiInterface::class.java)
     }
 
-    val gameInfoApi: GameInfoApi by lazy {
-        createApi("https://boardgamegeek.com/", GameInfoApi::class.java)
-    }
-
     val triviaApi: TriviaApiService by lazy {
         createApi("https://opentdb.com/", TriviaApiService::class.java)
     }
@@ -50,15 +47,14 @@ interface GameApiInterface {
         @Query("query") query: String,
         @Query("type") type: String = "boardgame"
     ): GameSearchResult
-}
 
-/*  Use the path parameters for the search on the game board.
-    This alternative was used for how the API and their search URLs were created.
-    (More info in: https://boardgamegeek.com/thread/99401/boardgamegeek-xml-api)
- */
-interface GameInfoApi {
+    /*  Use the path parameters for the search on the game board.
+    *   This alternative was used for how the API and their search URLs were created.
+    *   (More info in: https://boardgamegeek.com/thread/99401/boardgamegeek-xml-api).
+    *   Also, to work it needs the network_security_config.xml file
+    */
     @GET("xmlapi/game/{id}")
     suspend fun getGameInfo(
         @Path("id") gameID: Int,
-    ): GameSearchResult
+    ): GameDetailsResult
 }

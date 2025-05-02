@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.boardaround.data.entities.toGame
 import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
@@ -149,7 +148,7 @@ fun ShowMyProfileScreen(
                     isExpanded = showGames,
                     onExpandChange = { showGames = !showGames },
                     onItemClick = { selectedGame ->
-                        gameViewModel.selectGame(selectedGame.toGame())
+                        gameViewModel.getGameInfo(selectedGame.id)
                         navController.navigateSingleTop(Route.GameInfo)
                     }
                 ) { savedGame ->

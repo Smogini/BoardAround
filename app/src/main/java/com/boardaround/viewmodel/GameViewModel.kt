@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.Game
 import com.boardaround.data.entities.GameSearchResult
 import com.boardaround.data.entities.SavedGame
+import com.boardaround.data.entities.toGame
 import com.boardaround.data.repositories.GameRepository
 import com.boardaround.network.ApiService
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,21 +21,13 @@ class GameViewModel(private val gameRepository: GameRepository): ViewModel() {
     private val _selectedGame = MutableStateFlow<Game?>(null)
     val selectedGame: StateFlow<Game?> = _selectedGame
 
-    private val _selectedGameInfo = MutableStateFlow<Game?>(null)
-    val selectedGameInfo: StateFlow<Game?> = _selectedGameInfo
-
     private val _userGames = MutableStateFlow<List<SavedGame>>(emptyList())
     val userGames: StateFlow<List<SavedGame>> = _userGames
-
-    fun selectGame(game: Game) {
-        _selectedGame.value = game
-    }
 
     fun getGameInfo(gameID: Int) {
         viewModelScope.launch {
             try {
-                _selectedGame.value = ApiService.gameInfoApi.getGameInfo(gameID).games?.get(0)
-                Log.d("GameViewModel", "${_selectedGame.value}")
+                _selectedGame.value = ApiService.gameApi.getGameInfo(gameID).game.toGame()
             } catch(e: Exception) {
                 Log.e("GameViewModel", "Errore nella chiamata API: ${e.message}", e)
             }
