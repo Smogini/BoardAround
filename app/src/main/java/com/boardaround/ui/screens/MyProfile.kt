@@ -1,6 +1,12 @@
 package com.boardaround.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +18,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,12 +30,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.boardaround.data.entities.User
 import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
@@ -50,7 +60,8 @@ fun ShowMyProfileScreen(
     eventViewModel: EventViewModel,
     gameViewModel: GameViewModel
 ) {
-    val user = LocalContext.current.getCurrentUser()
+    val context = LocalContext.current
+    val user = context.getCurrentUser()
     val username = user.username
 
     val myGames by gameViewModel.userGames.collectAsState(initial = emptyList())
@@ -68,143 +79,136 @@ fun ShowMyProfileScreen(
     eventViewModel.searchEventsByUsername(username)
 
     ScreenTemplate(
-        title = "Profilo di $username",
+        title = "Il mio profilo",
         currentRoute = Route.MyProfile,
         navController = navController,
-        showBottomBar = true,
+        showBottomBar = true
     ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .padding(bottom = 100.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(
-                    "I miei dati:",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 30.sp)
-                )
+                // Header profilo
+                ProfileHeader(user)
+            }
 
-                user.let {
-                    Text(
-                        text = "Nome: ${it.name}",
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp)
-                    )
-                    Text(
-                        text = "Email: ${it.email}",
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp)
-                    )
-                    Text(
-                        text = "Data di Nascita: ${it.dob}",
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp)
+            item {
+                ProfileCard(title = "") {
+                    ExpandableSection(
+                        title = "I miei post",
+                        items = myPosts,
+                        itemContent = { post ->
+                            CustomItem(
+                                title = post.title,
+                                description = post.content,
+                                imageUrl = post.imageUri,
+                            )
+                        },
+                        isExpanded = showPosts,
+                        onExpandChange = { showPosts = !showPosts },
+                        onItemClick = {
+                            postViewModel.selectPost(it)
+                        }
                     )
                 }
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            item {
+                ProfileCard(title = "") {
+                    ExpandableSection(
+                        title = "I miei eventi",
+                        items = myEvents,
+                        itemContent = { event ->
+                            CustomItem(
+                                title = event.name,
+                                description = event.description,
+                                imageUrl = event.imageUrl
+                            )
+                        },
+                        isExpanded = showEvents,
+                        onExpandChange = { showEvents = !showEvents },
+                        onItemClick = {
+                            eventViewModel.selectEvent(it)
+                            navController.navigateSingleTop(Route.EventInfo)
+                        }
+                    )
+                }
+            }
 
-                ExpandableSection(
-                    title = "I miei post",
-                    items = myPosts,
-                    itemContent = { post ->
-                        CustomItem(
-                            title = post.title,
-                            description = post.content,
-                            imageUrl = post.imageUri,
-                        )
-                    },
-                    isExpanded = showPosts,
-                    onExpandChange = { showPosts = !showPosts },
-                    onItemClick = { selectedPost ->
-                        postViewModel.selectPost(selectedPost)
-//                        navController.navigateSingleTop(Route.Post)
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                ExpandableSection(
-                    title = "I miei eventi",
-                    items = myEvents,
-                    itemContent = { event ->
-                        CustomItem(
-                            title = event.name,
-                            description = event.description,
-                            imageUrl = event.imageUrl
-                        )
-                    },
-                    isExpanded = showEvents,
-                    onExpandChange = { showEvents = !showEvents },
-                    onItemClick = { selectedEvent ->
-                        eventViewModel.selectEvent(selectedEvent)
-                        navController.navigateSingleTop(Route.EventInfo)
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                ExpandableSection(
-                    title = "I miei giochi",
-                    items = myGames,
-                    isExpanded = showGames,
-                    onExpandChange = { showGames = !showGames },
-                    onItemClick = { selectedGame ->
-                        gameViewModel.getGameInfo(selectedGame.id)
-                        navController.navigateSingleTop(Route.GameInfo)
-                    }
-                ) { savedGame ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = savedGame.name,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.widthIn(max = 250.dp)
-                        )
-                        CustomButtonIcon(
-                            title = "Rimuovi gioco",
-                            icon = Icons.Filled.Delete,
-                            iconColor = MaterialTheme.colorScheme.tertiary,
-                            onClick = { gameViewModel.removeSavedGame(savedGame) },
-                            modifier = Modifier.size(30.dp)
-                        )
+            item {
+                ProfileCard(title = "") {
+                    ExpandableSection(
+                        title = "I miei giochi",
+                        items = myGames,
+                        isExpanded = showGames,
+                        onExpandChange = { showGames = !showGames },
+                        onItemClick = {
+                            gameViewModel.getGameInfo(it.id)
+                            navController.navigateSingleTop(Route.GameInfo)
+                        }
+                    ) { savedGame ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = savedGame.name,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            CustomButtonIcon(
+                                title = "Rimuovi gioco",
+                                icon = Icons.Filled.Delete,
+                                iconColor = MaterialTheme.colorScheme.error,
+                                onClick = { gameViewModel.removeSavedGame(savedGame) }
+                            )
+                        }
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                ExpandableSection(
-                    title = "I miei amici:",
-                    items = myFriends,
-                    isExpanded = showFriends,
-                    onExpandChange = { showFriends = !showFriends },
-                    onItemClick = { selectedFriend ->
-                        userViewModel.selectUser(selectedFriend)
-                        navController.navigateSingleTop(Route.Profile)
-                    }
-                ) { friend ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = friend.username)
-                        CustomButtonIcon(
-                            title = "Rimuovi amico",
-                            icon = Icons.Filled.Delete,
-                            iconColor = MaterialTheme.colorScheme.tertiary,
-                            onClick = { userViewModel.removeFriend(username, friend.username) }
-                        )
+            item {
+                ProfileCard(title = "") {
+                    ExpandableSection(
+                        title = "I miei amici",
+                        items = myFriends,
+                        isExpanded = showFriends,
+                        onExpandChange = { showFriends = !showFriends },
+                        onItemClick = {
+                            userViewModel.selectUser(it)
+                            navController.navigateSingleTop(Route.Profile)
+                        }
+                    ) { friend ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(friend.username)
+                            CustomButtonIcon(
+                                title = "Rimuovi amico",
+                                icon = Icons.Filled.Delete,
+                                iconColor = MaterialTheme.colorScheme.tertiary,
+                                onClick = {
+                                    userViewModel.removeFriend(username, friend.username)
+                                }
+                            )
+                        }
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(180.dp))
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
 
                 CustomButton(
                     onClick = {
@@ -214,14 +218,95 @@ fun ShowMyProfileScreen(
                     text = "Esci dal profilo"
                 )
 
+                Spacer(modifier = Modifier.height(8.dp))
+
                 CustomButton(
                     onClick = {
                         authViewModel.deleteUser(user)
                         navController.navigateSingleTop(Route.Login)
                     },
-                    text = "Elimina il profilo"
+                    text = "Elimina il profilo",
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun ProfileHeader(user: User) {
+    var expanded by remember { mutableStateOf(false) }
+
+    androidx.compose.material3.Card(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .animateContentSize( // Animazione fluida
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Ciao, ${user.name}!",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.ExpandMore,
+                    contentDescription = "Espandi",
+                    modifier = Modifier
+                        .rotate(if (expanded) 180f else 0f)
+                        .size(24.dp)
+                )
+            }
+
+            // Contenuto che si espande
+            AnimatedVisibility(visible = expanded) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    Text("Email: ${user.email}", style = MaterialTheme.typography.bodyMedium)
+                    Text("Data di nascita: ${user.dob}", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "Obiettivi raggiunti: 3 su 5", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ProfileCard(title: String, content: @Composable () -> Unit) {
+    androidx.compose.material3.Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary
+        ),
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+
+            Spacer(modifier = Modifier.height(8.dp))
+            content()
         }
     }
 }

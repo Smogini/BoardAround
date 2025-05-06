@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +28,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.boardaround.R
 import com.boardaround.navigation.Route
+import com.boardaround.ui.components.CustomButton
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.UserViewModel
 
@@ -63,6 +65,12 @@ fun ShowEventInfoScreen(
     ) {
         LazyColumn {
             item {
+                Text(
+                    text = "Nome Evento: " + eventToShow?.name,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
                 Text(
                     text = "Descrizione: " + eventToShow?.description,
                     style = MaterialTheme.typography.headlineMedium,
@@ -102,6 +110,15 @@ fun ShowEventInfoScreen(
                             permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                         }
                 )
+
+
+                CustomButton(
+                    onClick = {
+                        /*TODO*/
+                    },
+                    text = "Partecipa all'evento"
+                )
+
             }
         }
     }
