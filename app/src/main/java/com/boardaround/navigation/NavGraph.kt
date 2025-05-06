@@ -26,6 +26,7 @@ import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.PostViewModel
+import com.boardaround.viewmodel.TriviaViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
@@ -36,11 +37,13 @@ fun NavGraph(
     gameViewModel: GameViewModel,
     postViewModel: PostViewModel,
     eventViewModel: EventViewModel,
+    triviaViewModel: TriviaViewModel,
     onThemeChange: (Boolean) -> Unit
 ) {
+    val startDest = if(authViewModel.isUserLoggedIn()) Route.Homepage else Route.Splash
     NavHost(
         navController = navController,
-        startDestination = if(authViewModel.isUserLoggedIn()) Route.Homepage else Route.Splash,
+        startDestination = startDest,
         enterTransition = { fadeIn(tween(500)) },
         exitTransition = { fadeOut(tween(500)) }
     ) {
@@ -84,7 +87,7 @@ fun NavGraph(
             GamificationScreen(navController, userViewModel)
         }
         composable<Route.UtilTools> {
-            ShowToolScreen(navController)
+            ShowToolScreen(navController, triviaViewModel)
         }
     }
 }

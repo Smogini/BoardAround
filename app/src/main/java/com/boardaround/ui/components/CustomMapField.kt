@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import com.boardaround.network.NominatimClient
-import com.boardaround.network.SearchResult
+import com.boardaround.network.StreetMapApiResponse
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -26,11 +26,11 @@ fun CustomMapField(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     readOnly: Boolean = false,
-    onSuggestionClick: ((SearchResult) -> Unit)? = null,
+    onSuggestionClick: ((StreetMapApiResponse) -> Unit)? = null,
     leadingIcon: (@Composable () -> Unit)? = null, // Aggiunto parametro leadingIcon
     trailingIcon: (@Composable () -> Unit)? = null // Aggiunto parametro trailingIcon
 ) {
-    var suggestions by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
+    var suggestions by remember { mutableStateOf<List<StreetMapApiResponse>>(emptyList()) }
     var showSuggestions by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
@@ -42,8 +42,8 @@ fun CustomMapField(
                 // Se il testo non è vuoto, esegui la ricerca
                 if (it.text.isNotEmpty()) {
                     // Chiamata API solo se il testo è valido
-                    NominatimClient.instance.search(query = it.text).enqueue(object : retrofit2.Callback<List<SearchResult>> {
-                        override fun onResponse(call: retrofit2.Call<List<SearchResult>>, response: retrofit2.Response<List<SearchResult>>) {
+                    NominatimClient.instance.search(query = it.text).enqueue(object : retrofit2.Callback<List<StreetMapApiResponse>> {
+                        override fun onResponse(call: retrofit2.Call<List<StreetMapApiResponse>>, response: retrofit2.Response<List<StreetMapApiResponse>>) {
                             if (response.isSuccessful) {
                                 val responseBody = response.body() ?: emptyList()
                                 suggestions = responseBody
@@ -58,7 +58,7 @@ fun CustomMapField(
                             }
                         }
 
-                        override fun onFailure(call: retrofit2.Call<List<SearchResult>>, t: Throwable) {
+                        override fun onFailure(call: retrofit2.Call<List<StreetMapApiResponse>>, t: Throwable) {
                             // Gestisci il fallimento della chiamata API
                             suggestions = emptyList()
                             showSuggestions = false

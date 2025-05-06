@@ -1,5 +1,6 @@
 package com.boardaround.data.entities
 
+import androidx.core.text.HtmlCompat
 import com.tickaroo.tikxml.annotation.Attribute
 import com.tickaroo.tikxml.annotation.Element
 import com.tickaroo.tikxml.annotation.PropertyElement
@@ -61,7 +62,7 @@ data class GameDetails(
     val id: Int,
 
     @Element(name = "name")
-    val names: List<DetailNameElement>,
+    val names: List<DetailNameElement>? = emptyList(),
 
     @PropertyElement(name = "description")
     val description: String? = "No description",
@@ -87,7 +88,6 @@ data class GameDetails(
     @Element(name = "boardgameexpansion")
     val expansions: List<BoardGameExpansion>? = emptyList()
 )
-
 
 @Xml(name = "boardgamepublisher")
 data class GamePublisher(
@@ -124,8 +124,8 @@ data class YearPublished(
 
 fun GameDetails.toGame(): Game = Game(
     id = id,
-    name = names.firstOrNull { it.primary == true }?.value ?: names.firstOrNull()?.value ?: "Unknown",
-    description = description,
+    name = decodeHtmlText(names?.firstOrNull()?.value ?: ""),
+    description = decodeHtmlText(description ?: ""),
     imageUrl = imageUrl,
     yearPublished = yearPublished?.value,
     publisher = this.publisher?.get(0)?.name,
@@ -134,3 +134,10 @@ fun GameDetails.toGame(): Game = Game(
     playingTime = this.playingTime,
     expansions = this.expansions
 )
+
+private fun decodeHtmlText(toConvert: String): String {
+    return HtmlCompat.fromHtml(toConvert, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                    .toString()
+                    .replace("<br/>", "\n")
+                    .trim()
+}

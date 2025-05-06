@@ -14,7 +14,7 @@ import com.boardaround.data.entities.Post
 import com.boardaround.data.entities.SavedGame
 import com.boardaround.data.entities.User
 
-@Database(entities = [User::class, Event::class, Post::class, Friendship::class, SavedGame::class], version = 1)
+@Database(entities = [User::class, Event::class, Post::class, Friendship::class, SavedGame::class], version = 2)
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun userDAO(): UserDAO

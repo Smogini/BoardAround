@@ -17,11 +17,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
+import com.boardaround.ui.screens.tools.SetupTriviaScreen
 import com.boardaround.ui.screens.tools.ShowCoinFlip
 import com.boardaround.ui.screens.tools.ShowDiceScreen
 import com.boardaround.ui.screens.tools.ShowScoreBoard
 import com.boardaround.ui.screens.tools.ShowTokenScreen
-import com.boardaround.ui.screens.tools.ShowTriviaScreen
+import com.boardaround.viewmodel.TriviaViewModel
 
 sealed class UtilTools(
     val name: String
@@ -33,28 +34,27 @@ sealed class UtilTools(
     data object ScoreBoard: UtilTools("Segna punti")
 
     companion object {
-        val allTools = listOf(Dice, CoinFlip, Token, Trivia)
+        val allTools = listOf(Dice, CoinFlip, Token, Trivia, ScoreBoard)
         private var selectedTool: UtilTools = Dice
 
         fun selectTool(selected: UtilTools) {
             selectedTool = selected
         }
 
-        fun getSelectedTool(): UtilTools {
-            return selectedTool
-        }
+        fun getSelectedTool(): UtilTools = selectedTool
+
     }
 }
 
 @Composable
-fun ShowToolScreen(navController: NavController) {
+fun ShowToolScreen(navController: NavController, triviaViewModel: TriviaViewModel) {
     val selectedTool = UtilTools.getSelectedTool()
 
     when (selectedTool) {
         is UtilTools.Dice -> ShowDiceScreen(navController)
         is UtilTools.CoinFlip -> ShowCoinFlip(navController)
         is UtilTools.Token -> ShowTokenScreen(navController)
-        is UtilTools.Trivia -> ShowTriviaScreen()
+        is UtilTools.Trivia -> SetupTriviaScreen(navController, triviaViewModel)
         is UtilTools.ScoreBoard -> ShowScoreBoard(navController)
     }
 }

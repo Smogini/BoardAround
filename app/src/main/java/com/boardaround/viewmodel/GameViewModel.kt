@@ -9,6 +9,8 @@ import com.boardaround.data.entities.SavedGame
 import com.boardaround.data.entities.toGame
 import com.boardaround.data.repositories.GameRepository
 import com.boardaround.network.ApiService
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,6 +25,9 @@ class GameViewModel(private val gameRepository: GameRepository): ViewModel() {
 
     private val _userGames = MutableStateFlow<List<SavedGame>>(emptyList())
     val userGames: StateFlow<List<SavedGame>> = _userGames
+
+    private val _suggestedGames = MutableStateFlow<List<Game>>(mutableListOf())
+    val suggestedGames: StateFlow<List<Game>> = _suggestedGames
 
     fun getGameInfo(gameID: Int) {
         viewModelScope.launch {
@@ -39,7 +44,7 @@ class GameViewModel(private val gameRepository: GameRepository): ViewModel() {
             try {
                 _gamesFound.value = ApiService.gameApi.searchGames(query)
             } catch (e: Exception) {
-                Log.e("UserViewModel", "Errore nella chiamata API: ${e.message}", e)
+                Log.e("GameViewModel", "Errore nella chiamata API: ${e.message}", e)
             }
         }
     }
@@ -55,15 +60,37 @@ class GameViewModel(private val gameRepository: GameRepository): ViewModel() {
             try {
                 _userGames.value= gameRepository.getUserGames(username)
             } catch(e: Exception) {
-                Log.e("UserViewModel", "Errore nell'ottenere i giochi: ${e.message}", e)
+                Log.e("GameViewModel", "Errore nell'ottenere i giochi: ${e.message}", e)
             }
         }
     }
 
-    fun removeSavedGame(toRemove: SavedGame) {
+    fun removeSavedGame(gameID: Int) {
         viewModelScope.launch {
-            gameRepository.removeSavedGame(toRemove)
-            getUserGames(toRemove.user)
+            gameRepository.removeSavedGame(gameID)
+        }
+    }
+
+    fun getSuggestedGames(count: Int) {
+        viewModelScope.launch {
+            val gameIds = List(count) { (1..10000).random() }
+
+            val games = gameIds.map { id ->
+                    async {
+                        try {
+                            val response = ApiService.gameApi.getGameInfo(id).game.toGame()
+                            response
+                        } catch (e: Exception) {
+                            Log.e("GameViewModel", "Errore per id $id: ${e.message}")
+                            null
+                        }
+                    }
+                }.awaitAll()
+
+            _suggestedGames.value = games.filterNotNull().filter {
+                game -> game.name.isNotEmpty()
+            }
+
         }
     }
 

@@ -79,7 +79,7 @@ fun ShowScoreBoard(navController: NavController) {
                     value = playerName,
                     onValueChange = { playerName = it },
                     modifier = Modifier.fillMaxWidth(),
-                    readOnly = numPlayers < 0,
+//                    readOnly = numPlayers < 0,
                     trailingIcon = {
                         if (playerName.text.isNotEmpty()) {
                             CustomButtonIcon(

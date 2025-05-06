@@ -8,6 +8,7 @@ import com.boardaround.data.repositories.PostRepository
 import com.boardaround.data.repositories.UserRepository
 import com.boardaround.data.repositories.FriendshipRepository
 import com.boardaround.data.repositories.GameRepository
+import com.boardaround.data.repositories.TriviaRepository
 
 class ViewModelFactory(context: Context) {
 
@@ -23,6 +24,7 @@ class ViewModelFactory(context: Context) {
     private val postRepository = PostRepository(postDAO)
     private val friendshipRepository = FriendshipRepository(userDao)
     private val gameRepository = GameRepository(gameDAO)
+    private val triviaRepository = TriviaRepository()
 
     fun provideAuthViewModel(): AuthViewModel =
         AuthViewModel(userRepository)
@@ -41,4 +43,7 @@ class ViewModelFactory(context: Context) {
 
     fun provideGameViewModel(): GameViewModel =
         GameViewModel(gameRepository)
+
+    fun provideTriviaViewModel(): TriviaViewModel =
+        TriviaViewModel(triviaRepository)
 }

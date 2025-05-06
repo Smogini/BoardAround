@@ -45,6 +45,7 @@ fun ScreenTemplate(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
+                    .padding(bottom = 100.dp)
             ) {
                 content(PaddingValues(10.dp))
             }

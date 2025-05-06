@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -19,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -59,13 +56,8 @@ fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) 
             verticalArrangement = Arrangement.Center
         ) {
             Text("Username", textAlign = TextAlign.Center, color = PrimaryBrown)
-            OutlinedTextField(
-                label = {
-                    Text(
-                        "Inserisci username",
-                        color = if (loginError) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
+            CustomTextField(
+                label = "Inserisci username",
                 modifier = Modifier.fillMaxWidth(),
                 value = usernameState.value,
                 onValueChange = { usernameState.value = it }

@@ -1,5 +1,6 @@
 package com.boardaround
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,20 +9,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.boardaround.navigation.NavGraph
 import com.boardaround.ui.theme.BoardAroundTheme
 import com.boardaround.utils.PreferencesManager
 import com.boardaround.viewmodel.ViewModelFactory
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.analytics
@@ -41,6 +44,7 @@ class MainActivity : ComponentActivity() {
         val gameViewModel = viewModelFactory.provideGameViewModel()
         val eventViewModel = viewModelFactory.provideEventViewModel()
         val postViewModel = viewModelFactory.providePostViewModel()
+        val triviaViewModel = viewModelFactory.provideTriviaViewModel()
 
         setContent {
             val context = LocalContext.current
@@ -70,6 +74,7 @@ class MainActivity : ComponentActivity() {
                         gameViewModel = gameViewModel,
                         postViewModel = postViewModel,
                         eventViewModel = eventViewModel,
+                        triviaViewModel = triviaViewModel,
                         onThemeChange = { newIsDarkMode ->
                             isDarkMode.value = newIsDarkMode
                             lifecycleScope.launch {
@@ -85,22 +90,23 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun SystemUiController(isDarkMode: Boolean) {
-    /* TODO: cambiare funzione deprecata */
-    val systemUiController = rememberSystemUiController()
-    val useDarkIcons = !isDarkMode // Determina se usare icone scure o chiare
+    val view = LocalView.current
+    val window = (view.context as Activity).window
 
     val statusBarColor = if (isDarkMode) {
-        Color.Black // Colore nero per il tema scuro
+        Color.Black
     } else {
-        Color(0xFFEDE0D4) // Colore per il tema chiaro
+        Color(0xFFEDE0D4)
     }
 
-    DisposableEffect(systemUiController, useDarkIcons) {
-        // Aggiorna il colore della barra di stato
-        systemUiController.setStatusBarColor(
-            color = statusBarColor,
-            darkIcons = useDarkIcons
-        )
-        onDispose {}
+    SideEffect {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        @Suppress("DEPRECATION")
+        window.statusBarColor = statusBarColor.toArgb()
+
+        WindowCompat.getInsetsController(window, view).apply {
+            isAppearanceLightStatusBars = !isDarkMode
+        }
     }
 }

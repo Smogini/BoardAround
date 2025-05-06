@@ -7,8 +7,6 @@ class EventRepository(private val eventDao: EventDAO) {
 
     suspend fun insertEvent(event: Event) = eventDao.insertEvent(event)
 
-    suspend fun getAllEvents() = eventDao.getAllEvents()
-
     suspend fun getEventsByUsername(username: String): List<Event> =
         eventDao.getEventsByUsername(username)
 

@@ -1,21 +1,28 @@
 package com.boardaround.data.repositories
 
-import com.boardaround.data.trivia.TriviaQuestion
+import android.util.Log
+import androidx.core.text.HtmlCompat
+import com.boardaround.data.entities.TriviaQuestion
 import com.boardaround.network.ApiService
 
 class TriviaRepository {
-    suspend fun getTriviaQuestions(amount: Int = 10, category: Int? = null, difficulty: String? = null): List<TriviaQuestion> {
+
+    suspend fun getTriviaQuestions(amount: Int?, category: Int?, difficulty: String?): List<TriviaQuestion> {
         return try {
             val response = ApiService.triviaApi.getTriviaQuestions(amount, category, difficulty)
             if (response.responseCode == 0) { // 0 indica successo in OTDB
-                response.results
+                return response.results.map { question ->
+                    question.copy(
+                        question = HtmlCompat.fromHtml(question.question, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+                    )
+                }
             } else {
-                // Gestisci il codice di errore (log, restituisci una lista vuota, ecc.)
                 emptyList()
             }
         } catch (e: Exception) {
-            // Gestisci l'eccezione (log, restituisci una lista vuota, ecc.)
+            Log.e("TriviaRepository", "Error getting trivia questions: ${e.message}", e)
             emptyList()
         }
     }
+
 }

@@ -8,17 +8,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface NominatimApi {
+interface StreetMapApiInterface {
     @GET("search")
     fun search(
         @Query("q") query: String,
         @Query("format") format: String = "jsonv2",
         @Query("limit") limit: Int = 5,
         @Query("accept-language") language: String = "it",
-    ): Call<List<SearchResult>>
+    ): Call<List<StreetMapApiResponse>>
 }
 
-data class SearchResult(
+data class StreetMapApiResponse(
     val displayName: String,
     val lat: String,
     val lon: String
@@ -27,17 +27,17 @@ data class SearchResult(
 object NominatimClient {
     private const val BASE_URL = "https://nominatim.openstreetmap.org/"
 
-    val instance: NominatimApi by lazy {
+    val instance: StreetMapApiInterface by lazy {
         val client = okhttp3.OkHttpClient.Builder()
             .addInterceptor(UserAgentInterceptor())
             .build()
 
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client) // Imposta il client HTTP personalizzato
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(NominatimApi::class.java)
+            .create(StreetMapApiInterface::class.java)
     }
 
     class UserAgentInterceptor : Interceptor {
@@ -47,7 +47,7 @@ object NominatimClient {
                 .header(
                     "User-Agent",
                     "BoardAroundApp/1.0"
-                ) // Sostituisci con il nome della tua app e una versione
+                )
                 .build()
             return chain.proceed(requestWithUserAgent)
         }

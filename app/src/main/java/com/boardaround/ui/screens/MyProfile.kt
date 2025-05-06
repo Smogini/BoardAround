@@ -14,13 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,7 +32,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.boardaround.data.entities.User
@@ -96,7 +93,7 @@ fun ShowMyProfileScreen(
             }
 
             item {
-                ProfileCard(title = "") {
+                ProfileCard {
                     ExpandableSection(
                         title = "I miei post",
                         items = myPosts,
@@ -117,7 +114,7 @@ fun ShowMyProfileScreen(
             }
 
             item {
-                ProfileCard(title = "") {
+                ProfileCard {
                     ExpandableSection(
                         title = "I miei eventi",
                         items = myEvents,
@@ -139,14 +136,14 @@ fun ShowMyProfileScreen(
             }
 
             item {
-                ProfileCard(title = "") {
+                ProfileCard {
                     ExpandableSection(
                         title = "I miei giochi",
                         items = myGames,
                         isExpanded = showGames,
                         onExpandChange = { showGames = !showGames },
-                        onItemClick = {
-                            gameViewModel.getGameInfo(it.id)
+                        onItemClick = { game ->
+                            gameViewModel.getGameInfo(game.gameId)
                             navController.navigateSingleTop(Route.GameInfo)
                         }
                     ) { savedGame ->
@@ -167,7 +164,7 @@ fun ShowMyProfileScreen(
                                 title = "Rimuovi gioco",
                                 icon = Icons.Filled.Delete,
                                 iconColor = MaterialTheme.colorScheme.error,
-                                onClick = { gameViewModel.removeSavedGame(savedGame) }
+                                onClick = { gameViewModel.removeSavedGame(savedGame.gameId) }
                             )
                         }
                     }
@@ -175,7 +172,7 @@ fun ShowMyProfileScreen(
             }
 
             item {
-                ProfileCard(title = "") {
+                ProfileCard {
                     ExpandableSection(
                         title = "I miei amici",
                         items = myFriends,
@@ -294,7 +291,7 @@ fun ProfileHeader(user: User) {
 
 
 @Composable
-fun ProfileCard(title: String, content: @Composable () -> Unit) {
+fun ProfileCard(content: @Composable () -> Unit) {
     androidx.compose.material3.Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,

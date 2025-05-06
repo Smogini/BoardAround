@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Settings
@@ -130,7 +130,7 @@ fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): TopBa
 
     if (!excludedRoutes.contains(currentRoute)) {
         actionButtons.add("Notifications" to notificationIcon)
-        navigationButtons.add("Gamification" to Icons.Filled.Favorite)
+        navigationButtons.add("Gamification" to Icons.Filled.EmojiEvents)
     }
 
     when (currentRoute) {

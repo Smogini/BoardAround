@@ -10,6 +10,6 @@ class GameRepository(private val gameDAO: GameDAO) {
 
     suspend fun addGame(newGame: SavedGame) = gameDAO.addGameToUser(newGame)
 
-    suspend fun removeSavedGame(toRemove: SavedGame) = gameDAO.removeGameFromUser(toRemove)
+    suspend fun removeSavedGame(gameId: Int) = gameDAO.removeGameFromUser(gameId)
 
 }

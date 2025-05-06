@@ -112,7 +112,7 @@ fun BottomBar(navController: NavController) {
                             .size(55.dp)
                             .offset {
                                 IntOffset(
-                                    x = (-20).dp.roundToPx(),
+                                    x = 20.dp.roundToPx(),
                                     y = verticalOffset.roundToPx()
                                 )
                             },

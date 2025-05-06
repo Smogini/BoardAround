@@ -1,4 +1,4 @@
-package com.boardaround.data.trivia
+package com.boardaround.data.entities
 
 import com.google.gson.annotations.SerializedName
 

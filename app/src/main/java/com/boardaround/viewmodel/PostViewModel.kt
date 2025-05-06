@@ -16,7 +16,6 @@ class PostViewModel(
     val userPosts: StateFlow<List<Post>> = _userPosts
 
     private val _selectedPost = MutableStateFlow<Post?>(null)
-    val selectedPost: StateFlow<Post?> = _selectedPost
 
     fun selectPost(selected: Post) {
         _selectedPost.value = selected

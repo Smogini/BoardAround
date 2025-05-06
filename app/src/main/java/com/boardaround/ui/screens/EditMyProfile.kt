@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.ui.components.Customswitch
+import com.boardaround.ui.components.CustomSwitch
 import com.boardaround.ui.theme.LocalIsDarkMode
 
 @Composable
@@ -96,7 +96,7 @@ fun ShowEditMyProfile(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text("Tema scuro")
-                Customswitch(
+                CustomSwitch(
                     checked = isDarkMode,
                     onCheckedChange = { newIsDarkMode ->
                         onThemeChange(newIsDarkMode)

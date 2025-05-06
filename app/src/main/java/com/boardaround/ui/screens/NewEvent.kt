@@ -32,7 +32,7 @@ import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
-import com.boardaround.ui.components.Customswitch
+import com.boardaround.ui.components.CustomSwitch
 import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
@@ -142,7 +142,7 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text("Evento privato", color = PrimaryBrown)
-                    Customswitch(
+                    CustomSwitch(
                         checked = isPrivateEvent,
                         onCheckedChange = { isPrivateEvent = it }
                     )
