@@ -2,6 +2,7 @@ package com.boardaround.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -75,39 +78,49 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
                 )
 
                 Text(
-                    text = "Nome del gioco: " + gameToShow?.name,
-                    style = MaterialTheme.typography.headlineMedium,
+                    text = gameToShow?.name ?: "Nome Gioco", // Aggiunto un fallback per sicurezza
+                    style = MaterialTheme.typography.headlineLarge.copy( // Usa .copy() per modificare lo stile esistente
+                        fontWeight = FontWeight.Bold // Imposta il grassetto
+                    ),
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary,
+                    textAlign = TextAlign.Center // Centra il testo
                 )
 
-                Text(
-                    text = "Editore: " + gameToShow?.publisher,
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Spacer(modifier = Modifier.size(15.dp))
 
                 Text(
-                    text = "Numero giocatori",
-                    style = MaterialTheme.typography.headlineMedium,
+                    text = "• Editore: " + gameToShow?.publisher,
+                    style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
 
-                Text(
-                    text = "Minimo: ${gameToShow?.minPlayers}, Massimo: ${gameToShow?.maxPlayers}",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Spacer(modifier = Modifier.size(5.dp))
 
                 Text(
-                    text = "Tempo di gioco: ${gameToShow?.playingTime} minuti",
-                    style = MaterialTheme.typography.headlineMedium,
+                    text = "• Numero giocatori: " + gameToShow?.minPlayers + " - " + gameToShow?.maxPlayers,
+                    style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
+
+                Spacer(modifier = Modifier.size(5.dp))
+
+                Text(
+                    text = "• Tempo di gioco: ${gameToShow?.playingTime} minuti",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+
+
+                Button(
+                    onClick = { showGameDescription = true },
+                    modifier = Modifier.padding(top = 10.dp)
+                ) {
+                    Text("Come si gioca?")
+                }
 
                 ExpandableSection(
                     title = "Espansioni",
@@ -120,13 +133,6 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
                     }
                 ) { game ->
                     Text(game.title)
-                }
-
-                Button(
-                    onClick = { showGameDescription = true },
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    Text("Come si gioca?")
                 }
 
                 // Pulsante "Aggiungi ai miei giochi"
