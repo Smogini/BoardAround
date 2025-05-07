@@ -1,13 +1,19 @@
 package com.boardaround.viewmodel
 
+import android.telecom.Call
 import android.util.Log
+import android.view.WindowInsetsAnimation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.Event
 import com.boardaround.data.repositories.EventRepository
+import com.boardaround.network.NominatimClient
+import com.boardaround.network.StreetMapApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.Callback
+import retrofit2.Response
 
 class EventViewModel(
     private val repository: EventRepository
@@ -48,4 +54,55 @@ class EventViewModel(
             }
         }
     }
+
+    private val _addressSuggestions = MutableStateFlow<List<StreetMapApiResponse>>(emptyList())
+    val addressSuggestions: StateFlow<List<StreetMapApiResponse>> = _addressSuggestions
+
+    private val _selectedAddress = MutableStateFlow<StreetMapApiResponse?>(null)
+    val selectedAddress: StateFlow<StreetMapApiResponse?> = _selectedAddress
+
+    fun searchAddress(query: String) {
+        if (query.isBlank()) {
+            _addressSuggestions.value = emptyList()
+            return
+        }
+
+        _addressSuggestions.value = emptyList()
+
+        viewModelScope.launch {
+            NominatimClient.instance.search(query).enqueue(object :
+                retrofit2.Callback<List<StreetMapApiResponse>> {
+                override fun onResponse(
+                    call: retrofit2.Call<List<StreetMapApiResponse>>,
+                    response: retrofit2.Response<List<StreetMapApiResponse>>
+                ) {
+                    if (response.isSuccessful) {
+                        val suggestions = response.body() ?: emptyList()
+                        _addressSuggestions.value = suggestions
+                        Log.d("EventViewModel", "Suggerimenti ricevuti: ${suggestions.size}")
+                    } else {
+                        _addressSuggestions.value = emptyList()
+                        Log.e("EventViewModel", "Errore nella ricerca indirizzo: ${response.code()}")
+                        Log.e("EventViewModel", "Messaggio di errore API: ${response.errorBody()?.string()}")
+
+                    }
+                }
+
+                override fun onFailure(call: retrofit2.Call<List<StreetMapApiResponse>>, t: Throwable) {
+                    _addressSuggestions.value = emptyList()
+                    Log.e("EventViewModel", "Errore di rete nella ricerca indirizzo: ${t.message}", t)
+                }
+            })
+        }
+    }
+
+    fun selectAddressSuggestion(suggestion: StreetMapApiResponse) {
+        _selectedAddress.value = suggestion
+        _addressSuggestions.value = emptyList() // Nascondi i suggerimenti dopo la selezione
+    }
+
+    fun clearSelectedAddress() {
+        _selectedAddress.value = null
+    }
+
 }

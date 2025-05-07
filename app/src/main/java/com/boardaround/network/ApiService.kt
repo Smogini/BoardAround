@@ -39,4 +39,8 @@ object ApiService {
     val triviaApi: TriviaApiInterface by lazy {
         createApi("https://opentdb.com/", TriviaApiInterface::class.java, false)
     }
+
+    val eventApi: StreetMapApiInterface by lazy {
+        createApi("https://nominatim.openstreetmap.org/", StreetMapApiInterface::class.java, false)
+    }
 }

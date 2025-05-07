@@ -1,7 +1,11 @@
 package com.boardaround.network
 
+
+import com.google.gson.annotations.SerializedName
 import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import okhttp3.Response
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -19,13 +23,22 @@ interface StreetMapApiInterface {
 }
 
 data class StreetMapApiResponse(
-    val displayName: String,
-    val lat: String,
-    val lon: String
+    @SerializedName("display_name")
+    val displayName: String?,
+    val lat: String?,
+    val lon: String?
 )
 
 object NominatimClient {
     private const val BASE_URL = "https://nominatim.openstreetmap.org/"
+
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY // Logga il corpo della richiesta e risposta
+    }
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .addInterceptor(loggingInterceptor) // Aggiungi l'interceptor
+        .build()
 
     val instance: StreetMapApiInterface by lazy {
         val client = okhttp3.OkHttpClient.Builder()

@@ -25,4 +25,6 @@ data class Event(
     val dateTime: String,
     val isPrivate: Boolean,
     val imageUrl: String? = "",
+    val latitude: Double? = null,
+    val longitude: Double? = null
 )

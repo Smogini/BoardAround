@@ -1,6 +1,7 @@
 package com.boardaround.ui.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -31,6 +35,7 @@ import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
+import com.boardaround.ui.components.CustomMapField
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.CustomSwitch
 import com.boardaround.ui.components.DateTimePicker
@@ -58,8 +63,20 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
 
     var isDialogOpen by remember { mutableStateOf(false) }
 
+    var selectedStreetMapApiResponse by remember { mutableStateOf<com.boardaround.network.StreetMapApiResponse?>(null) }
+
     LaunchedEffect(Unit) {
         gameViewModel.getUserGames(username)
+    }
+
+    LaunchedEffect(selectedStreetMapApiResponse) {
+        selectedStreetMapApiResponse?.let {
+            if (it.lat != null && it.lon != null) {
+                selectedLocation = GeoPoint(it.lat.toDouble(), it.lon.toDouble())
+            } else {
+                selectedLocation = null // O gestisci l'errore in altro modo
+            }
+        }
     }
 
     ScreenTemplate(
@@ -90,20 +107,21 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                 }
 
                 Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
-//                CustomMapField(
-//                    label = "Inserisci indirizzo evento",
-//                    value = addressState.value,
-//                    onValueChange = { addressState.value = it },
-//                    onSuggestionClick = { suggestion ->
-//                        addressState.value = TextFieldValue(suggestion.displayName)
-//                        selectedLocation = GeoPoint(suggestion.lat.toDouble(), suggestion.lon.toDouble())
-//                    }
-//                )
-                CustomTextField(
-                    label = "Inserisci indirizzo",
-                    value = addressState.value,
-                    onValueChange = { addressState.value = it }
-                )
+
+                    CustomMapField(
+                        label = "Inserisci indirizzo",
+                        value = addressState.value,
+                        onValueChange = {
+                            addressState.value = it
+                            selectedStreetMapApiResponse = null
+                            selectedLocation = null
+                        },
+                        onSuggestionClick = { suggestion ->
+                            addressState.value = TextFieldValue(suggestion.displayName ?: "") // Aggiorna il testo del campo
+                            selectedStreetMapApiResponse = suggestion
+                        }
+                    )
+
 
                 Text("Seleziona gioco per l'evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
                 CustomButton(onClick = { isDialogOpen = true }, text = if (selectedGame.isEmpty()) "A cosa si gioca?" else "Gioco selezionato: $selectedGame")
@@ -158,14 +176,14 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                             dateTime = selectedDateTime,
                             isPrivate = isPrivateEvent,
                         )
-//                        if (selectedLocation != null) {
+                        if (selectedLocation != null) {
                             val message = if (isPrivateEvent) "Evento privato creato con successo" else "Evento pubblico creato con successo"
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             eventViewModel.insertEvent(newEvent)
                             navController.navigateSingleTop(Route.Homepage)
-//                        } else {
-//                            Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()
-//                        }
+                        } else {
+                            Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     text = "Crea evento"
                 )

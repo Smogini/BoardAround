@@ -95,7 +95,7 @@ fun CustomMapField(
                     LazyColumn(modifier = Modifier.padding(8.dp)) {
                         items(suggestions) { suggestion ->
                             Text(
-                                text = suggestion.displayName,
+                                text = suggestion.displayName ?: "",
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {

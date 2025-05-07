@@ -2,18 +2,13 @@ package com.boardaround.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults.outlinedButtonColors
+import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,6 +39,7 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
 
     Log.d("profile", "To show: $userToShow")
 
+    // Header della schermata
     ScreenTemplate(
         title = "Profilo di ${userToShow?.username}",
         currentRoute = Route.Profile,
@@ -52,88 +48,85 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
         LazyColumn(
             modifier = Modifier.padding(contentPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(20.dp) // Maggiore spaziatura tra gli elementi
         ) {
             item {
-                // Foto profilo
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        ImageRequest.Builder(LocalContext.current)
-                            .data(userToShow?.profilePic) // URL dell'immagine
-                            .placeholder(R.drawable.default_profile) // Placeholder in caso di caricamento
-                            .error(R.drawable.default_profile) // Placeholder in caso di errore
-                            .build()
-                    ),
-                    contentDescription = "Foto profilo",
+                // Immagine profilo
+                Box(
                     modifier = Modifier
-                        .size(100.dp) // Dimensione dell'immagine
-                        .clip(CircleShape), // Forma circolare
-                    contentScale = ContentScale.Crop // Adatta l'immagine al contenitore
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Griglia per Nome, Email e Data di nascita
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp) // Spaziatura tra le colonne
+                        .fillMaxWidth()
+                        .padding(20.dp), // Aggiungi un po' di padding attorno
+                    contentAlignment = Alignment.Center
                 ) {
-                    Column(Modifier.weight(1f)) { // Nome
-                        Text(
-                            text = "Nome:",
-                            style = MaterialTheme.typography.titleMedium, // Stile per l'etichetta
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = userToShow?.name ?: "", // Mostra il nome o una stringa vuota se null
-                            style = MaterialTheme.typography.headlineSmall, // Stile per il valore
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Column(Modifier.weight(1f)) { // Email
-                        Text(
-                            text = "Email:",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = userToShow?.email ?: "",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            text = "Data di nascita:",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = userToShow?.dob ?: "",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    if (userToShow != null && userToShow!!.username != currentUserUsername) {
-                        if (isFriend) {
-                            CustomButton(
-                                onClick = {
-                                    userViewModel.removeFriend(currentUserUsername, userToShow!!.username)
-                                },
-                                text = "Rimuovi amico"
-                            )
-                        } else {
-                            CustomButton(
-                                onClick = {
-                                    userViewModel.addFriend(currentUserUsername, userToShow!!.username)
-                                },
-                                text = "Aggiungi amico"
-                            )
-                        }
-                    }
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest.Builder(LocalContext.current)
+                                .data(userToShow?.profilePic) // URL dell'immagine
+                                .placeholder(R.drawable.default_profile) // Placeholder
+                                .error(R.drawable.default_profile) // Placeholder per errore
+                                .build()
+                        ),
+                        contentDescription = "Foto profilo",
+                        modifier = Modifier
+                            .size(120.dp) // Dimensione dell'immagine
+                            .clip(CircleShape) // Forma circolare
+                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape), // Aggiungi bordo
+                        contentScale = ContentScale.Crop
+                    )
+                }
 
+                // Card con informazioni principali
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        Text(
+                            text = userToShow?.name ?: "Nome non disponibile",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = userToShow?.email ?: "Email non disponibile",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = userToShow?.dob ?: "Data di nascita non disponibile",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Bottone per aggiungere o rimuovere amico
+                if (userToShow != null && userToShow!!.username != currentUserUsername) {
+                    if (isFriend) {
+                        CustomButton(
+                            onClick = {
+                                userViewModel.removeFriend(currentUserUsername, userToShow!!.username)
+                            },
+                            text = "Rimuovi amico",
+                        )
+                    } else {
+                        CustomButton(
+                            onClick = {
+                                userViewModel.addFriend(currentUserUsername, userToShow!!.username)
+                            },
+                            text = "Aggiungi amico",
+                        )
+                    }
                 }
             }
         }
