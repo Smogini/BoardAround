@@ -1,6 +1,7 @@
 package com.boardaround.ui.components
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,7 +43,7 @@ fun CustomMapField(
                 // Se il testo non è vuoto, esegui la ricerca
                 if (it.text.isNotEmpty()) {
                     // Chiamata API solo se il testo è valido
-                    NominatimClient.instance.search(query = it.text).enqueue(object : retrofit2.Callback<List<StreetMapApiResponse>> {
+                    NominatimClient.instance.search(query = it.text, countryCodes = "it").enqueue(object : retrofit2.Callback<List<StreetMapApiResponse>> {
                         override fun onResponse(call: retrofit2.Call<List<StreetMapApiResponse>>, response: retrofit2.Response<List<StreetMapApiResponse>>) {
                             if (response.isSuccessful) {
                                 val responseBody = response.body() ?: emptyList()
@@ -81,13 +82,13 @@ fun CustomMapField(
         // Mostra i suggerimenti solo se ci sono
         if (showSuggestions && onSuggestionClick != null) {
             Popup(
-                alignment = Alignment.BottomStart,
-                offset = IntOffset(0, 0),
+                alignment = Alignment.BottomEnd,
+                offset = IntOffset(0, 50),
                 properties = PopupProperties(focusable = false)
             ) {
                 Surface(
                     modifier = Modifier
-                        .width(200.dp)
+                        .width(300.dp)
                         .padding(top = 4.dp),
                     shape = MaterialTheme.shapes.small,
                     tonalElevation = 2.dp

@@ -1,5 +1,7 @@
 package com.boardaround.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -12,7 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
@@ -61,6 +65,12 @@ fun ShowToolScreen(navController: NavController, triviaViewModel: TriviaViewMode
 
 @Composable
 fun ToolsMenu(navController: NavController, isExpanded: MutableState<Boolean>) {
+
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (isExpanded.value) 180f else 0f,
+        animationSpec = tween(durationMillis = 300), label = "rotationAnimation"
+    )
+
     Box {
         IconButton(
             onClick = { isExpanded.value = !isExpanded.value },
@@ -69,7 +79,8 @@ fun ToolsMenu(navController: NavController, isExpanded: MutableState<Boolean>) {
             Icon(
                 imageVector = Icons.Filled.ArrowUpward,
                 contentDescription = "Menu",
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.rotate(rotationAngle)
             )
         }
 
