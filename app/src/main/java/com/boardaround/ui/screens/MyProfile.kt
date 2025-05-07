@@ -241,23 +241,21 @@ fun ProfileHeader(user: User) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .animateContentSize( // Animazione fluida
+            .animateContentSize(
                 animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
             )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { expanded = !expanded },
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center // Allinea "Ciao, ${user.name}!" al centro
             ) {
                 Text(
                     text = "Ciao, ${user.name}!",
@@ -274,20 +272,21 @@ fun ProfileHeader(user: User) {
                 )
             }
 
-            // Contenuto che si espande
             AnimatedVisibility(visible = expanded) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = Modifier.padding(top = 16.dp),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Text("Email: ${user.email}", style = MaterialTheme.typography.bodyMedium)
-                    Text("Data di nascita: ${user.dob}", style = MaterialTheme.typography.bodyMedium)
-                    Text(text = "Obiettivi raggiunti: 3 su 5", style = MaterialTheme.typography.bodyMedium)
+                    Text("Email: ${user.email}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+                    Text("Data di nascita: ${user.dob}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+                    Text(text = "Obiettivi raggiunti: 3 su 5", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
                 }
             }
         }
     }
 }
+
 
 
 @Composable

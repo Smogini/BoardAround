@@ -55,17 +55,17 @@ fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Username", textAlign = TextAlign.Center, color = PrimaryBrown)
+            Text("", textAlign = TextAlign.Center, color = PrimaryBrown)
             CustomTextField(
-                label = "Inserisci username",
+                label = "Username",
                 modifier = Modifier.fillMaxWidth(),
                 value = usernameState.value,
                 onValueChange = { usernameState.value = it }
             )
 
-            Text("Password", textAlign = TextAlign.Center, color = PrimaryBrown)
+            Text("", textAlign = TextAlign.Center, color = PrimaryBrown)
             CustomTextField(
-                label = "Inserisci password",
+                label = "Password",
                 value = passwordState.value,
                 onValueChange = { passwordState.value = it },
                 modifier = Modifier.fillMaxWidth(),
@@ -89,12 +89,14 @@ fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) 
                 },
                 text = "Accedi"
             )
+
+            Text("Oppure", textAlign = TextAlign.Center, color = PrimaryBrown)
+
             CustomButton(
                 onClick = { navController.navigateSingleTop(Route.Register) },
                 text = "Registrati"
             )
 
-            // Popup di errore
             if (loginError) {
                 AlertDialog(
                     onDismissRequest = { loginError = false },

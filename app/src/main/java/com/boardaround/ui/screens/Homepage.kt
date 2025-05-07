@@ -1,5 +1,6 @@
 package com.boardaround.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,6 +29,7 @@ import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
+import kotlin.math.log
 
 @Composable
 fun ShowHomePageScreen(
@@ -46,6 +48,7 @@ fun ShowHomePageScreen(
 
     LaunchedEffect(Unit) {
         gameViewModel.getSuggestedGames(count = 5)
+        Log.d("TAG", "ShowHomePageScreen: ${suggestedGames.size}")
     }
 
     ScreenTemplate(

@@ -55,8 +55,9 @@ fun BottomBar(navController: NavController) {
             containerColor = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
-                .clip(RoundedCornerShape(50.dp))
+                .padding(15.dp)
+                .padding(bottom = 15.dp)
+                .clip(RoundedCornerShape(60.dp))
                 .align(Alignment.BottomCenter)
                 .wrapContentHeight(),
             actions = {
