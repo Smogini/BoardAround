@@ -3,6 +3,7 @@ package com.boardaround.ui.screens
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.audiofx.BassBoost
 import android.provider.ContactsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,8 +14,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import android.provider.Settings
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
@@ -61,7 +66,7 @@ fun ShowEditMyProfile(
     }
 
     // Stati per le autorizzazioni
-    var cameraPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) }
+    var cameraPermissionGranted by remember { mutableStateOf(true)}
     var contactsPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) }
     var locationPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) }
     var notificationsPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) }
@@ -71,6 +76,7 @@ fun ShowEditMyProfile(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
+        // Aggiorna gli stati delle autorizzazioni in base ai risultati
         cameraPermissionGranted = permissions[Manifest.permission.CAMERA] ?: cameraPermissionGranted
         contactsPermissionGranted = permissions[Manifest.permission.READ_CONTACTS] ?: contactsPermissionGranted
         locationPermissionGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: locationPermissionGranted
@@ -113,6 +119,7 @@ fun ShowEditMyProfile(
             PermissionRow("Foto", photosPermissionGranted)
 
             Button(onClick = {
+                // Avvia il launcher per richiedere le autorizzazioni
                 permissionLauncher.launch(
                     arrayOf(
                         Manifest.permission.CAMERA,
@@ -124,6 +131,31 @@ fun ShowEditMyProfile(
                 )
             }) {
                 Text("Richiedi autorizzazioni")
+            }
+
+            // Mostra il messaggio e il pulsante per le impostazioni solo se almeno un'autorizzazione è negata
+            if (!cameraPermissionGranted ||
+                !contactsPermissionGranted ||
+                !locationPermissionGranted ||
+                !notificationsPermissionGranted ||
+                !photosPermissionGranted
+            ) {
+                Text(
+                    text = "Alcune autorizzazioni sono state negate. Puoi modificarle manualmente nelle impostazioni dell'app.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+
+                Button(onClick = {
+                    // Intento per aprire le impostazioni dell'app
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = android.net.Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text("Apri impostazioni app")
+                }
             }
 
 
