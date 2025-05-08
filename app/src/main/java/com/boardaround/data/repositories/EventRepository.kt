@@ -13,4 +13,11 @@ class EventRepository(private val eventDao: EventDAO) {
     suspend fun searchEventsByName(name: String): List<Event> =
         eventDao.searchEventsByName(name)
 
+    suspend fun getAllEventsWithLocation(): List<Event> =
+        eventDao.getAllEventsWithLocation()
+
+    suspend fun searchEventsByAddress(address: String): List<Event> =
+        eventDao.searchEventsByAddress(address)
+
+
 }

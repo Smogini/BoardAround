@@ -9,11 +9,15 @@ import com.boardaround.data.entities.Event
 import com.boardaround.data.repositories.EventRepository
 import com.boardaround.network.NominatimClient
 import com.boardaround.network.StreetMapApiResponse
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.math.*
+
 
 class EventViewModel(
     private val repository: EventRepository
@@ -104,5 +108,42 @@ class EventViewModel(
     fun clearSelectedAddress() {
         _selectedAddress.value = null
     }
+
+    fun searchEventsByAddress(address: String) {
+        viewModelScope.launch {
+            try {
+                _eventsFound.value = repository.searchEventsByAddress(address)
+            } catch (e: Exception) {
+                Log.e("EventViewModel", "Errore nella ricerca per indirizzo: ${e.message}", e)
+            }
+        }
+    }
+
+    fun createEventWithGeocoding(event: Event) {
+        viewModelScope.launch {
+            try {
+                val response = NominatimClient.instance.search(event.address).execute()
+                if (response.isSuccessful) {
+                    val results: List<StreetMapApiResponse>? = response.body()
+                    val firstResult = results?.firstOrNull()
+
+                    val latitude = firstResult?.lat?.toDoubleOrNull()
+                    val longitude = firstResult?.lon?.toDoubleOrNull()
+
+                    val updatedEvent = if (latitude != null && longitude != null) {
+                        event.copy(latitude = latitude, longitude = longitude)
+                    } else event
+
+                    repository.insertEvent(updatedEvent)
+                } else {
+                    repository.insertEvent(event)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                repository.insertEvent(event)
+            }
+        }
+    }
+
 
 }

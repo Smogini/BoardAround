@@ -21,6 +21,14 @@ interface StreetMapApiInterface {
         @Query("accept-language") language: String = "it",
         @Query("countrycodes") countryCodes: String? = null,
     ): Call<List<StreetMapApiResponse>>
+
+    @GET("reverse")
+    fun reverse(
+        @Query("lat") lat: String,
+        @Query("lon") lon: String,
+        @Query("format") format: String = "jsonv2",
+        @Query("accept-language") language: String = "it"
+    ): Call<StreetMapApiResponse>
 }
 
 data class StreetMapApiResponse(

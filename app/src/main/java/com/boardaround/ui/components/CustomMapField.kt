@@ -28,8 +28,8 @@ fun CustomMapField(
     modifier: Modifier = Modifier,
     readOnly: Boolean = false,
     onSuggestionClick: ((StreetMapApiResponse) -> Unit)? = null,
-    leadingIcon: (@Composable () -> Unit)? = null, // Aggiunto parametro leadingIcon
-    trailingIcon: (@Composable () -> Unit)? = null // Aggiunto parametro trailingIcon
+    leadingIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null
 ) {
     var suggestions by remember { mutableStateOf<List<StreetMapApiResponse>>(emptyList()) }
     var showSuggestions by remember { mutableStateOf(false) }
@@ -42,7 +42,6 @@ fun CustomMapField(
 
                 // Se il testo non è vuoto, esegui la ricerca
                 if (it.text.isNotEmpty()) {
-                    // Chiamata API solo se il testo è valido
                     NominatimClient.instance.search(query = it.text, countryCodes = "it").enqueue(object : retrofit2.Callback<List<StreetMapApiResponse>> {
                         override fun onResponse(call: retrofit2.Call<List<StreetMapApiResponse>>, response: retrofit2.Response<List<StreetMapApiResponse>>) {
                             if (response.isSuccessful) {
@@ -50,9 +49,12 @@ fun CustomMapField(
                                 suggestions = responseBody
                                 showSuggestions = suggestions.isNotEmpty()
 
+                                responseBody.forEach { suggestion ->
+                                    Log.d("CustomMapField", "Lat: ${suggestion.lat}, Lon: ${suggestion.lon}")
+                                }
+
                                 Log.d("CustomMapField", "API Response: $responseBody")
                             } else {
-                                // Gestisci errore nella risposta
                                 suggestions = emptyList()
                                 showSuggestions = false
                                 Log.e("CustomMapField", "API Error: ${response.code()} - ${response.message()}")
@@ -60,14 +62,12 @@ fun CustomMapField(
                         }
 
                         override fun onFailure(call: retrofit2.Call<List<StreetMapApiResponse>>, t: Throwable) {
-                            // Gestisci il fallimento della chiamata API
                             suggestions = emptyList()
                             showSuggestions = false
                             Log.e("CustomMapField", "API Failure: ${t.message}", t)
                         }
                     })
                 } else {
-                    // Se il testo è vuoto, non fare chiamate API e nascondi le suggerimenti
                     suggestions = emptyList()
                     showSuggestions = false
                 }
@@ -75,11 +75,10 @@ fun CustomMapField(
             label = { Text(label) },
             modifier = Modifier.fillMaxWidth(),
             readOnly = readOnly,
-            leadingIcon = leadingIcon, // Utilizzo del parametro leadingIcon
-            trailingIcon = trailingIcon // Utilizzo del parametro trailingIcon
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon
         )
 
-        // Mostra i suggerimenti solo se ci sono
         if (showSuggestions && onSuggestionClick != null) {
             Popup(
                 alignment = Alignment.BottomEnd,
@@ -100,8 +99,18 @@ fun CustomMapField(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        // Quando un suggerimento viene cliccato, invoca la funzione
-                                        onSuggestionClick(suggestion)
+                                        // Verifica se la latitudine e longitudine sono disponibili
+                                        val lat = suggestion.lat
+                                        val lon = suggestion.lon
+                                        Log.d("CustomMapField", "Latitudine selezionata: $lat, Longitudine selezionata: $lon")
+
+                                        if (lat != null && lon != null) {
+                                            // Passa latitudine e longitudine
+                                            onSuggestionClick(suggestion)
+                                        } else {
+                                            // Se latitudine e longitudine sono nulli, gestisci il caso
+                                            Log.e("CustomMapField", "Latitudine e longitudine non disponibili per questo suggerimento")
+                                        }
                                         showSuggestions = false
                                     }
                                     .padding(vertical = 4.dp)

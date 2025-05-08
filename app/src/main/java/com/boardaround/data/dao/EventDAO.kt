@@ -24,4 +24,10 @@ interface EventDAO {
     @Query("SELECT * FROM events WHERE author = :username")
     suspend fun getEventsByUsername(username: String): List<Event>
 
+    @Query("SELECT * FROM events WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
+    suspend fun getAllEventsWithLocation(): List<Event>
+
+    @Query("SELECT * FROM events WHERE address LIKE '%' || :address || '%'")
+    suspend fun searchEventsByAddress(address: String): List<Event>
+
 }
