@@ -25,7 +25,8 @@ fun <T> SearchResultCarousel(
     items: List<T>,
     onClick: ((T) -> Unit)? = null,
     imageUrlProvider: (T) -> String,
-    labelProvider: (T) -> String
+    labelProvider: (T) -> String,
+    trailingIcon: (@Composable (() -> Unit))? = null
 ) {
     if (items.isEmpty()) return
 
@@ -58,6 +59,7 @@ fun <T> SearchResultCarousel(
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 1
                         )
+                        trailingIcon?.invoke()
                     }
                 }
             }
