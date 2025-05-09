@@ -9,6 +9,7 @@ import com.boardaround.data.repositories.UserRepository
 import com.boardaround.data.repositories.FriendshipRepository
 import com.boardaround.data.repositories.GameRepository
 import com.boardaround.data.repositories.TriviaRepository
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ViewModelFactory(context: Context) {
 
@@ -18,8 +19,10 @@ class ViewModelFactory(context: Context) {
     private val postDAO = database.postDAO()
     private val gameDAO = database.gameDAO()
 
-    private val userRepository = UserRepository(context, userDao)
-    private val eventRepository = EventRepository(eventDAO)
+    private val firestoreInstance = FirebaseFirestore.getInstance()
+
+    private val userRepository = UserRepository(context, userDao, firestoreInstance)
+    private val eventRepository = EventRepository(eventDAO , firestoreInstance)
     private val notificationRepository = NotificationRepository()
     private val postRepository = PostRepository(postDAO)
     private val friendshipRepository = FriendshipRepository(userDao)

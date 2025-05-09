@@ -4,13 +4,17 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.graphics.vector.path
+import com.boardaround.data.entities.User
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.ktx.storage
 import java.io.InputStream
 
 object FirebaseUtils {
 
     private const val TAG = "FirebaseUtils" // Tag per i log
+    private val firestore = FirebaseFirestore.getInstance()
 
     /**
      * Carica un'immagine su Firebase Storage.
@@ -72,6 +76,28 @@ object FirebaseUtils {
             } catch (e: Exception) {
                 Log.e(TAG, "Errore nella chiusura dell'InputStream: ${e.message}", e)
             }
+        }
+    }
+
+    fun getFcmToken(onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+                onSuccess(token) // Passa il token ottenuto
+            }
+            .addOnFailureListener { e ->
+                onFailure(e) // Gestisci eventuali errori
+            }
+    }
+
+    fun registerUser(user: User) {
+        val userRef = firestore.collection("users").document(user.uid)
+
+        // Aggiungi i dati dell'utente a Firestore
+        userRef.set(user).addOnSuccessListener {
+            // Operazione completata con successo
+        }.addOnFailureListener { e ->
+            // Errore durante il salvataggio
+            throw e
         }
     }
 }

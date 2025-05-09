@@ -145,5 +145,17 @@ class EventViewModel(
         }
     }
 
-
+    fun sendEventInvitations(event: Event, invitedUsernames: List<String>) {
+        viewModelScope.launch {
+            try {
+                // Delega la logica di registrazione degli inviti e attivazione notifiche al Repository
+                repository.sendEventInvitations(event, invitedUsernames)
+                Log.d("EventViewModel", "Richiesta di invio inviti evento delegata al Repository.")
+            } catch (e: Exception) {
+                Log.e("EventViewModel", "Errore durante l'invio degli inviti evento nel ViewModel", e)
+                // Gestisci l'errore (potresti voler mostrare un messaggio all'utente)
+            }
+        }
+    }
 }
+

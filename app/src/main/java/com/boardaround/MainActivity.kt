@@ -21,9 +21,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.boardaround.data.preferences.AppPreferences
 import com.boardaround.navigation.NavGraph
 import com.boardaround.ui.theme.BoardAroundTheme
-import com.boardaround.utils.PreferencesManager
 import com.boardaround.viewmodel.ViewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
@@ -48,12 +48,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val context = LocalContext.current
-            val preferencesManager = remember { PreferencesManager(context) }
+            val appPreferences = remember { AppPreferences(context) }
             val isSystemDark = isSystemInDarkTheme()
             val isDarkMode = remember { mutableStateOf(isSystemDark) }
 
             LaunchedEffect(Unit) {
-                preferencesManager.isDarkMode.collectLatest { isDark ->
+                appPreferences.isDarkMode.collectLatest { isDark ->
                     isDarkMode.value = isDark
                 }
             }
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                         onThemeChange = { newIsDarkMode ->
                             isDarkMode.value = newIsDarkMode
                             lifecycleScope.launch {
-                                preferencesManager.setDarkMode(newIsDarkMode)
+                                appPreferences.setDarkMode(newIsDarkMode)
                             }
                         }
                     )

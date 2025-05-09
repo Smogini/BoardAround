@@ -3,11 +3,8 @@ package com.boardaround.ui.screens
 import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-import android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 import android.net.Uri
 import android.util.Log
-import com.boardaround.firebase.FirebaseUtils
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,9 +22,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,13 +36,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import com.boardaround.R
 import com.boardaround.data.entities.User
+import com.boardaround.firebase.FirebaseUtils
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
@@ -51,6 +49,7 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
@@ -76,9 +75,8 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
         uri?.let { selectedUri ->
             Log.d("ImageUpload", "URI immagine selezionata: $selectedUri")
 
-            // Copia l'immagine in un file privato
             val fileName = "profile_pic_${System.currentTimeMillis()}.jpg"
-            val destinationFile = File(currentContext.filesDir, fileName) // Salva nella directory dei file privati
+            val destinationFile = File(currentContext.filesDir, fileName)
 
             try {
                 currentContext.contentResolver.openInputStream(selectedUri)?.use { inputStream ->
@@ -86,37 +84,33 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                         inputStream.copyTo(outputStream)
                     }
                 }
-                // Ottieni l'URI del file copiato
                 selectedImageUri = Uri.fromFile(destinationFile)
                 Log.d("ImageDisplay", "Immagine copiata in: $selectedImageUri")
 
             } catch (e: Exception) {
                 Log.e("ImageCopy", "Errore nel copiare l'immagine: ${e.message}", e)
                 Toast.makeText(currentContext, "Errore nel caricare l'immagine", Toast.LENGTH_SHORT).show()
-                selectedImageUri = null // Resetta l'URI in caso di errore
+                selectedImageUri = null
             }
         }
     }
 
-
-
-    // Launcher per richiedere i permessi
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Se il permesso è concesso, lancia la selezione dell'immagine
             pickImageLauncher.launch("image/*")
         } else {
-            // Se il permesso è negato, controlla se dobbiamo mostrare la razionalizzazione
-            if (shouldShowRequestPermissionRationale(currentContext, Manifest.permission.READ_MEDIA_IMAGES)) {
+            if (shouldShowRequestPermissionRationale(currentContext as Activity, Manifest.permission.READ_MEDIA_IMAGES)) {
                 showPermissionRationale = true
             } else {
-                permissionDeniedPermanently = true // Se il permesso è stato negato definitivamente
+                permissionDeniedPermanently = true
                 Toast.makeText(currentContext, "Permesso necessario per selezionare una foto", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    val coroutineScope = rememberCoroutineScope()
 
     ScreenTemplate(
         title = "Crea un nuovo profilo",
@@ -134,16 +128,7 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
             item {
                 Image(
                     painter = selectedImageUri?.let {
-                        rememberAsyncImagePainter(
-                            ImageRequest.Builder(currentContext)
-                                .data(it)
-                                .listener(
-                                    onStart = { Log.d("Coil", "Caricamento immagine avviato per URI: $it") },
-                                    onSuccess = { request, result -> Log.d("Coil", "Caricamento immagine riuscito per URI: ${request.data}") },
-                                    onError = { request, result -> Log.e("Coil", "Errore caricamento immagine per URI: ${request.data}", result.throwable) }
-                                )
-                                .build()
-                        )
+                        rememberAsyncImagePainter(it)
                     } ?: painterResource(id = R.drawable.default_profile),
                     contentDescription = "Immagine profilo",
                     modifier = Modifier
@@ -208,43 +193,50 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
                             nameState.value.text.isBlank() ||
                             emailState.value.text.isBlank() ||
                             passwordState.value.text.isBlank() ||
-                            dobState.value.isBlank()
+                            dobState.value == "Seleziona la data"
                         ) {
                             registrationError = true
                         } else {
-                            if (selectedImageUri != null) {
-                                FirebaseUtils.uploadImageToFirebase(
-                                    imageUri = selectedImageUri!!,
-                                    context = currentContext,
-                                    onSuccess = { imageUrl ->
-                                        val newUser = User(
-                                            username = usernameState.value.text,
-                                            name = nameState.value.text,
-                                            email = emailState.value.text,
-                                            password = passwordState.value.text,
-                                            dob = dobState.value,
-                                            profilePic = imageUrl
+                            val email = emailState.value.text
+                            val password = passwordState.value.text
+
+                            if (password.length < 6) {
+                                Toast.makeText(currentContext, "La password deve contenere almeno 6 caratteri", Toast.LENGTH_SHORT).show()
+                                return@CustomButton
+                            }
+
+                            coroutineScope.launch {
+                                authViewModel.createFirebaseUser(
+                                    email = email,
+                                    password = password,
+                                    onSuccess = { uid ->
+                                        FirebaseUtils.getFcmToken(
+                                            onSuccess = { fcmToken ->
+                                                val newUser = User(
+                                                    username = usernameState.value.text,
+                                                    uid = uid,
+                                                    name = nameState.value.text,
+                                                    email = email,
+                                                    dob = dobState.value,
+                                                    profilePic = "",
+                                                    fcmToken = fcmToken
+                                                )
+                                                authViewModel.registerUser(newUser) {
+                                                    navController.navigateSingleTop(Route.Login)
+                                                }
+                                                authViewModel.saveUserLocally(newUser)
+                                            },
+                                            onFailure = { e ->
+                                                Log.e("FCM", "Errore nel recupero FCM token: ${e.message}", e)
+                                                Toast.makeText(currentContext, "Errore nel recupero FCM token", Toast.LENGTH_SHORT).show()
+                                            }
                                         )
-                                        authViewModel.registerUser(newUser)
-                                        navController.navigateSingleTop(Route.Login)
                                     },
-                                    onError = { e ->
-                                        Log.e("FirebaseUpload", "Errore nel caricamento immagine: ${e.message}")
-                                        Toast.makeText(currentContext, "Errore nel caricamento immagine", Toast.LENGTH_SHORT).show()
+                                    onFailure = { e ->
+                                        Log.e("Register", "Errore Firebase: ${e.message}", e)
+                                        Toast.makeText(currentContext, "Errore nella registrazione: ${e.message}", Toast.LENGTH_SHORT).show()
                                     }
                                 )
-                            } else {
-                                // Nessuna immagine, procedi comunque
-                                val newUser = User(
-                                    username = usernameState.value.text,
-                                    name = nameState.value.text,
-                                    email = emailState.value.text,
-                                    password = passwordState.value.text,
-                                    dob = dobState.value,
-                                    profilePic = ""
-                                )
-                                authViewModel.registerUser(newUser)
-                                navController.navigateSingleTop(Route.Login)
                             }
                         }
                     },
@@ -254,24 +246,27 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
         }
     }
 
-    // Mostra una razionalizzazione quando il permesso viene negato
     if (showPermissionRationale) {
         AlertDialog(
             onDismissRequest = { showPermissionRationale = false },
             title = { Text("Permesso necessario") },
-            text = { Text("Per favore, concedi il permesso per selezionare un'immagine del profilo.") },
+            text = { Text("Per selezionare un'immagine del profilo, è necessario concedere l'accesso alla galleria.") },
             confirmButton = {
                 TextButton(onClick = {
-                    permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                     showPermissionRationale = false
+                    permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                 }) {
-                    Text("OK")
+                    Text("Concedi")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPermissionRationale = false }) {
+                    Text("Annulla")
                 }
             }
         )
     }
 
-    // Mostra un messaggio se il permesso è stato negato definitivamente
     if (permissionDeniedPermanently) {
         AlertDialog(
             onDismissRequest = { permissionDeniedPermanently = false },
@@ -297,12 +292,4 @@ fun ShowRegisterScreen(navController: NavController, authViewModel: AuthViewMode
             }
         )
     }
-}
-
-
-// Funzione per verificare se dobbiamo mostrare una razionalizzazione del permesso
-fun shouldShowRequestPermissionRationale(context: Context, permission: String): Boolean {
-    // Controlliamo se il contesto è effettivamente un'Activity
-    val activity = context as? Activity
-    return activity?.let { ActivityCompat.shouldShowRequestPermissionRationale(it, permission) } ?: false
 }

@@ -8,11 +8,12 @@ import androidx.room.Index
 @Entity(tableName = "users")
 data class User(
     @PrimaryKey val username: String,
+    val uid: String,
     val name: String,
     val email: String,
-    val password: String,
     val dob: String,
-    val profilePic: String
+    val profilePic: String,
+    val fcmToken: String?,
 )
 
 @Entity(
