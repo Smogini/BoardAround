@@ -16,6 +16,7 @@ import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 @Suppress("CAST_NEVER_SUCCEEDS")
@@ -34,22 +35,49 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
     fun login(username: String, password: String) {
         viewModelScope.launch {
-            _isLoading.value = true // Inizia il caricamento
-            _registrationError.value = null // Resetta l'errore
+            _isLoading.value = true
+            _registrationError.value = null
+
             try {
-                val isSuccess = userRepository.login(username, password)
-                _loginSuccess.value = isSuccess
-                if (!isSuccess) {
-                    _registrationError.value = "Credenziali non valide o utente non trovato."
+                // 1. Cerca l'utente in Firestore tramite username
+                val querySnapshot = firestore.collection("users")
+                    .whereEqualTo("username", username)
+                    .get()
+                    .await()
+
+                if (!querySnapshot.isEmpty) {
+                    val userDoc = querySnapshot.documents[0]
+                    val email = userDoc.getString("email")
+                    val user = userDoc.toObject(User::class.java)
+
+                    if (email != null && user != null) {
+                        // 2. Login con email e password
+                        val auth = FirebaseAuth.getInstance()
+                        auth.signInWithEmailAndPassword(email, password).await()
+
+                        // ✅ 3. Salva localmente l'utente loggato
+                        saveUserLocally(user)
+
+                        _loginSuccess.value = true
+                    } else {
+                        _registrationError.value = "Email o utente non valido."
+                        _loginSuccess.value = false
+                    }
+                } else {
+                    _registrationError.value = "Username non trovato."
+                    _loginSuccess.value = false
                 }
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Errore login: ${e.message}", e)
                 _registrationError.value = "Errore durante il login: ${e.message}"
+                _loginSuccess.value = false
             } finally {
-                _isLoading.value = false // Termina il caricamento
+                _isLoading.value = false
             }
         }
     }
+
+
 
     fun deleteUser(user: User) {
         viewModelScope.launch {
@@ -67,8 +95,19 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
+    suspend fun uploadProfilePicture(userId: String, imageUri: Uri): String? {
+        return try {
+            val storageRef = FirebaseStorage.getInstance().reference
+            val profilePicRef = storageRef.child("profile_pictures/$userId.jpg") // Usa l'UID come nome del file
 
-
+            val uploadTask = profilePicRef.putFile(imageUri).await()
+            val downloadUrl = uploadTask.storage.downloadUrl.await()
+            downloadUrl.toString()
+        } catch (e: Exception) {
+            Log.e("AuthViewModel", "Errore nel caricare l'immagine del profilo", e)
+            null
+        }
+    }
 
 
     fun logout() {

@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 
+
 class UserRepository(
     context: Context,
     private val userDao: UserDAO,
@@ -25,8 +26,8 @@ class UserRepository(
         userDao.deleteUser(toDelete)
     }
 
-    suspend fun saveUser(user: User) {
-        userDao.insertUser(user)
+    fun saveUser(user: User) {
+        sessionManager.setUserLoggedIn(user, true)
     }
 
 
