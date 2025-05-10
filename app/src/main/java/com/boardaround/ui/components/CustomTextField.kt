@@ -1,5 +1,6 @@
 package com.boardaround.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -8,6 +9,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,7 +18,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
+import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor
 
 @Composable
 fun CustomTextField(
@@ -25,17 +29,21 @@ fun CustomTextField(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     isPasswordField: Boolean = false,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     keyboardType: KeyboardType = KeyboardType.Text,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null
 ) {
     val passwordVisible = remember { mutableStateOf(false) }
+    val BackgroundColor = Color(0xFFEDE0D4)
 
-    OutlinedTextField(
+    TextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(text = label) },
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(BackgroundColor),
         leadingIcon = leadingIcon,
         trailingIcon = {
             if (isPasswordField) {

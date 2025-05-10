@@ -24,7 +24,7 @@ class ViewModelFactory(context: Context) {
     private val userRepository = UserRepository(context, userDao, firestoreInstance)
     private val eventRepository = EventRepository(eventDAO , firestoreInstance)
     private val notificationRepository = NotificationRepository()
-    private val postRepository = PostRepository(postDAO)
+    private val postRepository = PostRepository(postDAO, firestoreInstance)
     private val friendshipRepository = FriendshipRepository(userDao)
     private val gameRepository = GameRepository(gameDAO)
     private val triviaRepository = TriviaRepository()

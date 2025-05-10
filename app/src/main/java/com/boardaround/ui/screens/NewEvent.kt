@@ -176,10 +176,14 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                             dateTime = selectedDateTime,
                             isPrivate = isPrivateEvent,
                         )
+
                         if (selectedLocation != null) {
                             val message = if (isPrivateEvent) "Evento privato creato con successo" else "Evento pubblico creato con successo"
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                            eventViewModel.insertEvent(newEvent)
+
+                            // Usa createEventWithGeocoding per gestire la geolocalizzazione
+                            eventViewModel.createEventWithGeocoding(newEvent)
+
                             navController.navigateSingleTop(Route.Homepage)
                         } else {
                             Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()
@@ -187,6 +191,7 @@ fun ShowNewEventScreen(navController: NavController, eventViewModel: EventViewMo
                     },
                     text = "Crea evento"
                 )
+
 
                 CustomButton(onClick = {
                     Toast.makeText(context, "Evento annullato con successo", Toast.LENGTH_SHORT).show()

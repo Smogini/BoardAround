@@ -79,6 +79,9 @@ fun ShowNewPostScreen(navController: NavController, postViewModel: PostViewModel
                     value = title,
                     onValueChange = { title = it }
                 )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
                 CustomTextField(
                     label = "Contenuto",
                     value = content,

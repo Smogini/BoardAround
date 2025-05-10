@@ -58,6 +58,9 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
                         // ✅ 3. Salva localmente l'utente loggato
                         saveUserLocally(user)
 
+                        // Sincronizza l'utente in Room se necessario
+                        userRepository.syncUserToRoomIfNeeded(user.username)
+
                         _loginSuccess.value = true
                     } else {
                         _registrationError.value = "Email o utente non valido."
@@ -79,6 +82,7 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
 
 
+
     fun deleteUser(user: User) {
         viewModelScope.launch {
             userRepository.deleteUser(user)
@@ -87,11 +91,14 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
     }
 
     fun registerUser(user: User, onSuccess: () -> Unit) {
-        try {
-            FirebaseUtils.registerUser(user) // Deve essere NON sospesa!
-            onSuccess()
-        } catch (e: Exception) {
-            e.printStackTrace()
+        viewModelScope.launch {
+            try {
+                FirebaseUtils.registerUser(user) // Deve essere NON sospesa!
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("AuthViewModel", "Errore durante la registrazione: ${e.message}")
+                _registrationError.value = "Errore durante la registrazione: ${e.message}"
+            }
         }
     }
 
@@ -113,7 +120,8 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
     fun logout() {
         viewModelScope.launch {
             userRepository.logout()
-            // Potresti voler aggiornare uno stato per indicare che l'utente è disconnesso
+            _loginSuccess.value = false // Imposta lo stato a "non loggato"
+            // Potresti voler aggiornare anche lo stato dell'interfaccia utente per riflettere la disconnessione
         }
     }
 
@@ -138,6 +146,18 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
                 val firebaseUser = authResult.user
 
                 if (firebaseUser != null) {
+                    // Crea l'utente e salvalo in Firebase Firestore e Room
+                    val newUser = User(
+                        username = firebaseUser.displayName ?: "NoName",
+                        email = email,
+                        // Aggiungi altri campi necessari
+                    )
+
+                    // Salva l'utente in Room
+                    saveUserLocally(newUser)
+                    // Sincronizza l'utente in Firebase
+                    userRepository.saveUser(newUser)
+
                     // Chiama il callback onSuccess con l'UID dell'utente
                     onSuccess(firebaseUser.uid)
                 } else {
@@ -151,12 +171,13 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
+
     fun saveUserLocally(user: User) {
         viewModelScope.launch {
             try {
                 userRepository.saveUser(user)
             } catch (e: Exception) {
-                // Gestisci eventuali errori qui
+                Log.e("AuthViewModel", "Errore durante il salvataggio dell'utente localmente: ${e.message}")
                 e.printStackTrace()
             }
         }

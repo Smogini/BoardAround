@@ -33,4 +33,7 @@ interface UserDAO {
     @Query("DELETE FROM friendships WHERE userUsername = :userUsername AND friendUsername = :friendUsername")
     suspend fun removeFriend(userUsername: String, friendUsername: String)
 
+    @Query("SELECT * FROM users WHERE username = :username LIMIT 1")
+    suspend fun getUserByUsername(username: String): User?
+
 }

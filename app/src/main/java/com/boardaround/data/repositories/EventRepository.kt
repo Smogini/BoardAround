@@ -10,6 +10,7 @@ class EventRepository(private val eventDao: EventDAO, private val firestore: Fir
 
     suspend fun insertEvent(event: Event) {
         try {
+
             eventDao.insertEvent(event)
             Log.d("EventRepository", "Evento salvato nel database locale: ${event.name}")
 

@@ -78,6 +78,34 @@ class UserRepository(
         }
     }
 
+    suspend fun getUserFromFirebase(username: String): User? {
+        return try {
+            val snapshot = firestore.collection("users")
+                .document(username)
+                .get()
+                .await()
+            if (snapshot.exists()) {
+                snapshot.toObject(User::class.java)
+            } else null
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Errore recupero utente Firebase", e)
+            null
+        }
+    }
+
+    suspend fun syncUserToRoomIfNeeded(username: String) {
+        val localUser = userDao.getUserByUsername(username)
+        if (localUser == null) {
+            val firebaseUser = getUserFromFirebase(username)
+            firebaseUser?.let {
+                userDao.insertUser(it)
+                Log.d("UserRepository", "Utente sincronizzato in Room: $username")
+            } ?: Log.w("UserRepository", "Utente non trovato su Firebase: $username")
+        }
+    }
+
+
+
 
     suspend fun login(username: String, password: String): Boolean {
         try {

@@ -17,11 +17,15 @@ import kotlinx.coroutines.launch
 import retrofit2.Callback
 import retrofit2.Response
 import kotlin.math.*
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 
 class EventViewModel(
     private val repository: EventRepository
 ) : ViewModel() {
+
+    private val firestore = FirebaseFirestore.getInstance()
 
     private val _eventsFound = MutableStateFlow<List<Event>>(emptyList())
     val eventsFound: StateFlow<List<Event>> = _eventsFound
@@ -33,9 +37,14 @@ class EventViewModel(
         this._selectedEvent.value = event
     }
 
-    fun insertEvent(newEvent: Event) {
-        viewModelScope.launch {
-            repository.insertEvent(newEvent)
+    suspend fun insertEvent(event: Event) {
+        try {
+            // Aggiungi l'evento nella collezione "events"
+            firestore.collection("events")
+                .add(event)  // Usando un ID automatico per ogni evento
+                .await()  // Attendi che l'inserimento sia completato
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
