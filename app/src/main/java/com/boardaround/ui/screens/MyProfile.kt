@@ -5,7 +5,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.boardaround.R
+import com.boardaround.data.entities.Achievement
 import com.boardaround.data.entities.User
 import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
@@ -69,6 +67,7 @@ fun ShowMyProfileScreen(
 
     val myGames by gameViewModel.userGames.collectAsState(initial = emptyList())
     val myFriends by userViewModel.getFriends(username).collectAsState(initial = emptyList())
+    val achievementList by userViewModel.achievementList.collectAsState()
     val myPosts by postViewModel.userPosts.collectAsState(initial = emptyList())
     val myEvents by eventViewModel.eventsFound.collectAsState(initial = emptyList())
 
@@ -86,16 +85,15 @@ fun ShowMyProfileScreen(
         currentRoute = Route.MyProfile,
         navController = navController,
         showBottomBar = true
-    ) {
+    ) { contentPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(contentPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                // Header profilo
-                ProfileHeader(user)
+                ProfileHeader(user, achievementList)
             }
 
             item {
@@ -236,7 +234,7 @@ fun ShowMyProfileScreen(
 }
 
 @Composable
-fun ProfileHeader(user: User) {
+fun ProfileHeader(user: User, achievementList: List<Achievement>) {
     var expanded by remember { mutableStateOf(false) }
 
     androidx.compose.material3.Card(
@@ -256,7 +254,6 @@ fun ProfileHeader(user: User) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Riga per il saluto con l'immagine a destra
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -264,7 +261,6 @@ fun ProfileHeader(user: User) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween // Spazio tra il nome e l'immagine
             ) {
-                // Testo di saluto
                 Text(
                     text = "Ciao, ${user.name}!",
                     style = MaterialTheme.typography.headlineSmall,
@@ -283,7 +279,8 @@ fun ProfileHeader(user: User) {
                 )
             }
 
-            // Visibilità delle informazioni aggiuntive
+            val numUnlocked = achievementList.count { it.isUnlocked }
+
             AnimatedVisibility(visible = expanded) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -292,14 +289,12 @@ fun ProfileHeader(user: User) {
                 ) {
                     Text("Email: ${user.email}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
                     Text("Data di nascita: ${user.dob}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
-                    Text(text = "Obiettivi raggiunti: 3 su 5", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+                    Text(text = "Obiettivi raggiunti: $numUnlocked su ${achievementList.size}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
                 }
             }
         }
     }
 }
-
-
 
 
 

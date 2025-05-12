@@ -114,7 +114,6 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
                     color = MaterialTheme.colorScheme.secondary
                 )
 
-
                 Button(
                     onClick = { showGameDescription = true },
                     modifier = Modifier.padding(top = 10.dp)
@@ -149,7 +148,9 @@ fun ShowGameInfo(navController: NavController, gameViewModel: GameViewModel) {
                                     name = gameToShow!!.name
                                 )
                                 gameViewModel.addGame(savedGame)
+                                gameViewModel.unlockAchievement(5)
                                 Toast.makeText(context, "Gioco aggiunto ai tuoi giochi", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Hai sbloccato un obiettivo", Toast.LENGTH_SHORT).show()
                             }
                         }
                     },

@@ -1,20 +1,42 @@
 package com.boardaround.ui.screens
 
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.PostAdd
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
+import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.BottomBar
+import com.boardaround.ui.components.CustomFloatingActionButton
 import com.boardaround.ui.components.CustomTopAppBar
 import com.boardaround.viewmodel.UserViewModel
 
@@ -27,32 +49,72 @@ fun ScreenTemplate(
     showBottomBar: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
+    var showExtraFabs by remember { mutableStateOf(false) }
+    val verticalOffset by animateDpAsState(if (showExtraFabs) 0.dp else (-10).dp, label = "fab animation")
 
-    Box(
-        modifier = Modifier.fillMaxSize().pointerInput(Unit) {
-            detectTapGestures {
-                focusManager.clearFocus()
+    Scaffold(
+        topBar = { CustomTopAppBar(title, navController, userViewModel, currentRoute) },
+        containerColor = MaterialTheme.colorScheme.background,
+        floatingActionButton = {
+            if (showBottomBar) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.offset {
+                        IntOffset(x = 0, y = (verticalOffset - 20.dp).roundToPx())
+                    }
+                ) {
+                    AnimatedVisibility(
+                        showExtraFabs,
+                        enter = fadeIn() + scaleIn(),
+                        exit = fadeOut() + scaleOut(),
+                        modifier = Modifier.offset {
+                            IntOffset(x = 0, y = (verticalOffset - 20.dp).roundToPx())
+                        }
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(15.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CustomFloatingActionButton(
+                                onClick = {
+                                    showExtraFabs = false
+                                    navController.navigateSingleTop(Route.NewEvent)
+                                },
+                                modifier = Modifier.size(50.dp),
+                                icon = Icons.Filled.Create
+                            )
+                            CustomFloatingActionButton(
+                                onClick = {
+                                    showExtraFabs = false
+                                    navController.navigateSingleTop(Route.NewPost)
+                                },
+                                modifier = Modifier.size(50.dp),
+                                icon = Icons.Filled.PostAdd
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    CustomFloatingActionButton(
+                        onClick = { showExtraFabs = !showExtraFabs },
+                        modifier = Modifier.size(50.dp)
+                            .offset { IntOffset(x = 0, y = (-20).dp.roundToPx()) }
+                    )
+                }
             }
-        }
-    ){
-        Scaffold(
-            topBar = { CustomTopAppBar(title, navController, userViewModel, currentRoute) },
-            containerColor = MaterialTheme.colorScheme.background
-        ) { contentPadding ->
+        },
+        floatingActionButtonPosition = FabPosition.Center,
+    ) { contentPadding ->
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding)
-                    .padding(bottom = 100.dp)
-            ) {
-                content(PaddingValues(10.dp))
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+        ) {
+            content(contentPadding)
         }
 
-        if (showBottomBar) {
-            BottomBar(navController)
-        }
+        if (showBottomBar) BottomBar(navController)
     }
 }

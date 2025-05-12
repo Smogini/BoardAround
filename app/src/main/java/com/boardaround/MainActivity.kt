@@ -2,6 +2,7 @@ package com.boardaround
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -52,9 +53,17 @@ class MainActivity : ComponentActivity() {
             val isSystemDark = isSystemInDarkTheme()
             val isDarkMode = remember { mutableStateOf(isSystemDark) }
 
+            /* TODO: non inizializza correttamente la tabella nel db */
             LaunchedEffect(Unit) {
                 appPreferences.isDarkMode.collectLatest { isDark ->
                     isDarkMode.value = isDark
+                }
+                try {
+                    Log.d("mainactivity", "inizializzo achievements")
+                    viewModelFactory.initializeAchievementManager()
+                    Log.d("mainactivity", "achievements inizializzati")
+                } catch(e: Exception) {
+                    Log.e("mainactivity", "ERRORE: ${e.message}", e)
                 }
             }
 

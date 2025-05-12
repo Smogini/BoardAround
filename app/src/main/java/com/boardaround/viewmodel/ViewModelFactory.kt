@@ -10,6 +10,7 @@ import com.boardaround.data.repositories.FriendshipRepository
 import com.boardaround.data.repositories.GameRepository
 import com.boardaround.data.repositories.TriviaRepository
 import com.google.firebase.firestore.FirebaseFirestore
+import com.boardaround.utils.AchievementManager
 
 class ViewModelFactory(context: Context) {
 
@@ -18,6 +19,7 @@ class ViewModelFactory(context: Context) {
     private val eventDAO = database.eventDAO()
     private val postDAO = database.postDAO()
     private val gameDAO = database.gameDAO()
+    private val achievementDAO = database.achievementDAO()
 
     private val firestoreInstance = FirebaseFirestore.getInstance()
 
@@ -29,12 +31,14 @@ class ViewModelFactory(context: Context) {
     private val gameRepository = GameRepository(gameDAO)
     private val triviaRepository = TriviaRepository()
 
+    private val achievementManager = AchievementManager(achievementDAO)
+
     fun provideAuthViewModel(): AuthViewModel =
         AuthViewModel(userRepository)
 
     fun provideUserViewModel(): UserViewModel {
-        val userViewModel = UserViewModel(userRepository, notificationRepository)
-        userViewModel.setFriendshipRepository(friendshipRepository)
+        val userViewModel = UserViewModel(userRepository, notificationRepository, friendshipRepository, achievementManager)
+//        userViewModel.setFriendshipRepository(friendshipRepository)
         return userViewModel
     }
 
@@ -45,8 +49,13 @@ class ViewModelFactory(context: Context) {
         EventViewModel(eventRepository)
 
     fun provideGameViewModel(): GameViewModel =
-        GameViewModel(gameRepository)
+        GameViewModel(gameRepository, achievementManager)
 
     fun provideTriviaViewModel(): TriviaViewModel =
         TriviaViewModel(triviaRepository)
+
+    suspend fun initializeAchievementManager() {
+        achievementManager.initializeAchievements()
+    }
+
 }

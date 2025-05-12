@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -116,7 +116,7 @@ fun CustomTopAppBar(
     }
 }
 
-fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): TopBarButton {
+private fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): TopBarButton {
     val excludedRoutes = setOf(
         Route.Login,
         Route.Register,
@@ -134,7 +134,7 @@ fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): TopBa
     }
 
     when (currentRoute) {
-        Route.MyProfile -> actionButtons.add("Settings" to Icons.Filled.Settings)
+        Route.MyProfile -> actionButtons.add("Settings" to Icons.Filled.ManageAccounts)
         Route.EditMyProfile -> actionButtons.add("Return" to Icons.Filled.Cancel)
         else -> {}
     }

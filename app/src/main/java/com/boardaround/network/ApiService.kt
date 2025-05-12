@@ -43,4 +43,9 @@ object ApiService {
     val eventApi: StreetMapApiInterface by lazy {
         createApi("https://nominatim.openstreetmap.org/", StreetMapApiInterface::class.java, false)
     }
+
+    val streetApi: StreetMapApiInterface by lazy {
+        createApi("https://nominatim.openstreetmap.org/", StreetMapApiInterface::class.java, false)
+    }
+
 }

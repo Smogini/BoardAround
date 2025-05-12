@@ -7,20 +7,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
-import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay.backgroundColor
 
 @Composable
 fun CustomTextField(
@@ -35,7 +33,6 @@ fun CustomTextField(
     trailingIcon: (@Composable () -> Unit)? = null
 ) {
     val passwordVisible = remember { mutableStateOf(false) }
-    val BackgroundColor = Color(0xFFEDE0D4)
 
     TextField(
         value = value,
@@ -43,7 +40,7 @@ fun CustomTextField(
         label = { Text(text = label) },
         modifier = modifier
             .fillMaxWidth()
-            .background(BackgroundColor),
+            .background(backgroundColor),
         leadingIcon = leadingIcon,
         trailingIcon = {
             if (isPasswordField) {
@@ -64,7 +61,7 @@ fun CustomTextField(
         visualTransformation = if (isPasswordField && !passwordVisible.value) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
-            imeAction = ImeAction.Done,
+            imeAction = ImeAction.Next,
         )
     )
 }

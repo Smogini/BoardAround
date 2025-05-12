@@ -9,13 +9,16 @@ import com.boardaround.data.entities.SavedGame
 import com.boardaround.data.entities.toGame
 import com.boardaround.data.repositories.GameRepository
 import com.boardaround.network.ApiService
+import com.boardaround.utils.AchievementManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class GameViewModel(private val gameRepository: GameRepository): ViewModel() {
+class GameViewModel(
+    private val gameRepository: GameRepository,
+    private val achievementManager: AchievementManager): ViewModel() {
 
     private var _gamesFound = MutableStateFlow(GameSearchResult(0, emptyList()))
     val gamesFound: StateFlow<GameSearchResult> = _gamesFound
@@ -91,6 +94,12 @@ class GameViewModel(private val gameRepository: GameRepository): ViewModel() {
                 game -> game.name.isNotEmpty()
             }
 
+        }
+    }
+
+    fun unlockAchievement(id: Int) {
+        viewModelScope.launch {
+            achievementManager.unlockAchievementById(id)
         }
     }
 

@@ -18,10 +18,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -37,7 +39,15 @@ import com.boardaround.viewmodel.UserViewModel
 
 @Composable
 fun GamificationScreen(navController: NavController, userViewModel: UserViewModel) {
-    val objectives by userViewModel.objectives.collectAsState()
+
+    val objectives by userViewModel.achievementList.collectAsState(initial = emptyList())
+    val currentProgress = if (objectives.isNotEmpty()) {
+        objectives.count { it.isUnlocked } / objectives.size.toFloat()
+    } else { 0f }
+
+    LaunchedEffect(Unit) {
+        userViewModel.getAllAchievements()
+    }
 
     ScreenTemplate(
         title = "Obiettivi",
@@ -55,24 +65,30 @@ fun GamificationScreen(navController: NavController, userViewModel: UserViewMode
                 alignment = Alignment.CenterVertically
             )
         ) {
-            // Grafico di progressione
-            val currentProgress = objectives.values.count { it } / objectives.size.toFloat()
             ProgressBar(
                 progress = currentProgress,
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.padding(10.dp)
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                thickness = 10.dp,
+                color = MaterialTheme.colorScheme.surface,
             )
 
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize().padding(bottom = 100.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 50.dp)
             ) {
                 items(objectives.size) { objectiveIndex ->
-                    val (currentObjective, isUnlocked) = objectives.entries.elementAt(objectiveIndex)
+                    val currentAchievement = objectives[objectiveIndex]
 
                     ObjectiveItem(
-                        title = currentObjective,
-                        isUnlocked = isUnlocked,
-                        onClick = { userViewModel.unlockObjective(currentObjective) }
+                        title = currentAchievement.description,
+                        isUnlocked = currentAchievement.isUnlocked,
+                        onClick = {  }
                     )
                 }
             }

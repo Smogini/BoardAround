@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.0-alpha08"
+agp = "8.7.3"
 datastorePreferences = "1.0.0" # If updated PreferencesManager won't work
 firebaseBom = "33.13.0"
 firebaseMessaging = "24.1.1"
@@ -7,9 +7,8 @@ googleServices = "4.4.2"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
-google_play_services_location = "18.0.0"
 compose-material = "1.7.8"
-lifecycleViewmodelCompose = "2.8.7"
+lifecycleViewmodelCompose = "2.9.0"
 loggingInterceptor = "4.11.0"
 retrofit = "2.9.0"
 tikxml = "0.8.13"
@@ -19,10 +18,10 @@ osmdroid = "6.1.18"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 ktorSerializationKotlinxJson = "2.3.8"
-lifecycleRuntimeKtx = "2.8.7"
+lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
-composeBom = "2025.04.01"
-navigationCompose = "2.8.9"
+composeBom = "2025.05.00"
+navigationCompose = "2.9.0"
 roomCompiler = "2.7.1"
 roomKtx = "2.7.1"
 roomRuntime = "2.7.1"
@@ -40,7 +39,6 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx"
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-google_play_services_location = { module = "com.google.android.gms:play-services-location", version.ref = "google_play_services_location" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }

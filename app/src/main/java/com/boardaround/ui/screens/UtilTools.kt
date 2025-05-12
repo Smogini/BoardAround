@@ -3,24 +3,33 @@ package com.boardaround.ui.screens
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material.icons.filled.Score
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
+import com.boardaround.ui.components.CustomButtonIcon
 import com.boardaround.ui.screens.tools.SetupTriviaScreen
 import com.boardaround.ui.screens.tools.ShowCoinFlip
 import com.boardaround.ui.screens.tools.ShowDiceScreen
@@ -29,13 +38,14 @@ import com.boardaround.ui.screens.tools.ShowTokenScreen
 import com.boardaround.viewmodel.TriviaViewModel
 
 sealed class UtilTools(
-    val name: String
+    val name: String,
+    val icon: ImageVector
 ) {
-    data object Dice: UtilTools("Lancia dadi")
-    data object CoinFlip: UtilTools("Testa o croce")
-    data object Token: UtilTools("Token")
-    data object Trivia: UtilTools("Quizzettone")
-    data object ScoreBoard: UtilTools("Segna punti")
+    data object Dice: UtilTools("Lancia dadi", Icons.Filled.Casino)
+    data object CoinFlip: UtilTools("Testa o croce", Icons.Filled.QuestionMark)
+    data object Token: UtilTools("Token", Icons.Filled.CardGiftcard)
+    data object Trivia: UtilTools("Quizzettone", Icons.Filled.Quiz)
+    data object ScoreBoard: UtilTools("Segna punti", Icons.Filled.Score)
 
     companion object {
         val allTools = listOf(Dice, CoinFlip, Token, Trivia, ScoreBoard)
@@ -64,7 +74,8 @@ fun ShowToolScreen(navController: NavController, triviaViewModel: TriviaViewMode
 }
 
 @Composable
-fun ToolsMenu(navController: NavController, isExpanded: MutableState<Boolean>) {
+fun ToolsMenu(navController: NavController) {
+    val isExpanded = remember { mutableStateOf(false) }
 
     val rotationAngle by animateFloatAsState(
         targetValue = if (isExpanded.value) 180f else 0f,
@@ -72,26 +83,32 @@ fun ToolsMenu(navController: NavController, isExpanded: MutableState<Boolean>) {
     )
 
     Box {
-        IconButton(
+        CustomButtonIcon(
+            title = "Menu",
+            icon = Icons.Filled.ArrowUpward,
+            iconColor = MaterialTheme.colorScheme.primary,
             onClick = { isExpanded.value = !isExpanded.value },
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.ArrowUpward,
-                contentDescription = "Menu",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.rotate(rotationAngle)
-            )
-        }
+            rotationAngle = rotationAngle
+        )
 
         DropdownMenu(
             expanded = isExpanded.value,
-            onDismissRequest = { isExpanded.value = !isExpanded.value },
+            onDismissRequest = { isExpanded.value = false },
             modifier = Modifier.padding(top = 2.dp)
         ) {
             UtilTools.allTools.forEach { utilTools ->
                 DropdownMenuItem(
-                    text = { Text(utilTools.name) },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = utilTools.icon,
+                                contentDescription = utilTools.name,
+                                modifier = Modifier.size(20.dp)
+                                    .padding(end = 8.dp)
+                            )
+                            Text(utilTools.name)
+                        }
+                    },
                     onClick = {
                         UtilTools.selectTool(utilTools)
                         navController.navigateSingleTop(Route.UtilTools)
