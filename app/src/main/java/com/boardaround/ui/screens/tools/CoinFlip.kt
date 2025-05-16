@@ -19,7 +19,9 @@ fun ShowCoinFlip(navController: NavController) {
         title = "Testa o Croce",
         navController = navController,
     ) {
-        CoinFlipContent()
+        item {
+            CoinFlipContent()
+        }
     }
 }
 

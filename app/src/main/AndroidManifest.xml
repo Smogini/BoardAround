@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -11,13 +10,12 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera"
-        android:required="false"/>
-
+        android:required="false" />
 
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32"  />
-    <uses-permission android:name="android.permission.INTERNET"/>
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="BoardAround"
         android:icon="@drawable/logo"
@@ -40,7 +38,7 @@
         </activity>
 
         <service
-        android:name=".MyFirebaseMessagingService"
+        android:name="com.boardaround.firebase.MyFirebaseMessagingService"
         android:exported="false">
         <intent-filter>
             <action android:name="com.google.firebase.MESSAGING_EVENT" />

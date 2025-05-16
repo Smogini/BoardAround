@@ -5,11 +5,8 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -20,7 +17,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
@@ -45,15 +41,8 @@ fun ShowDiceScreen(navController: NavController) {
     ScreenTemplate(
         title = "Lancio Dadi",
         navController = navController,
-    ) { contentPadding ->
-        Column(
-            modifier = Modifier
-                .padding(contentPadding)
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+    ) {
+        item {
             Text("Numero di dadi: $numDice", color = PrimaryBrown)
             Slider(
                 value = numDice.toFloat(),
@@ -84,7 +73,7 @@ fun ShowDiceScreen(navController: NavController) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    results.forEachIndexed { index, result ->
+                    results.forEachIndexed { _, result ->
                         val rotation = remember { Animatable(0f) }
                         LaunchedEffect(result) {
                             rotation.animateTo(

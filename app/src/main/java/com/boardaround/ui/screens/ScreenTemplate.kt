@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.PostAdd
@@ -47,10 +49,10 @@ fun ScreenTemplate(
     navController: NavController,
     userViewModel: UserViewModel? = null,
     showBottomBar: Boolean = true,
-    content: @Composable (PaddingValues) -> Unit,
+    content: LazyListScope.() -> Unit,
 ) {
-    var showExtraFabs by remember { mutableStateOf(false) }
-    val verticalOffset by animateDpAsState(if (showExtraFabs) 0.dp else (-10).dp, label = "fab animation")
+    var showExtraFab by remember { mutableStateOf(false) }
+    val verticalOffset by animateDpAsState(if (showExtraFab) 0.dp else (-10).dp, label = "fab animation")
 
     Scaffold(
         topBar = { CustomTopAppBar(title, navController, userViewModel, currentRoute) },
@@ -64,7 +66,7 @@ fun ScreenTemplate(
                     }
                 ) {
                     AnimatedVisibility(
-                        showExtraFabs,
+                        showExtraFab,
                         enter = fadeIn() + scaleIn(),
                         exit = fadeOut() + scaleOut(),
                         modifier = Modifier.offset {
@@ -77,7 +79,7 @@ fun ScreenTemplate(
                         ) {
                             CustomFloatingActionButton(
                                 onClick = {
-                                    showExtraFabs = false
+                                    showExtraFab = false
                                     navController.navigateSingleTop(Route.NewEvent)
                                 },
                                 modifier = Modifier.size(50.dp),
@@ -85,7 +87,7 @@ fun ScreenTemplate(
                             )
                             CustomFloatingActionButton(
                                 onClick = {
-                                    showExtraFabs = false
+                                    showExtraFab = false
                                     navController.navigateSingleTop(Route.NewPost)
                                 },
                                 modifier = Modifier.size(50.dp),
@@ -97,7 +99,7 @@ fun ScreenTemplate(
                     Spacer(Modifier.height(8.dp))
 
                     CustomFloatingActionButton(
-                        onClick = { showExtraFabs = !showExtraFabs },
+                        onClick = { showExtraFab = !showExtraFab },
                         modifier = Modifier.size(50.dp)
                             .offset { IntOffset(x = 0, y = (-20).dp.roundToPx()) }
                     )
@@ -112,7 +114,15 @@ fun ScreenTemplate(
                 .fillMaxSize()
                 .padding(contentPadding)
         ) {
-            content(contentPadding)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                contentPadding = PaddingValues(bottom = 150.dp)
+            ) {
+                content()
+            }
         }
 
         if (showBottomBar) BottomBar(navController)

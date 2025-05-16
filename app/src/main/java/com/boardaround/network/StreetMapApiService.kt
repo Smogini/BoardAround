@@ -50,7 +50,7 @@ object NominatimClient {
         .build()
 
     val instance: StreetMapApiInterface by lazy {
-        val client = okhttp3.OkHttpClient.Builder()
+        val client = OkHttpClient.Builder()
             .addInterceptor(UserAgentInterceptor())
             .build()
 

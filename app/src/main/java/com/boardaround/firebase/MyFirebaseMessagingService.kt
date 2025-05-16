@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -19,8 +18,8 @@ import com.google.firebase.messaging.RemoteMessage
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
-    private val TAG = "MyFirebaseMsgService"
-    private val CHANNEL_ID = "event_invitation_channel" // ID univoco per il canale di notifica
+    private val tag = "MyFirebaseMsgService"
+    private val channelId = "event_invitation_channel" // ID univoco per il canale di notifica
 
     /**
      * Chiamato quando viene generato un nuovo token di registrazione FCM.
@@ -31,7 +30,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      * - Quando il token esistente scade.
      */
     override fun onNewToken(token: String) {
-        Log.d(TAG, "Refreshed token: $token")
+        Log.d(tag, "Refreshed token: $token")
 
         // Invia questo token al tuo server backend o salvalo in un database
         // associato all'utente loggato. Questo token è necessario per inviare
@@ -48,11 +47,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      * questo metodo viene sempre chiamato.
      */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d(TAG, "From: ${remoteMessage.from}")
+        Log.d(tag, "From: ${remoteMessage.from}")
 
         // Controlla se il messaggio contiene un payload di dati.
         if (remoteMessage.data.isNotEmpty()) {
-            Log.d(TAG, "Message data payload: ${remoteMessage.data}")
+            Log.d(tag, "Message data payload: ${remoteMessage.data}")
 
             // Estrai i dati personalizzati dal payload
             val eventId = remoteMessage.data["event_id"]
@@ -74,7 +73,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Questo blocco viene eseguito solo se l'app è in primo piano
         // e il messaggio contiene un payload di notifica.
         remoteMessage.notification?.let {
-            Log.d(TAG, "Message Notification Body: ${it.body}")
+            Log.d(tag, "Message Notification Body: ${it.body}")
             // Se l'app è in primo piano, puoi mostrare la notifica manualmente
             // (se non l'hai già fatto nel blocco data).
             // sendNotification(it.title, it.body) // Potresti volerlo fare qui se non hai dati
@@ -89,7 +88,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // TODO: Implementa questa funzione per inviare il token al tuo backend
         // Esempio: Utilizza Retrofit, Ktor, o Firebase Firestore/Realtime Database
         // per salvare il token associato all'utente loggato.
-        Log.d(TAG, "Invio token al server: $token")
+        Log.d(tag, "Invio token al server: $token")
     }
 
     /**
@@ -124,7 +123,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         createNotificationChannel()
 
         // Costruisci la notifica
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification) // Sostituisci con l'icona della tua notifica
             .setContentTitle(messageTitle ?: "Notifica")
             .setContentText(messageBody ?: "Hai ricevuto un nuovo messaggio.")
@@ -135,17 +134,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Mostra la notifica
         with(NotificationManagerCompat.from(this)) {
             // Controlla il permesso POST_NOTIFICATIONS per Android 13+
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (ActivityCompat.checkSelfPermission(
-                        this@MyFirebaseMessagingService,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    // Se il permesso non è concesso, non mostrare la notifica
-                    // In un'app reale, dovresti gestire la richiesta del permesso all'utente
-                    Log.w(TAG, "Permesso POST_NOTIFICATIONS non concesso. Impossibile mostrare la notifica.")
-                    return
-                }
+            if (ActivityCompat.checkSelfPermission(
+                    this@MyFirebaseMessagingService,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Se il permesso non è concesso, non mostrare la notifica
+                // In un'app reale, dovresti gestire la richiesta del permesso all'utente
+                Log.w(
+                    tag,
+                    "Permesso POST_NOTIFICATIONS non concesso. Impossibile mostrare la notifica."
+                )
+                return
             }
             // notificationId è un ID univoco per ogni notifica che mostri
             val notificationId = System.currentTimeMillis().toInt() // Un ID univoco basato sul timestamp
@@ -159,17 +159,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      */
     private fun createNotificationChannel() {
         // Crea il NotificationChannel solo su API 26+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = getString(R.string.channel_name) // Definisci questo nel tuo strings.xml
-            val descriptionText = getString(R.string.channel_description) // Definisci questo nel tuo strings.xml
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
-            // Registra il canale con il sistema
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val name = getString(R.string.channel_name) // Definisci questo nel tuo strings.xml
+        val descriptionText = getString(R.string.channel_description) // Definisci questo nel tuo strings.xml
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(channelId, name, importance).apply {
+            description = descriptionText
         }
+        // Registra il canale con il sistema
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 }

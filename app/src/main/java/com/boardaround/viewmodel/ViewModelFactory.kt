@@ -1,6 +1,7 @@
 package com.boardaround.viewmodel
 
 import android.content.Context
+import com.boardaround.data.UserSessionManager
 import com.boardaround.data.database.AppDatabase
 import com.boardaround.data.repositories.EventRepository
 import com.boardaround.data.repositories.NotificationRepository
@@ -22,8 +23,9 @@ class ViewModelFactory(context: Context) {
     private val achievementDAO = database.achievementDAO()
 
     private val firestoreInstance = FirebaseFirestore.getInstance()
+    private val sessionManager = UserSessionManager(context)
 
-    private val userRepository = UserRepository(context, userDao, firestoreInstance)
+    private val userRepository = UserRepository(sessionManager, userDao, firestoreInstance)
     private val eventRepository = EventRepository(eventDAO , firestoreInstance)
     private val notificationRepository = NotificationRepository()
     private val postRepository = PostRepository(postDAO, firestoreInstance)
@@ -43,13 +45,13 @@ class ViewModelFactory(context: Context) {
     }
 
     fun providePostViewModel(): PostViewModel =
-        PostViewModel(postRepository)
+        PostViewModel(postRepository, sessionManager)
 
     fun provideEventViewModel(): EventViewModel =
-        EventViewModel(eventRepository)
+        EventViewModel(eventRepository, sessionManager)
 
     fun provideGameViewModel(): GameViewModel =
-        GameViewModel(gameRepository, achievementManager)
+        GameViewModel(gameRepository, achievementManager, sessionManager)
 
     fun provideTriviaViewModel(): TriviaViewModel =
         TriviaViewModel(triviaRepository)

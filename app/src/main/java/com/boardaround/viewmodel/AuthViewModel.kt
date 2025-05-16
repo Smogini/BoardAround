@@ -1,87 +1,36 @@
 package com.boardaround.viewmodel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.User
 import com.boardaround.data.repositories.UserRepository
+import com.boardaround.firebase.FirebaseUtils
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.google.firebase.firestore.FirebaseFirestore
-import com.boardaround.firebase.FirebaseUtils
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
-import android.net.Uri
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
-@Suppress("CAST_NEVER_SUCCEEDS")
 class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
-
-    private val firestore = FirebaseFirestore.getInstance()
-
-    private val _loginSuccess = MutableStateFlow(false)
-    val loginSuccess: StateFlow<Boolean> = _loginSuccess
 
     private val _registrationError = MutableStateFlow<String?>(null)
     val registrationError: StateFlow<String?> = _registrationError
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    fun login(username: String, password: String) {
+    fun login(username: String, password: String, onSuccess: (User?) -> Unit) {
         viewModelScope.launch {
-            _isLoading.value = true
-            _registrationError.value = null
-
-            try {
-                // 1. Cerca l'utente in Firestore tramite username
-                val querySnapshot = firestore.collection("users")
-                    .whereEqualTo("username", username)
-                    .get()
-                    .await()
-
-                if (!querySnapshot.isEmpty) {
-                    val userDoc = querySnapshot.documents[0]
-                    val email = userDoc.getString("email")
-                    val user = userDoc.toObject(User::class.java)
-
-                    if (email != null && user != null) {
-                        // 2. Login con email e password
-                        val auth = FirebaseAuth.getInstance()
-                        auth.signInWithEmailAndPassword(email, password).await()
-
-                        // ✅ 3. Salva localmente l'utente loggato
-                        saveUserLocally(user)
-
-                        // Sincronizza l'utente in Room se necessario
-                        userRepository.syncUserToRoomIfNeeded(user.username)
-
-                        _loginSuccess.value = true
-                    } else {
-                        _registrationError.value = "Email o utente non valido."
-                        _loginSuccess.value = false
-                    }
-                } else {
-                    _registrationError.value = "Username non trovato."
-                    _loginSuccess.value = false
-                }
-            } catch (e: Exception) {
-                Log.e("AuthViewModel", "Errore login: ${e.message}", e)
-                _registrationError.value = "Errore durante il login: ${e.message}"
-                _loginSuccess.value = false
-            } finally {
-                _isLoading.value = false
-            }
+            onSuccess(userRepository.login(username, password))
         }
     }
 
-
-
+    fun setLoggedUser(user: User) {
+        userRepository.setLoggedUser(user)
+    }
 
     fun deleteUser(user: User) {
         viewModelScope.launch {
@@ -90,13 +39,34 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-    fun registerUser(user: User, onSuccess: () -> Unit) {
+    fun registerUser(
+        username: String,
+        password: String,
+        name: String,
+        email: String,
+        dob: String,
+        profilePic: String
+    ) {
         viewModelScope.launch {
             try {
-                FirebaseUtils.registerUser(user) // Deve essere NON sospesa!
-                onSuccess()
+                val uid = createFirebaseUser(email, password)
+                val token = FirebaseUtils.getFcmToken()
+
+                val newUser = User(
+                    username = username,
+                    uid = uid,
+                    name = name,
+                    email = email,
+                    dob = dob,
+                    profilePic = profilePic,
+                    fcmToken = token
+                )
+
+                FirebaseUtils.registerUser(newUser)
+                userRepository.registerUser(newUser)
+
             } catch (e: Exception) {
-                Log.e("AuthViewModel", "Errore durante la registrazione: ${e.message}")
+                Log.e("AuthViewModel", "Errore durante la registrazione: ${e.message}", e)
                 _registrationError.value = "Errore durante la registrazione: ${e.message}"
             }
         }
@@ -116,73 +86,29 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-
     fun logout() {
         viewModelScope.launch {
             userRepository.logout()
-            _loginSuccess.value = false // Imposta lo stato a "non loggato"
-            // Potresti voler aggiornare anche lo stato dell'interfaccia utente per riflettere la disconnessione
         }
     }
 
     fun isUserLoggedIn(): Boolean = userRepository.isUserLoggedIn()
 
-    fun clearRegistrationError() {
-        _registrationError.value = null
-    }
-
-    // All'interno di AuthViewModel
-
-    fun createFirebaseUser(
-        email: String,
-        password: String,
-        onSuccess: (String) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        viewModelScope.launch {
-            try {
-                // Crea l'utente con email e password usando Firebase Authentication
-                val authResult = FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).await()
-                val firebaseUser = authResult.user
-
-                if (firebaseUser != null) {
-                    // Crea l'utente e salvalo in Firebase Firestore e Room
-                    val newUser = User(
-                        username = firebaseUser.displayName ?: "NoName",
-                        email = email,
-                        // Aggiungi altri campi necessari
-                    )
-
-                    // Salva l'utente in Room
-                    saveUserLocally(newUser)
-                    // Sincronizza l'utente in Firebase
-                    userRepository.saveUser(newUser)
-
-                    // Chiama il callback onSuccess con l'UID dell'utente
-                    onSuccess(firebaseUser.uid)
-                } else {
-                    throw Exception("Errore nella creazione dell'utente. FirebaseUser è null.")
+    private suspend fun createFirebaseUser(email: String, password: String): String {
+        return suspendCoroutine { continuation ->
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener { result ->
+                    val uid = result.user?.uid
+                    if (uid != null) {
+                        continuation.resume(uid)
+                    } else {
+                        continuation.resumeWithException(Exception("FirebaseUser UID null"))
+                    }
                 }
-            } catch (e: Exception) {
-                // Gestisci eventuali errori e chiama onFailure
-                Log.e("AuthViewModel", "Errore nella creazione dell'utente: ${e.message}", e)
-                onFailure(e)
-            }
+                .addOnFailureListener { e ->
+                    continuation.resumeWithException(e)
+                }
         }
     }
-
-
-    fun saveUserLocally(user: User) {
-        viewModelScope.launch {
-            try {
-                userRepository.saveUser(user)
-            } catch (e: Exception) {
-                Log.e("AuthViewModel", "Errore durante il salvataggio dell'utente localmente: ${e.message}")
-                e.printStackTrace()
-            }
-        }
-    }
-
 
 }
-

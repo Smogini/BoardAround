@@ -6,55 +6,30 @@ import com.boardaround.data.entities.User
 import com.google.gson.Gson
 
 class UserSessionManager(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
-    private val editor: SharedPreferences.Editor = prefs.edit()
+    private val prefs: SharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
     private val gson = Gson()
 
-    companion object {
-        private const val KEY_IS_LOGGED_IN = "is_logged_in"
-        private const val KEY_USER_JSON = "user_data"
-    }
+    private val keyUserJson = "user_json"
+    private val isUserLogged = "is_logged"
 
-    fun setUserLoggedIn(user: User, isLoggedIn: Boolean) {
+    fun setUserLoggedIn(user: User) {
         val userJson = gson.toJson(user)
-        editor.putBoolean(KEY_IS_LOGGED_IN, isLoggedIn)
-        editor.putString(KEY_USER_JSON, userJson)
-        editor.apply()
+        prefs.edit().putString(keyUserJson, userJson).apply()
+        prefs.edit().putBoolean(isUserLogged, true).apply()
     }
 
     fun isUserLoggedIn(): Boolean {
-        return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
+        return prefs.getBoolean(isUserLogged, false)
     }
 
-//    fun getCurrentUser(): User? {
-//        val userJson = prefs.getString(KEY_USER_JSON, null)
-//        return userJson?.let {
-//            try {
-//                gson.fromJson(it, User::class.java)
-//            } catch (e: Exception) {
-//                Log.e("UserSessionManager", "Errore nel parsing dell'utente: ${e.message}")
-//                null
-//            }
-//        }
-//    }
-    fun getCurrentUser(): User {
-        val userJson = prefs.getString(KEY_USER_JSON, null)
-            ?: throw IllegalStateException("Utente non salvato nelle preferenze")
-
-        return try {
-            gson.fromJson(userJson, User::class.java)
-        } catch (e: Exception) {
-            throw IllegalStateException("Errore nel parsing dell'utente: ${e.message}")
-        }
+    fun getCurrentUser(): User? {
+        val userJson = prefs.getString(keyUserJson, null)
+        return userJson?.let { gson.fromJson(it, User::class.java) }
     }
 
     fun logout() {
-        editor.remove(KEY_IS_LOGGED_IN)
-        editor.remove(KEY_USER_JSON)
-        editor.apply()
+        prefs.edit().remove(keyUserJson)
+                    .putBoolean(isUserLogged, false).apply()
     }
-}
 
-fun Context.getCurrentUser(): User {
-    return UserSessionManager(this).getCurrentUser()
 }

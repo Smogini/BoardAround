@@ -12,14 +12,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDAO {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertUser(user: User)
 
     @Delete
     suspend fun deleteUser(user: User)
-
-    @Query("SELECT * FROM users WHERE username = :username")
-    suspend fun getUser(username: String): User?
 
     @Query("SELECT * FROM users WHERE username LIKE '%' || :username || '%'")
     suspend fun retrieveUsersByUsername(username: String): List<User>

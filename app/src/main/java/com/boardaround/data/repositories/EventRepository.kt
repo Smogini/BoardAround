@@ -36,7 +36,7 @@ class EventRepository(private val eventDao: EventDAO, private val firestore: Fir
                 .set(eventData)
                 .await() // Attendi il completamento dell'operazione
 
-            Log.d("EventRepository", "Evento salvato in Firestore con ID: ${eventId}")
+            Log.d("EventRepository", "Evento salvato in Firestore con ID: $eventId")
 
             val notificationTriggerData = hashMapOf(
                 "eventId" to eventId,

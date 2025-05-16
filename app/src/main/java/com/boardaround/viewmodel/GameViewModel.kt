@@ -3,6 +3,7 @@ package com.boardaround.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boardaround.data.UserSessionManager
 import com.boardaround.data.entities.Game
 import com.boardaround.data.entities.GameSearchResult
 import com.boardaround.data.entities.SavedGame
@@ -18,7 +19,9 @@ import kotlinx.coroutines.launch
 
 class GameViewModel(
     private val gameRepository: GameRepository,
-    private val achievementManager: AchievementManager): ViewModel() {
+    private val achievementManager: AchievementManager,
+    private val sessionManager: UserSessionManager
+): ViewModel() {
 
     private var _gamesFound = MutableStateFlow(GameSearchResult(0, emptyList()))
     val gamesFound: StateFlow<GameSearchResult> = _gamesFound
@@ -52,15 +55,27 @@ class GameViewModel(
         }
     }
 
-    fun addGame(newGame: SavedGame) {
+    fun saveGame(gameId: Int, gameName: String) {
         viewModelScope.launch {
-            gameRepository.addGame(newGame)
+            try {
+                val username = sessionManager.getCurrentUser()?.username.toString()
+                val savedGame = SavedGame(
+                    user = username,
+                    gameId = gameId,
+                    name = gameName
+                )
+                Log.d("gameviewmodel", "gioco salvato: $gameName a $username")
+                gameRepository.addGame(savedGame)
+            } catch (e: Exception) {
+                Log.e("GameViewModel", "Errore nel salvare il gioco: ${e.message}", e)
+            }
         }
     }
 
-    fun getUserGames(username: String) {
+    fun getUserGames() {
         viewModelScope.launch {
             try {
+                val username = sessionManager.getCurrentUser()?.username.toString()
                 _userGames.value= gameRepository.getUserGames(username)
             } catch(e: Exception) {
                 Log.e("GameViewModel", "Errore nell'ottenere i giochi: ${e.message}", e)

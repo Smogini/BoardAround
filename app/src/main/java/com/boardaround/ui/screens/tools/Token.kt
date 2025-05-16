@@ -25,7 +25,9 @@ fun ShowTokenScreen(navController: NavController) {
         title = "Token",
         navController = navController
     ) {
-        TokenContent()
+        item {
+            TokenContent()
+        }
     }
 }
 

@@ -4,35 +4,31 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
-import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.network.NominatimClient
 import com.boardaround.network.StreetMapApiResponse
-import com.boardaround.ui.components.CustomButtonIcon
+import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.SearchResultCarousel
-import com.boardaround.ui.screens.ScreenTemplate
 import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
@@ -54,8 +50,6 @@ fun ShowHomePageScreen(
     val events by eventViewModel.eventsFound.collectAsState()
     val focusManager = LocalFocusManager.current
 
-    var latitude by remember { mutableStateOf(0.0) }
-    var longitude by remember { mutableStateOf(0.0) }
     val context = LocalContext.current
 
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -90,6 +84,7 @@ fun ShowHomePageScreen(
             // Ottieni la posizione se i permessi sono già stati concessi
             getUserLocation(fusedLocationClient, eventViewModel)
         }
+        Log.d("homepage", "utente loggato: ${userViewModel.getUsername()}")
     }
 
     LaunchedEffect(Unit) {
@@ -101,97 +96,91 @@ fun ShowHomePageScreen(
         currentRoute = Route.Homepage,
         navController = navController,
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            item {
-                CustomTextField(
-                    label = "Cosa stai cercando?",
-                    value = searchQuery.value,
-                    onValueChange = { searchQuery.value = it },
-                    leadingIcon = {
-                        CustomButtonIcon(
-                            title = "Search",
-                            icon = Icons.Filled.Search,
-                            iconColor = PrimaryBrown,
-                            onClick = {
-                                gameViewModel.searchGames(searchQuery.value.text)
-                                userViewModel.searchUsers(searchQuery.value.text)
-                                eventViewModel.searchEvents(searchQuery.value.text)
-                                focusManager.clearFocus()
-                            }
-                        )
-                    },
-                    trailingIcon = {
-                        if (searchQuery.value.text.isNotEmpty()) {
-                            CustomButtonIcon(
-                                title = "Clear",
-                                icon = Icons.Filled.Clear,
-                                iconColor = Errors,
-                                onClick = { searchQuery.value = TextFieldValue("") }
-                            )
+        item {
+            CustomTextField(
+                label = "Cosa stai cercando?",
+                value = searchQuery.value,
+                onValueChange = { searchQuery.value = it },
+                leadingIcon = {
+                    CustomClickableIcon(
+                        title = "Search",
+                        icon = Icons.Default.Search,
+                        iconColor = PrimaryBrown,
+                        onClick = {
+                            gameViewModel.searchGames(searchQuery.value.text)
+                            userViewModel.searchUsers(searchQuery.value.text)
+                            eventViewModel.searchEvents(searchQuery.value.text)
+                            focusManager.clearFocus()
                         }
-                    },
-                    keyboardType = KeyboardType.Ascii
-                )
+                    )
+                },
+                trailingIcon = {
+                    if (searchQuery.value.text.isNotEmpty()) {
+                        CustomClickableIcon(
+                            title = "Clear",
+                            icon = Icons.Default.Clear,
+                            iconColor = Errors,
+                            onClick = { searchQuery.value = TextFieldValue("") }
+                        )
+                    }
+                },
+                keyboardType = KeyboardType.Ascii
+            )
 
-                SearchResultCarousel(
-                    title = "Eventi trovati",
-                    items = events,
-                    onClick = { event ->
-                        eventViewModel.selectEvent(event)
-                        navController.navigateSingleTop(Route.EventInfo)
-                    },
-                    imageUrlProvider = { it.imageUrl.toString() },
-                    labelProvider = { it.name },
-                )
+            SearchResultCarousel(
+                title = "Eventi trovati",
+                items = events,
+                onClick = { event ->
+                    eventViewModel.selectEvent(event)
+                    navController.navigateSingleTop(Route.EventInfo)
+                },
+                imageUrlProvider = { it.imageUrl.toString() },
+                labelProvider = { it.name },
+            )
 
-                SearchResultCarousel(
-                    title = "Utenti trovati",
-                    items = users,
-                    onClick = { user ->
-                        userViewModel.selectUser(user)
-                        navController.navigateSingleTop(Route.Profile)
-                    },
-                    imageUrlProvider = { it.profilePic },
-                    labelProvider = { it.username },
-                )
+            SearchResultCarousel(
+                title = "Utenti trovati",
+                items = users,
+                onClick = { user ->
+                    userViewModel.selectUser(user)
+                    navController.navigateSingleTop(Route.Profile)
+                },
+                imageUrlProvider = { it.profilePic },
+                labelProvider = { it.username },
+            )
 
-                SearchResultCarousel(
-                    title = "Giochi trovati",
-                    items = searchGamesResult.games ?: emptyList(),
-                    onClick = { game ->
-                        gameViewModel.getGameInfo(game.id)
-                        navController.navigateSingleTop(Route.GameInfo)
-                    },
-                    imageUrlProvider = { "" },
-                    labelProvider = { it.name.value },
-                )
+            SearchResultCarousel(
+                title = "Giochi trovati",
+                items = searchGamesResult.games ?: emptyList(),
+                onClick = { game ->
+                    gameViewModel.getGameInfo(game.id)
+                    navController.navigateSingleTop(Route.GameInfo)
+                },
+                imageUrlProvider = { "" },
+                labelProvider = { it.name.value },
+            )
 
-                SearchResultCarousel(
-                    title = "Consigliati",
-                    items = suggestedGames,
-                    onClick = { game ->
-                        gameViewModel.getGameInfo(game.id)
-                        navController.navigateSingleTop(Route.GameInfo)
-                    },
-                    imageUrlProvider = { it.imageUrl.toString() },
-                    labelProvider = { it.name }
-                )
+            SearchResultCarousel(
+                title = "Consigliati",
+                items = suggestedGames,
+                onClick = { game ->
+                    gameViewModel.getGameInfo(game.id)
+                    navController.navigateSingleTop(Route.GameInfo)
+                },
+                imageUrlProvider = { it.imageUrl.toString() },
+                labelProvider = { it.name }
+            )
 
-                SearchResultCarousel(
-                    title = "Eventi intorno a te",
-                    items = searchEventsByAddress,
-                    onClick = { event ->
-                        eventViewModel.selectEvent(event)
-                        navController.navigateSingleTop(Route.EventInfo)
-                    },
-                    imageUrlProvider = { it.imageUrl ?: "" },
-                    labelProvider = { it.name }
-                )
-            }
+            SearchResultCarousel(
+                title = "Eventi intorno a te",
+                items = searchEventsByAddress,
+                onClick = { event ->
+                    eventViewModel.selectEvent(event)
+                    navController.navigateSingleTop(Route.EventInfo)
+                },
+                imageUrlProvider = { it.imageUrl ?: "" },
+                labelProvider = { it.name }
+            )
         }
     }
 }

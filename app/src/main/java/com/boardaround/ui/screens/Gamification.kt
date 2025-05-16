@@ -6,7 +6,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,16 +54,7 @@ fun GamificationScreen(navController: NavController, userViewModel: UserViewMode
         navController = navController,
         userViewModel = userViewModel
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(
-                16.dp,
-                alignment = Alignment.CenterVertically
-            )
-        ) {
+        item {
             ProgressBar(
                 progress = currentProgress,
                 modifier = Modifier.padding(10.dp)

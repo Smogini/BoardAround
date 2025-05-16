@@ -187,52 +187,52 @@ fun SetupTriviaScreen(navController: NavController, triviaViewModel: TriviaViewM
         navController = navController,
         currentRoute = Route.UtilTools,
         showBottomBar = false
-    ) { padding ->
-
-        if (!quizStarted) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                CustomTextField(
-                    label = "Numero di domande",
-                    value = questionCount,
-                    onValueChange = {  questionCount = it },
-                    keyboardType = KeyboardType.Number,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                DropdownSelector(
-                    label = "Categoria",
-                    options = categories.map { it.first },
-                    selectedOption = selectedCategory,
-                    onOptionSelected = { selectedCategory = it }
-                )
-
-                DropdownSelector(
-                    label = "Difficoltà",
-                    options = difficulties,
-                    selectedOption = selectedDifficulty,
-                    onOptionSelected = { selectedDifficulty = it }
-                )
-
-                Button(
-                    onClick = {
-                        val amount = questionCount.text.toIntOrNull() ?: 10
-                        val categoryId = categories.find { it.first == selectedCategory }?.second ?: 16
-                        triviaViewModel.loadTriviaQuestions(amount, categoryId, selectedDifficulty)
-                        quizStarted = true
-                    },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+    ) {
+        item {
+            if (!quizStarted) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text("Avvia Quiz")
+                    CustomTextField(
+                        label = "Numero di domande",
+                        value = questionCount,
+                        onValueChange = {  questionCount = it },
+                        keyboardType = KeyboardType.Number,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    DropdownSelector(
+                        label = "Categoria",
+                        options = categories.map { it.first },
+                        selectedOption = selectedCategory,
+                        onOptionSelected = { selectedCategory = it }
+                    )
+
+                    DropdownSelector(
+                        label = "Difficoltà",
+                        options = difficulties,
+                        selectedOption = selectedDifficulty,
+                        onOptionSelected = { selectedDifficulty = it }
+                    )
+
+                    Button(
+                        onClick = {
+                            val amount = questionCount.text.toIntOrNull() ?: 10
+                            val categoryId = categories.find { it.first == selectedCategory }?.second ?: 16
+                            triviaViewModel.loadTriviaQuestions(amount, categoryId, selectedDifficulty)
+                            quizStarted = true
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text("Avvia Quiz")
+                    }
                 }
+            } else {
+                ShowTriviaScreen(triviaViewModel = triviaViewModel)
             }
-        } else {
-            ShowTriviaScreen(triviaViewModel = triviaViewModel)
         }
     }
 }

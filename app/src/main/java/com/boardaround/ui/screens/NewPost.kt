@@ -4,40 +4,38 @@ import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.boardaround.data.getCurrentUser
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.viewmodel.PostViewModel
+import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun ShowNewPostScreen(navController: NavController, postViewModel: PostViewModel) {
+fun ShowNewPostScreen(
+    navController: NavController,
+    postViewModel: PostViewModel,
+    userViewModel: UserViewModel
+) {
 
     var title by remember { mutableStateOf(TextFieldValue("")) }
     var content by remember { mutableStateOf(TextFieldValue("")) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var hasImagePermission by remember { mutableStateOf(false) }
-    val username = LocalContext.current.getCurrentUser().username
+    val username = userViewModel.getUsername()
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -64,71 +62,62 @@ fun ShowNewPostScreen(navController: NavController, postViewModel: PostViewModel
         currentRoute = Route.NewPost,
         navController = navController,
         showBottomBar = false
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                CustomTextField(
-                    label = "Titolo",
-                    value = title,
-                    onValueChange = { title = it }
-                )
+    ) {
+        item {
+            CustomTextField(
+                label = "Titolo",
+                value = title,
+                onValueChange = { title = it }
+            )
 
-                Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-                CustomTextField(
-                    label = "Contenuto",
-                    value = content,
-                    onValueChange = { content = it }
-                )
+            CustomTextField(
+                label = "Contenuto",
+                value = content,
+                onValueChange = { content = it }
+            )
 
-                // Bottone per selezionare l'immagine
-                CustomButton(
-                    onClick = {
-                        val permissionToRequest =
-                            Manifest.permission.READ_MEDIA_IMAGES
-                        if (hasImagePermission) {
-                            imagePickerLauncher.launch("image/*")
-                        } else {
-                            permissionLauncher.launch(permissionToRequest)
-                        }
-                    },
-                    text = "Seleziona Immagine"
-                )
+            // Bottone per selezionare l'immagine
+            CustomButton(
+                onClick = {
+                    val permissionToRequest =
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    if (hasImagePermission) {
+                        imagePickerLauncher.launch("image/*")
+                    } else {
+                        permissionLauncher.launch(permissionToRequest)
+                    }
+                },
+                text = "Seleziona Immagine"
+            )
 
-                // Visualizzazione dell'immagine selezionata
-                if (selectedImageUri != null) {
-                    AsyncImage(
-                        model = selectedImageUri,
-                        contentDescription = "Immagine selezionata",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(300.dp))
-
-                CustomButton(
-                    onClick = {
-                        postViewModel.insertPost(
-                            title = title.text,
-                            content = content.text,
-                            imageUri = selectedImageUri?.toString(),
-                            author = username
-                        )
-                        navController.popBackStack()
-                    },
-                    text = "Pubblica"
+            // Visualizzazione dell'immagine selezionata
+            if (selectedImageUri != null) {
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Immagine selezionata",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentScale = ContentScale.Crop
                 )
             }
+
+            Spacer(modifier = Modifier.height(300.dp))
+
+            CustomButton(
+                onClick = {
+                    postViewModel.insertPost(
+                        title = title.text,
+                        content = content.text,
+                        imageUri = selectedImageUri?.toString(),
+                        author = username
+                    )
+                    navController.popBackStack()
+                },
+                text = "Pubblica"
+            )
         }
     }
 }

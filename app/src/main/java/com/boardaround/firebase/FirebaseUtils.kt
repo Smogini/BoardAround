@@ -3,13 +3,15 @@ package com.boardaround.firebase
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.compose.ui.graphics.vector.path
 import com.boardaround.data.entities.User
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.ktx.storage
 import java.io.InputStream
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 object FirebaseUtils {
 
@@ -79,15 +81,16 @@ object FirebaseUtils {
         }
     }
 
-    fun getFcmToken(onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+    suspend fun getFcmToken(): String = suspendCoroutine { continuation ->
         FirebaseMessaging.getInstance().token
             .addOnSuccessListener { token ->
-                onSuccess(token) // Passa il token ottenuto
+                continuation.resume(token)
             }
             .addOnFailureListener { e ->
-                onFailure(e) // Gestisci eventuali errori
+                continuation.resumeWithException(e)
             }
     }
+
 
     fun registerUser(user: User) {
         val userRef = firestore.collection("users").document(user.uid)

@@ -3,77 +3,77 @@ package com.boardaround.ui.components
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.boardaround.ui.screens.InfoRow
 
 @Composable
 fun <T> ExpandableSection(
     title: String,
-    items: List<T>,
-    isExpanded: Boolean,
-    onExpandChange: (Boolean) -> Unit,
-    emptyMessage: String = "Nessun elemento disponibile",
-    onItemClick: ((T) -> Unit)?,
-    itemContent: @Composable (T) -> Unit
+    icon: ImageVector,
+    itemList: List<T>,
+    labelProvider: (T) -> String,
+    onCLick: (T) -> Unit = {}
 ) {
-    Column {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(4.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .animateContentSize( // Animazione fluida
+                .animateContentSize (
                     animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
                 )
-                .clickable { onExpandChange(!isExpanded) }
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(8.dp)
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
-            )
-            Icon(
-                imageVector = if (isExpanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-                contentDescription = if (isExpanded) "Mostra meno" else "Mostra di più"
+            Text(title)
+            CustomClickableIcon(
+                title = title,
+                icon = icon,
+                iconColor = MaterialTheme.colorScheme.primary,
+                onClick = { isExpanded = !isExpanded }
             )
         }
-
         if (isExpanded) {
-            if (items.isNotEmpty()) {
-                LazyColumn(modifier = Modifier.heightIn(max = 150.dp)) {
-                    items(items) { item ->
-                        Box(
-                            modifier = Modifier.fillMaxWidth().clickable { onItemClick?.let { it(item) } }
-                        ) {
-                            itemContent(item)
-                        }
+            if (itemList.isNotEmpty()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    itemList.forEach { item ->
+                        InfoRow(
+                            leadingIcon = Icons.Default.Star,
+                            label = labelProvider(item),
+                            value = "",
+                            onClick = { onCLick(item) }
+                        )
                     }
                 }
             } else {
-                Text(
-                    text = emptyMessage,
-                    modifier = Modifier.padding(start = 16.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Text("Nessun elemento disponibile")
             }
         }
     }

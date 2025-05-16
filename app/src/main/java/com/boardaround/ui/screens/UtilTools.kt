@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
-import com.boardaround.ui.components.CustomButtonIcon
+import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.screens.tools.SetupTriviaScreen
 import com.boardaround.ui.screens.tools.ShowCoinFlip
 import com.boardaround.ui.screens.tools.ShowDiceScreen
@@ -83,9 +83,9 @@ fun ToolsMenu(navController: NavController) {
     )
 
     Box {
-        CustomButtonIcon(
+        CustomClickableIcon(
             title = "Menu",
-            icon = Icons.Filled.ArrowUpward,
+            icon = Icons.Default.ArrowUpward,
             iconColor = MaterialTheme.colorScheme.primary,
             onClick = { isExpanded.value = !isExpanded.value },
             rotationAngle = rotationAngle

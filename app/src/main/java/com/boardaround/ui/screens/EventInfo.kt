@@ -1,19 +1,26 @@
 package com.boardaround.ui.screens
 
 import android.Manifest
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import android.content.Intent
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -63,72 +70,65 @@ fun ShowEventInfoScreen(
         navController = navController,
         userViewModel = userViewModel,
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                EventDetailText("Nome Evento", eventToShow?.name)
-                EventDetailText("Descrizione", eventToShow?.description)
+        item {
+            EventDetailText("Nome Evento", eventToShow?.name)
+            EventDetailText("Descrizione", eventToShow?.description)
 
 
-                EventDetailText("Indirizzo", eventToShow?.address)
+            EventDetailText("Indirizzo", eventToShow?.address)
 
-                eventToShow?.address?.let { address ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    CustomButton(
-                        onClick = {
-                            val mapIntent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(address)}")
-                            )
-                            mapIntent.setPackage("com.google.android.apps.maps")
-
-                            try {
-                                currentContext.startActivity(mapIntent)
-                            } catch (e: Exception) {
-                                Toast.makeText(currentContext, "Impossibile aprire Google Maps", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                        text = "Apri sulla mappa"
-                    )
-                }
-
-
-                EventDetailText("Data e ora", eventToShow?.dateTime)
-                EventDetailText("Privato", if (eventToShow?.isPrivate == true) "Sì" else "No")
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Image(
-                    painter = eventToShow?.imageUrl?.let {
-                        rememberAsyncImagePainter(
-                            ImageRequest.Builder(currentContext)
-                                .data(it)
-                                .crossfade(true)
-                                .build()
-                        )
-                    } ?: painterResource(id = R.drawable.default_profile),
-                    contentDescription = "Immagine Evento",
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clickable {
-                            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                        }
-
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
+            eventToShow?.address?.let { address ->
+                Spacer(modifier = Modifier.height(8.dp))
                 CustomButton(
                     onClick = {
-                        // TODO: Azione per partecipare
+                        val mapIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(address)}")
+                        )
+                        mapIntent.setPackage("com.google.android.apps.maps")
+
+                        try {
+                            currentContext.startActivity(mapIntent)
+                        } catch (e: Exception) {
+                            Toast.makeText(currentContext, "Impossibile aprire Google Maps", Toast.LENGTH_SHORT).show()
+                        }
                     },
-                    text = "Partecipa all'evento"
+                    text = "Apri sulla mappa"
                 )
             }
+
+
+            EventDetailText("Data e ora", eventToShow?.dateTime)
+            EventDetailText("Privato", if (eventToShow?.isPrivate == true) "Sì" else "No")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Image(
+                painter = eventToShow?.imageUrl?.let {
+                    rememberAsyncImagePainter(
+                        ImageRequest.Builder(currentContext)
+                            .data(it)
+                            .crossfade(true)
+                            .build()
+                    )
+                } ?: painterResource(id = R.drawable.default_profile),
+                contentDescription = "Immagine Evento",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clickable {
+                        permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                    }
+
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            CustomButton(
+                onClick = {
+                    // TODO: Azione per partecipare
+                },
+                text = "Partecipa all'evento"
+            )
         }
     }
 }

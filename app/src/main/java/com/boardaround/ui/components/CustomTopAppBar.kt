@@ -1,45 +1,37 @@
 package com.boardaround.ui.components
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
-import com.boardaround.ui.theme.BottomBar
-import com.boardaround.ui.theme.Errors
 import com.boardaround.viewmodel.UserViewModel
-
-data class TopBarButton(
-    val navigationIcons: MutableList<Pair<String, ImageVector>>,
-    val actionIcons: MutableList<Pair<String, ImageVector>>
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,9 +42,7 @@ fun CustomTopAppBar(
     currentRoute: Route
 ) {
     val hasNotifications = userViewModel?.hasNewNotifications?.collectAsState()?.value ?: false
-    val actionIcons = remember(currentRoute, hasNotifications) {
-        calculateActionButtons(currentRoute, hasNotifications)
-    }
+    var clearEdit by remember { mutableStateOf(false) }
 
     Column {
         CenterAlignedTopAppBar(
@@ -66,78 +56,64 @@ fun CustomTopAppBar(
             },
 
             navigationIcon = {
-                val gamificationIcon = actionIcons.navigationIcons
-                gamificationIcon.forEach { (title, icon) ->
-                    CustomButtonIcon(
-                        title = title,
-                        icon = icon,
-                        iconColor = BottomBar,
-                        onClick = { navController.navigateSingleTop(Route.Gamification) }
-                    )
-                }
+                CustomClickableIcon(
+                    title = "Gamification",
+                    icon = Icons.Filled.EmojiEvents,
+                    iconColor = MaterialTheme.colorScheme.onBackground,
+                    onClick = { navController.navigateSingleTop(Route.Gamification) }
+                )
             },
 
             actions = {
-                Row(
-                    modifier = Modifier.wrapContentSize(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val trailingIcons = actionIcons.actionIcons
-                    trailingIcons.forEach { (title, icon) ->
-                        CustomButtonIcon(
-                            title = title,
-                            icon = icon,
-                            iconColor = if (title == "Return") Errors else BottomBar,
-                            onClick = {
-                                when (title) {
-                                    "Settings" -> navController.navigateSingleTop(Route.EditMyProfile)
-                                    "Return" -> navController.popBackStack()
-                                    else -> { Log.e("Top App Bar", "Function not implemented") }
-                                }
+                /* TODO: cancellare le modifiche apportate */
+                if (clearEdit) {
+                    AlertDialog(
+                        onDismissRequest = { clearEdit = false },
+                        title = { Text("Cancella") },
+                        text = { Text("Sei sicuro di voler tornare indietro?") },
+                        confirmButton = {
+                            TextButton(onClick = { navController.navigateSingleTop(Route.MyProfile) }) {
+                                Text("OK")
                             }
-                        )
-                    }
+                        }
+                    )
                 }
+                if (currentRoute == Route.MyProfile) {
+                    CustomClickableIcon(
+                        title = "Edit profile",
+                        icon = Icons.Default.ManageAccounts,
+                        iconColor = MaterialTheme.colorScheme.onBackground,
+                        onClick = { navController.navigateSingleTop(Route.EditMyProfile) }
+                    )
+                }
+                if (currentRoute == Route.EditMyProfile) {
+                    CustomClickableIcon(
+                        title = "Cancel",
+                        icon = Icons.Default.Cancel,
+                        iconColor = MaterialTheme.colorScheme.tertiary,
+                        onClick = { clearEdit = true }
+                    )
+                }
+                CustomClickableIcon(
+                    title = "Notification",
+                    icon = if (hasNotifications) Icons.Default.NotificationsNone else Icons.Default.Notifications,
+                    iconColor = MaterialTheme.colorScheme.onBackground,
+                    /* TODO: implementare le notifiche */
+                    onClick = { Log.d("TopAppBar", "Not implemented") }
+                )
+
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 actionIconContentColor = MaterialTheme.colorScheme.background
             ),
             modifier = Modifier
-                .padding(5.dp)
                 .wrapContentHeight()
                 .fillMaxWidth(),
         )
         HorizontalDivider(
             color = MaterialTheme.colorScheme.secondary,
-            thickness = 4.dp,
+            thickness = 4.dp
         )
     }
-}
-
-private fun calculateActionButtons(currentRoute: Route, hasNotification: Boolean): TopBarButton {
-    val excludedRoutes = setOf(
-        Route.Login,
-        Route.Register,
-        Route.EditMyProfile,
-        Route.NewPost,
-        Route.NewEvent
-    )
-    val actionButtons = mutableListOf<Pair<String, ImageVector>>()
-    val notificationIcon = if(hasNotification) Icons.Filled.Notifications else Icons.Filled.NotificationsNone
-    val navigationButtons = mutableListOf<Pair<String, ImageVector>>()
-
-    if (!excludedRoutes.contains(currentRoute)) {
-        actionButtons.add("Notifications" to notificationIcon)
-        navigationButtons.add("Gamification" to Icons.Filled.EmojiEvents)
-    }
-
-    when (currentRoute) {
-        Route.MyProfile -> actionButtons.add("Settings" to Icons.Filled.ManageAccounts)
-        Route.EditMyProfile -> actionButtons.add("Return" to Icons.Filled.Cancel)
-        else -> {}
-    }
-
-    return TopBarButton(navigationButtons, actionButtons)
 }

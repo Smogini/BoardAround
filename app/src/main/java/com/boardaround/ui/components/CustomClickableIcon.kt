@@ -4,6 +4,8 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -22,7 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CustomButtonIcon(
+fun CustomClickableIcon(
     title: String,
     icon: ImageVector,
     iconColor: Color,
@@ -42,7 +44,7 @@ fun CustomButtonIcon(
         tonalElevation = 4.dp,
         color = Color.Transparent,
         modifier = Modifier
-            .size(30.dp)
+            .size(50.dp)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
@@ -58,12 +60,13 @@ fun CustomButtonIcon(
                     }
                 )
             }
+            .padding(PaddingValues(start = 10.dp, end = 10.dp))
     ) {
         Icon(
             imageVector = icon,
             contentDescription = title,
             tint = iconColor,
-            modifier = Modifier.padding(1.dp)
+            modifier = Modifier.fillMaxSize().padding(1.dp)
         )
     }
 }

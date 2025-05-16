@@ -1,28 +1,23 @@
 package com.boardaround.viewmodel
 
-import android.telecom.Call
 import android.util.Log
-import android.view.WindowInsetsAnimation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boardaround.data.UserSessionManager
 import com.boardaround.data.entities.Event
 import com.boardaround.data.repositories.EventRepository
 import com.boardaround.network.NominatimClient
 import com.boardaround.network.StreetMapApiResponse
-import kotlinx.coroutines.flow.Flow
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import retrofit2.Callback
-import retrofit2.Response
-import kotlin.math.*
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 
 class EventViewModel(
-    private val repository: EventRepository
+    private val repository: EventRepository,
+    private val sessionManager: UserSessionManager
 ) : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance()
@@ -58,9 +53,10 @@ class EventViewModel(
         }
     }
 
-    fun searchEventsByUsername(username: String) {
+    fun searchEventsByUsername() {
         viewModelScope.launch {
             try {
+                val username = sessionManager.getCurrentUser()?.username.toString()
                 _eventsFound.value = repository.getEventsByUsername(username)
             } catch (e: Exception) {
                 Log.e("EventViewModel", "Errore nella ricerca degli eventi: ${e.message}", e)

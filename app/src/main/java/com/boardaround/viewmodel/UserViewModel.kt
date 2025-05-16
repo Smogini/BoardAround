@@ -35,8 +35,8 @@ class UserViewModel(
         this._selectedUser.value = user
     }
 
-    fun getFriends(username: String): Flow<List<User>> {
-        return friendshipRepository.getFriends(username)
+    fun getFriends(userUsername: String): Flow<List<User>> {
+        return friendshipRepository.getFriends(userUsername)
     }
 
     fun addFriend(userUsername: String, friendUsername: String) {
@@ -67,10 +67,14 @@ class UserViewModel(
         }
     }
 
+    fun getUsername(): String =
+        userRepository.getCurrentUser()?.username ?: "No username"
+
 //    fun refreshNotificationStatus() {
 //        viewModelScope.launch {
 //            val newNotifications = notificationRepository.hasUnread()
 //            _hasNewNotifications.value = newNotifications
 //        }
 //    }
+
 }

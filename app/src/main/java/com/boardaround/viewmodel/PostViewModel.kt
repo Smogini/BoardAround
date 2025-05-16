@@ -2,6 +2,7 @@ package com.boardaround.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boardaround.data.UserSessionManager
 import com.boardaround.data.entities.Post
 import com.boardaround.data.repositories.PostRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +11,7 @@ import kotlinx.coroutines.launch
 
 class PostViewModel(
     private val repository: PostRepository,
+    private val sessionManager: UserSessionManager
 ) : ViewModel() {
 
     private val _userPosts = MutableStateFlow<List<Post>>(emptyList())
@@ -33,10 +35,10 @@ class PostViewModel(
         }
     }
 
-    fun getPostsByUsername(username: String) {
+    fun getPostsByUsername() {
         viewModelScope.launch {
-            val posts = repository.getPostsByUsername(username)
-            _userPosts.value = posts
+            val username = sessionManager.getCurrentUser()?.username.toString()
+            _userPosts.value = repository.getPostsByUsername(username)
         }
     }
 }

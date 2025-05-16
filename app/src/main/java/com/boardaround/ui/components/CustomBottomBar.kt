@@ -36,11 +36,11 @@ fun BottomBar(navController: NavController) {
                 .align(Alignment.BottomCenter)
                 .shadow(elevation = 10.dp, shape = RoundedCornerShape(60.dp)),
             actions = {
-                CustomButtonIcon(
+                CustomClickableIcon(
                     "Homepage",
                     icon = Icons.Filled.Home,
                     iconColor = MaterialTheme.colorScheme.primary,
-                    onClick = { navController.navigateSingleTop(Route.Homepage) }
+                    onClick = { navController.navigateSingleTop(Route.Homepage) },
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -49,7 +49,7 @@ fun BottomBar(navController: NavController) {
 
                 Spacer(modifier = Modifier.weight(0.1f))
 
-                CustomButtonIcon(
+                CustomClickableIcon(
                     title = "Account",
                     icon = Icons.Filled.AccountCircle,
                     iconColor = MaterialTheme.colorScheme.primary,
