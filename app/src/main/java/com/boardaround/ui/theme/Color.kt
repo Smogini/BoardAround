@@ -12,5 +12,7 @@ val MyDarkGray = Color(0xFF1E1E1E)
 val White = Color.White
 val Black = Color.Black
 val BlackBrown = Color(0xFF1C1B1F)
+val News = Color(0xFFF5E9DA)
+
 
 val Errors = Color(0xFFD32F2F)

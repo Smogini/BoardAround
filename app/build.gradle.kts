@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.coil.compose)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation(libs.osmdroid)
     implementation(libs.firebase.storage.ktx)
     implementation(libs.google.firebase.auth.ktx)

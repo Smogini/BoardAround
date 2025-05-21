@@ -29,6 +29,7 @@ import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.TriviaViewModel
 import com.boardaround.viewmodel.UserViewModel
+import com.boardaround.viewmodel.NewsViewModel
 
 @Composable
 fun NavGraph(
@@ -39,6 +40,7 @@ fun NavGraph(
     postViewModel: PostViewModel,
     eventViewModel: EventViewModel,
     triviaViewModel: TriviaViewModel,
+    newsViewModel: NewsViewModel,
     onThemeChange: (Boolean) -> Unit
 ) {
     val startDest = if(authViewModel.isUserLoggedIn()) Route.Homepage else Route.Splash
@@ -52,7 +54,7 @@ fun NavGraph(
             SplashScreen(navController)
         }
         composable<Route.Homepage> {
-            ShowHomePageScreen(navController, userViewModel, gameViewModel, eventViewModel)
+            ShowHomePageScreen(navController, userViewModel, gameViewModel, eventViewModel, newsViewModel)
         }
         composable<Route.Login> {
             ShowLoginScreen(navController, authViewModel)

@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -40,6 +41,7 @@ fun ShowEventInfoScreen(
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel
 ) {
+
     val eventToShow by eventViewModel.selectedEvent.collectAsState()
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val currentContext = LocalContext.current
@@ -71,81 +73,82 @@ fun ShowEventInfoScreen(
         userViewModel = userViewModel,
     ) {
         item {
-            EventDetailText("Nome Evento", eventToShow?.name)
-            EventDetailText("Descrizione", eventToShow?.description)
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                EventDetailText("Nome Evento", eventToShow?.name)
+                EventDetailText("Descrizione", eventToShow?.description)
+                EventDetailText("Indirizzo", eventToShow?.address)
 
+                eventToShow?.address?.let { address ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomButton(
+                        onClick = {
+                            val mapIntent = Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(address)}")
+                            ).apply {
+                                setPackage("com.google.android.apps.maps")
+                            }
 
-            EventDetailText("Indirizzo", eventToShow?.address)
+                            try {
+                                currentContext.startActivity(mapIntent)
+                            } catch (e: Exception) {
+                                Toast.makeText(currentContext, "Impossibile aprire Google Maps", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        text = "Apri sulla mappa"
+                    )
+                }
 
-            eventToShow?.address?.let { address ->
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                EventDetailText("Data e ora", eventToShow?.dateTime)
+                EventDetailText("Privato", if (eventToShow?.isPrivate == true) "Sì" else "No")
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Image(
+                    painter = eventToShow?.imageUrl?.let {
+                        rememberAsyncImagePainter(
+                            ImageRequest.Builder(currentContext)
+                                .data(it)
+                                .crossfade(true)
+                                .build()
+                        )
+                    } ?: painterResource(id = R.drawable.default_profile),
+                    contentDescription = "Immagine Evento",
+                    modifier = Modifier
+                        .size(140.dp)
+                        .clickable { permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES) }
+                        .align(Alignment.CenterHorizontally)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
                 CustomButton(
                     onClick = {
-                        val mapIntent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(address)}")
-                        )
-                        mapIntent.setPackage("com.google.android.apps.maps")
-
-                        try {
-                            currentContext.startActivity(mapIntent)
-                        } catch (e: Exception) {
-                            Toast.makeText(currentContext, "Impossibile aprire Google Maps", Toast.LENGTH_SHORT).show()
-                        }
+                        // TODO: Azione per partecipare
                     },
-                    text = "Apri sulla mappa"
+                    text = "Partecipa all'evento"
                 )
             }
-
-
-            EventDetailText("Data e ora", eventToShow?.dateTime)
-            EventDetailText("Privato", if (eventToShow?.isPrivate == true) "Sì" else "No")
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Image(
-                painter = eventToShow?.imageUrl?.let {
-                    rememberAsyncImagePainter(
-                        ImageRequest.Builder(currentContext)
-                            .data(it)
-                            .crossfade(true)
-                            .build()
-                    )
-                } ?: painterResource(id = R.drawable.default_profile),
-                contentDescription = "Immagine Evento",
-                modifier = Modifier
-                    .size(120.dp)
-                    .clickable {
-                        permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                    }
-
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            CustomButton(
-                onClick = {
-                    // TODO: Azione per partecipare
-                },
-                text = "Partecipa all'evento"
-            )
         }
     }
 }
 
 @Composable
 fun EventDetailText(label: String, value: String?) {
-    Column {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.secondary,
         )
         Text(
             text = value ?: "-",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(top = 2.dp)
         )
     }
 }
+

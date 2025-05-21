@@ -7,19 +7,35 @@ import android.location.Location
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import com.boardaround.data.entities.Article
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
@@ -28,11 +44,13 @@ import com.boardaround.network.NominatimClient
 import com.boardaround.network.StreetMapApiResponse
 import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.components.CustomTextField
+import com.boardaround.ui.components.NewsArticleItem
 import com.boardaround.ui.components.SearchResultCarousel
 import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
+import com.boardaround.viewmodel.NewsViewModel
 import com.boardaround.viewmodel.UserViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -42,7 +60,8 @@ fun ShowHomePageScreen(
     navController: NavController,
     userViewModel: UserViewModel,
     gameViewModel: GameViewModel,
-    eventViewModel: EventViewModel
+    eventViewModel: EventViewModel,
+    newsViewModel: NewsViewModel
 ) {
     val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
     val searchGamesResult by gameViewModel.gamesFound.collectAsState()
@@ -56,6 +75,9 @@ fun ShowHomePageScreen(
 
     val suggestedGames by gameViewModel.suggestedGames.collectAsState()
     val searchEventsByAddress by eventViewModel.eventsFound.collectAsState()
+
+    val newsState by newsViewModel.newsUiState.collectAsState()
+    val uriHandler = LocalUriHandler.current
 
     // Controlla i permessi di localizzazione
     val hasLocationPermission = remember {
@@ -182,8 +204,71 @@ fun ShowHomePageScreen(
                 labelProvider = { it.name }
             )
         }
+
+        item {
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = "News",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+                when {
+                    newsState.isLoading -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    newsState.error != null -> {
+                        Text(
+                            text = "Errore nel caricare le notizie: ${newsState.error}",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+
+                    newsState.articles.isEmpty() -> {
+                        Text(
+                            text = "Nessuna notizia trovata.",
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+
+                    else -> {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(newsState.articles) { article ->
+                                NewsArticleItem(
+                                    article = article,
+                                    onClick = {
+                                        article.url?.let { url ->
+                                            try {
+                                                uriHandler.openUri(url)
+                                            } catch (e: Exception) {
+                                                Log.e("HomepageScreen", "Impossibile aprire URL: $url", e)
+                                            }
+                                        }
+                                    }
+                                )
+
+                            }
+                        }
+                    }
+                }
+            }
+
+
+                    }
     }
-}
+
+    }
 
 @SuppressLint("MissingPermission")
 fun getUserLocation(
