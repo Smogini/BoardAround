@@ -23,17 +23,23 @@ class PostViewModel(
         _selectedPost.value = selected
     }
 
-    fun insertPost(title: String, content: String, imageUri: String?, author: String) {
+    fun insertPost(title: String, content: String, imageUri: String?) {
         viewModelScope.launch {
+            val currentUserUid = sessionManager.getCurrentUser()?.uid
+            if (currentUserUid == null) {
+                // gestisci errore: utente non loggato
+                return@launch
+            }
             val post = Post(
                 title = title,
                 content = content,
                 imageUri = imageUri,
-                author = author
+                author = currentUserUid
             )
             repository.insertPost(post)
         }
     }
+
 
     fun getPostsByUsername() {
         viewModelScope.launch {

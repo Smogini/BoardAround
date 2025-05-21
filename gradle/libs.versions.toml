@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.3"
+agp = "8.7.0-alpha08"
 datastorePreferences = "1.0.0" # If updated PreferencesManager won't work
 firebaseBom = "33.13.0"
 firebaseMessaging = "24.1.1"

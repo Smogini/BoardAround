@@ -111,8 +111,7 @@ fun ShowNewPostScreen(
                     postViewModel.insertPost(
                         title = title.text,
                         content = content.text,
-                        imageUri = selectedImageUri?.toString(),
-                        author = username
+                        imageUri = selectedImageUri?.toString()
                     )
                     navController.popBackStack()
                 },
