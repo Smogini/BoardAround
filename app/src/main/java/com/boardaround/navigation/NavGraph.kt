@@ -20,6 +20,7 @@ import com.boardaround.ui.screens.ShowNewEventScreen
 import com.boardaround.ui.screens.ShowNewPostScreen
 import com.boardaround.ui.screens.ShowProfileScreen
 import com.boardaround.ui.screens.ShowRegisterScreen
+import com.boardaround.ui.screens.ShowNotificationScreen
 import com.boardaround.ui.screens.ShowToolScreen
 import com.boardaround.ui.screens.SplashScreen
 import com.boardaround.viewmodel.AuthViewModel
@@ -88,6 +89,9 @@ fun NavGraph(
         }
         composable<Route.UtilTools> {
             ShowToolScreen(navController, triviaViewModel)
+        }
+        composable<Route.NotificationCenter> {
+            ShowNotificationScreen(navController)
         }
     }
 }

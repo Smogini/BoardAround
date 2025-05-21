@@ -31,6 +31,9 @@ class UserViewModel(
     private val _usersFound = MutableStateFlow<List<User>>(emptyList())
     val usersFound: StateFlow<List<User>> = _usersFound
 
+    private val _unreadNotificationCount = MutableStateFlow(0)
+    val unreadNotificationCount: StateFlow<Int> = _unreadNotificationCount
+
     fun selectUser(user: User) {
         this._selectedUser.value = user
     }
@@ -65,6 +68,11 @@ class UserViewModel(
         viewModelScope.launch {
             achievementManager.getAllAchievements()
         }
+    }
+
+    // funzione per aggiornare il numero (da chiamare quando ricevi notifiche)
+    fun setUnreadNotificationCount(count: Int) {
+        _unreadNotificationCount.value = count
     }
 
     fun getUsername(): String =

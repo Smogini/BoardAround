@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import com.boardaround.ui.components.NotificationIconWithBadge
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -94,12 +95,10 @@ fun CustomTopAppBar(
                         onClick = { clearEdit = true }
                     )
                 }
-                CustomClickableIcon(
-                    title = "Notification",
-                    icon = if (hasNotifications) Icons.Default.NotificationsNone else Icons.Default.Notifications,
-                    iconColor = MaterialTheme.colorScheme.onBackground,
-                    /* TODO: implementare le notifiche */
-                    onClick = { Log.d("TopAppBar", "Not implemented") }
+                val notificationCount = userViewModel?.unreadNotificationCount?.collectAsState()?.value ?: 0
+                NotificationIconWithBadge(
+                    notificationCount = notificationCount,
+                    onClick = { navController.navigateSingleTop(Route.NotificationCenter) }
                 )
 
             },

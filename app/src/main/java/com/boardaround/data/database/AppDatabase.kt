@@ -21,7 +21,7 @@ import com.boardaround.data.entities.User
         User::class, Event::class, Post::class,
         Friendship::class, SavedGame::class, Achievement::class
         ],
-    version = 3)
+    version = 6)
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun userDAO(): UserDAO

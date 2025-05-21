@@ -37,6 +37,7 @@ import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
+import com.google.firebase.auth.FirebaseAuth
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 
@@ -58,6 +59,8 @@ fun ShowNewEventScreen(
     var selectedDateTime by remember { mutableStateOf("Seleziona data e ora") }
     var showDateTimePicker by remember { mutableStateOf(false) }
 
+    val firebaseUser = FirebaseAuth.getInstance().currentUser
+    val uid = firebaseUser?.uid ?: ""
     val username = userViewModel.getUsername()
     val userGames by gameViewModel.userGames.collectAsState(initial = emptyList())
 
@@ -167,7 +170,7 @@ fun ShowNewEventScreen(
                 onClick = {
                     val newEvent = Event(
                         name = eventNameState.value.text,
-                        author = username,
+                        author = uid,
                         description = descriptionState.value.text,
                         address = addressState.value.text,
                         dateTime = selectedDateTime,
