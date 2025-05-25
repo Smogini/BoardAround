@@ -15,19 +15,16 @@ interface EventDAO {
     @Delete
     suspend fun deleteEvent(event: Event)
 
-    @Query("SELECT * FROM events WHERE name LIKE '%' || :eventName || '%'")
+    @Query("SELECT * FROM event WHERE name LIKE '%' || :eventName || '%'")
     suspend fun searchEventsByName(eventName: String): List<Event>
 
-    @Query("SELECT * FROM events ORDER BY name DESC")
+    @Query("SELECT * FROM event ORDER BY name DESC")
     suspend fun getAllEvents(): List<Event>
 
-    @Query("SELECT * FROM events WHERE author = :username")
+    @Query("SELECT * FROM event WHERE author = :username")
     suspend fun getEventsByUsername(username: String): List<Event>
 
-    @Query("SELECT * FROM events WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
-    suspend fun getAllEventsWithLocation(): List<Event>
-
-    @Query("SELECT * FROM events WHERE address LIKE '%' || :address || '%'")
+    @Query("SELECT * FROM event WHERE address LIKE '%' || :address || '%'")
     suspend fun searchEventsByAddress(address: String): List<Event>
 
 }

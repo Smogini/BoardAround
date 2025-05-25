@@ -1,8 +1,10 @@
 package com.boardaround.navigation
 
+import android.content.Context
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -18,21 +20,22 @@ import com.boardaround.ui.screens.ShowLoginScreen
 import com.boardaround.ui.screens.ShowMyProfileScreen
 import com.boardaround.ui.screens.ShowNewEventScreen
 import com.boardaround.ui.screens.ShowNewPostScreen
+import com.boardaround.ui.screens.ShowNotificationScreen
 import com.boardaround.ui.screens.ShowProfileScreen
 import com.boardaround.ui.screens.ShowRegisterScreen
-import com.boardaround.ui.screens.ShowNotificationScreen
 import com.boardaround.ui.screens.ShowToolScreen
 import com.boardaround.ui.screens.SplashScreen
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
+import com.boardaround.viewmodel.NewsViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.TriviaViewModel
 import com.boardaround.viewmodel.UserViewModel
-import com.boardaround.viewmodel.NewsViewModel
 
 @Composable
 fun NavGraph(
+    context: Context,
     navController: NavHostController,
     userViewModel: UserViewModel,
     authViewModel: AuthViewModel,
@@ -47,8 +50,18 @@ fun NavGraph(
     NavHost(
         navController = navController,
         startDestination = startDest,
-        enterTransition = { fadeIn(tween(500)) },
-        exitTransition = { fadeOut(tween(500)) }
+        enterTransition = {
+            scaleIn(
+                initialScale = 0.9f,
+                animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+            ) + fadeIn(animationSpec = tween(500))
+        },
+        popEnterTransition = {
+            scaleIn(
+                initialScale = 1.1f,
+                animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+            ) + fadeIn(animationSpec = tween(500))
+        }
     ) {
         composable<Route.Splash> {
             SplashScreen(navController)
@@ -57,16 +70,16 @@ fun NavGraph(
             ShowHomePageScreen(navController, userViewModel, gameViewModel, eventViewModel, newsViewModel)
         }
         composable<Route.Login> {
-            ShowLoginScreen(navController, authViewModel)
+            ShowLoginScreen(context, navController, authViewModel)
         }
         composable<Route.Register> {
-            ShowRegisterScreen(navController, authViewModel)
+            ShowRegisterScreen(context, navController, authViewModel)
         }
         composable<Route.Invite> {
             ShowInviteScreen(navController)
         }
         composable<Route.NewEvent> {
-            ShowNewEventScreen(navController, eventViewModel, gameViewModel, userViewModel)
+            ShowNewEventScreen(context, navController, eventViewModel, gameViewModel, userViewModel)
         }
         composable<Route.Profile> {
             ShowProfileScreen(navController, userViewModel)
@@ -81,7 +94,7 @@ fun NavGraph(
             ShowGameInfo(navController, gameViewModel)
         }
         composable<Route.NewPost> {
-            ShowNewPostScreen(navController, postViewModel, userViewModel)
+            ShowNewPostScreen(navController, postViewModel)
         }
         composable<Route.EventInfo> {
             ShowEventInfoScreen(navController, userViewModel, eventViewModel)

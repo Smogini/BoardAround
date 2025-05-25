@@ -1,10 +1,7 @@
 package com.boardaround.ui.screens
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -35,24 +32,20 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.boardaround.data.entities.Article
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
-import com.boardaround.network.NominatimClient
-import com.boardaround.network.StreetMapApiResponse
+import com.boardaround.ui.components.CustomCarousel
 import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.NewsArticleItem
-import com.boardaround.ui.components.SearchResultCarousel
 import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.NewsViewModel
 import com.boardaround.viewmodel.UserViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
 @Composable
@@ -79,7 +72,6 @@ fun ShowHomePageScreen(
     val newsState by newsViewModel.newsUiState.collectAsState()
     val uriHandler = LocalUriHandler.current
 
-    // Controlla i permessi di localizzazione
     val hasLocationPermission = remember {
         ContextCompat.checkSelfPermission(
             context,
@@ -87,26 +79,22 @@ fun ShowHomePageScreen(
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    // Lancia una richiesta di permesso se non abbiamo il permesso
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
-            if (isGranted) {
-                // Ottieni la posizione se il permesso è stato concesso
-                getUserLocation(fusedLocationClient, eventViewModel)
-            }
+//            if (isGranted) {
+//                getUserLocation(fusedLocationClient, eventViewModel)
+//            }
         }
     )
 
-    // Se non c'è il permesso, richiedilo
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        } else {
-            // Ottieni la posizione se i permessi sono già stati concessi
-            getUserLocation(fusedLocationClient, eventViewModel)
         }
-        Log.d("homepage", "utente loggato: ${userViewModel.getUsername()}")
+//        } else {
+//            getUserLocation(fusedLocationClient, eventViewModel)
+//        }
     }
 
     LaunchedEffect(Unit) {
@@ -120,7 +108,7 @@ fun ShowHomePageScreen(
     ) {
         item {
             CustomTextField(
-                label = "Cosa stai cercando?",
+                label = "What are you looking for?",
                 value = searchQuery.value,
                 onValueChange = { searchQuery.value = it },
                 leadingIcon = {
@@ -149,19 +137,19 @@ fun ShowHomePageScreen(
                 keyboardType = KeyboardType.Ascii
             )
 
-            SearchResultCarousel(
-                title = "Eventi trovati",
+            CustomCarousel(
+                title = "Events found",
                 items = events,
                 onClick = { event ->
                     eventViewModel.selectEvent(event)
                     navController.navigateSingleTop(Route.EventInfo)
                 },
-                imageUrlProvider = { it.imageUrl.toString() },
+                imageUrlProvider = { it.imageUrl },
                 labelProvider = { it.name },
             )
 
-            SearchResultCarousel(
-                title = "Utenti trovati",
+            CustomCarousel(
+                title = "Users found",
                 items = users,
                 onClick = { user ->
                     userViewModel.selectUser(user)
@@ -171,8 +159,8 @@ fun ShowHomePageScreen(
                 labelProvider = { it.username },
             )
 
-            SearchResultCarousel(
-                title = "Giochi trovati",
+            CustomCarousel(
+                title = "Game boards found",
                 items = searchGamesResult.games ?: emptyList(),
                 onClick = { game ->
                     gameViewModel.getGameInfo(game.id)
@@ -182,8 +170,8 @@ fun ShowHomePageScreen(
                 labelProvider = { it.name.value },
             )
 
-            SearchResultCarousel(
-                title = "Consigliati",
+            CustomCarousel(
+                title = "Suggested",
                 items = suggestedGames,
                 onClick = { game ->
                     gameViewModel.getGameInfo(game.id)
@@ -193,14 +181,14 @@ fun ShowHomePageScreen(
                 labelProvider = { it.name }
             )
 
-            SearchResultCarousel(
-                title = "Eventi intorno a te",
+            CustomCarousel(
+                title = "Events nearby you",
                 items = searchEventsByAddress,
                 onClick = { event ->
                     eventViewModel.selectEvent(event)
                     navController.navigateSingleTop(Route.EventInfo)
                 },
-                imageUrlProvider = { it.imageUrl ?: "" },
+                imageUrlProvider = { it.imageUrl },
                 labelProvider = { it.name }
             )
         }
@@ -226,7 +214,7 @@ fun ShowHomePageScreen(
 
                     newsState.error != null -> {
                         Text(
-                            text = "Errore nel caricare le notizie: ${newsState.error}",
+                            text = "Error uploading news: ${newsState.error}",
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
@@ -234,7 +222,7 @@ fun ShowHomePageScreen(
 
                     newsState.articles.isEmpty() -> {
                         Text(
-                            text = "Nessuna notizia trovata.",
+                            text = "No news found.",
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                     }
@@ -252,7 +240,7 @@ fun ShowHomePageScreen(
                                             try {
                                                 uriHandler.openUri(url)
                                             } catch (e: Exception) {
-                                                Log.e("HomepageScreen", "Impossibile aprire URL: $url", e)
+                                                throw e
                                             }
                                         }
                                     }
@@ -263,47 +251,43 @@ fun ShowHomePageScreen(
                     }
                 }
             }
-
-
-                    }
-    }
-
-    }
-
-@SuppressLint("MissingPermission")
-fun getUserLocation(
-    fusedLocationClient: FusedLocationProviderClient,
-    eventViewModel: EventViewModel
-) {
-    fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-        location?.let {
-            val latitude = it.latitude
-            val longitude = it.longitude
-
-            // Reverse geocoding: converte coordinate in indirizzo
-            NominatimClient.instance.reverse(
-                lat = latitude.toString(),
-                lon = longitude.toString()
-            ).enqueue(object : retrofit2.Callback<StreetMapApiResponse> {
-                override fun onResponse(
-                    call: retrofit2.Call<StreetMapApiResponse>,
-                    response: retrofit2.Response<StreetMapApiResponse>
-                ) {
-                    if (response.isSuccessful) {
-                        val address = response.body()?.displayName
-                        if (!address.isNullOrBlank()) {
-                            eventViewModel.searchEventsByAddress(address)
-                        }
-                    } else {
-                        Log.e("getUserLocation", "Reverse geocoding fallita: ${response.code()}")
-                    }
-                }
-
-                override fun onFailure(call: retrofit2.Call<StreetMapApiResponse>, t: Throwable) {
-                    Log.e("getUserLocation", "Errore nella reverse geocoding", t)
-                }
-            })
         }
     }
 }
+
+//@SuppressLint("MissingPermission")
+//fun getUserLocation(
+//    fusedLocationClient: FusedLocationProviderClient,
+//    eventViewModel: EventViewModel
+//) {
+//    fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+//        location?.let {
+//            val latitude = it.latitude
+//            val longitude = it.longitude
+//
+//            NominatimClient.instance.reverse(
+//                lat = latitude.toString(),
+//                lon = longitude.toString()
+//            ).enqueue(object : retrofit2.Callback<StreetMapApiResponse> {
+//                override fun onResponse(
+//                    call: retrofit2.Call<StreetMapApiResponse>,
+//                    response: retrofit2.Response<StreetMapApiResponse>
+//                ) {
+//                    if (response.isSuccessful) {
+//                        val address = response.body()?.displayName
+//                        if (!address.isNullOrBlank()) {
+//                            eventViewModel.searchEventsByAddress(address)
+//                        }
+//                    } else {
+//                        Log.e("getUserLocation", "Reverse geocoding fallita: ${response.code()}")
+//                    }
+//                }
+//
+//                override fun onFailure(call: retrofit2.Call<StreetMapApiResponse>, t: Throwable) {
+//                    Log.e("getUserLocation", "Errore nella reverse geocoding", t)
+//                }
+//            })
+//        }
+//    }
+//}
 

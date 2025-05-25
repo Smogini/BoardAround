@@ -16,7 +16,7 @@ import kotlin.random.Random
 @Composable
 fun ShowCoinFlip(navController: NavController) {
     ScreenTemplate(
-        title = "Testa o Croce",
+        title = "Coin flip",
         navController = navController,
     ) {
         item {
@@ -37,12 +37,12 @@ fun CoinFlipContent() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = result ?: "Lancia la moneta!",
+            text = result ?: "Throw the coin!",
             style = MaterialTheme.typography.headlineMedium
         )
 
         result?.let {
-            val imageRes = if (it == "Testa") R.drawable.testa else R.drawable.croce
+            val imageRes = if (it == "Head") R.drawable.testa else R.drawable.croce
             Image(
                 painter = painterResource(id = imageRes),
                 contentDescription = it,
@@ -51,9 +51,9 @@ fun CoinFlipContent() {
         }
 
         Button(onClick = {
-            result = if (Random.nextBoolean()) "Testa" else "Croce"
+            result = if (Random.nextBoolean()) "Head" else "Cross"
         }) {
-            Text("Lancia")
+            Text("Throw")
         }
     }
 }

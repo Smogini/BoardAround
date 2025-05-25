@@ -25,11 +25,7 @@ class PostViewModel(
 
     fun insertPost(title: String, content: String, imageUri: String?) {
         viewModelScope.launch {
-            val currentUserUid = sessionManager.getCurrentUser()?.uid
-            if (currentUserUid == null) {
-                // gestisci errore: utente non loggato
-                return@launch
-            }
+            val currentUserUid = sessionManager.getCurrentUser()?.uid ?: return@launch
             val post = Post(
                 title = title,
                 content = content,

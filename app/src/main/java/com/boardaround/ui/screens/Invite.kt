@@ -1,40 +1,38 @@
 package com.boardaround.ui.screens
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
-import com.boardaround.ui.theme.PrimaryBrown
+import com.boardaround.ui.components.CustomTitle
 
 @Composable
 fun ShowInviteScreen(navController: NavController) {
     ScreenTemplate(
-        title = "Sei stato invitato da :",
+        title = "You've been invited from:",
         currentRoute = Route.Invite,
         navController,
     ) {
         item {
-            Text("Descrizione dell'evento", textAlign = TextAlign.Center, color = PrimaryBrown)
-            Text("Gioco dell'evento", textAlign = TextAlign.Center, color = PrimaryBrown)
-            Text("Partecipanti", textAlign = TextAlign.Center, color = PrimaryBrown)
-            Text("Luogo dell'evento", textAlign = TextAlign.Center, color = PrimaryBrown)
-            Text("Data e orario evento", textAlign = TextAlign.Center, color = PrimaryBrown)
+            CustomTitle(text = "Description of the event")
+            CustomTitle(text = "Game of the event")
+            CustomTitle(text = "Participants")
+            CustomTitle(text = "Event location")
+            CustomTitle(text = "Event date and time")
 
             CustomButton(
                 onClick = {
                     navController.navigateSingleTop(Route.Homepage)
                 },
-                text = "Si, partecipo all'evento"
+                text = "Accept the invite"
             )
 
             CustomButton(
                 onClick = {
                     navController.navigateSingleTop(Route.Homepage)
                 },
-                text = "Rifiuta invito"
+                text = "Reject invite"
             )
 
         }

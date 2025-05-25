@@ -23,10 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.boardaround.data.entities.Article
-import kotlin.text.isNullOrBlank
-import androidx.compose.ui.res.painterResource
 import com.boardaround.R
+import com.boardaround.data.entities.Article
 
 
 @Composable
@@ -55,7 +53,7 @@ fun NewsArticleItem(
                         .error(R.drawable.placeholder_image)
                         .fallback(R.drawable.placeholder_image)
                         .build(),
-                    contentDescription = "Immagine notizia: ${article.title}",
+                    contentDescription = "News image: ${article.title}",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -65,7 +63,7 @@ fun NewsArticleItem(
 
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = article.title ?: "Nessun titolo",
+                    text = article.title ?: "No title available",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold
                     ),
@@ -76,7 +74,7 @@ fun NewsArticleItem(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = article.description ?: "Nessuna descrizione",
+                    text = article.description ?: "No description available",
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
@@ -114,19 +112,15 @@ fun NewsArticleItem(
     }
 }
 
-// Funzione helper semplice per formattare la data (puoi renderla più sofisticata)
-// Formato atteso da NewsAPI: "2023-10-27T10:30:00Z"
-@Composable // O rendila una funzione non Composable se non usa nulla da Compose
+@Composable
 private fun formatDate(publishedAt: String?): String {
     if (publishedAt.isNullOrBlank()) return ""
     return try {
-        // Estrae solo la parte della data YYYY-MM-DD
         publishedAt.substringBefore("T")
-        // Se vuoi una formattazione più complessa, usa OffsetDateTime e DateTimeFormatter
         // val odt = OffsetDateTime.parse(publishedAt)
         // val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) // o .ofPattern("dd MMM yyyy")
         // odt.format(formatter)
     } catch (e: Exception) {
-        publishedAt // Restituisci la stringa originale in caso di errore di parsing
+        publishedAt
     }
 }

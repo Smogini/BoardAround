@@ -3,61 +3,61 @@ package com.boardaround.ui.components
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateTimePicker(
-    initialDateTime: LocalDateTime,
-    onDateTimeSelected: (LocalDateTime, String) -> Unit,
-    onDismiss: () -> Unit,
-    showTimePicker: Boolean = true
+    isVisible: Boolean,
+    showTimePicker: Boolean = true,
+    onResult: (String) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val showDatePickerState = remember { mutableStateOf(true) }
-    val showTimePickerState = remember { mutableStateOf(false) }
+    if (!isVisible) return
+
+    val showDatePicker = remember { mutableStateOf(true) }
+    val showTimePickerState = remember { mutableStateOf(showTimePicker) }
 
     val datePickerState = rememberDatePickerState()
     val timePickerState = rememberTimePickerState(is24Hour = true)
 
-    var selectedDateTime by remember { mutableStateOf(initialDateTime) }
-    var formattedDateTime: String
-
-    if (showDatePickerState.value) {
+    if (showDatePicker.value) {
         DatePickerDialog(
-            onDismissRequest = { showDatePickerState.value = false },
+            onDismissRequest = { onDismiss() },
             confirmButton = {
-                CustomButton(
-                    onClick = {
-                        showDatePickerState.value = false
-                        if(!showTimePicker) {
-                            selectedDateTime = selectDateTime(datePickerState, timePickerState)
-                            formattedDateTime = formatDateTime(selectedDateTime, false)
-                            onDateTimeSelected(selectedDateTime, formattedDateTime)
-                        } else {
-                            showTimePickerState.value = true
-                        }
-                    },
-                    text = if (showTimePicker) "Avanti" else "OK"
-                )
+                TextButton(onClick = {
+                    showDatePicker.value = false
+                    if (showTimePicker) {
+                        showTimePickerState.value = true
+                    } else {
+                        val formatted = formatSelectedDateTime(
+                            datePickerState.selectedDateMillis,
+                            null
+                        )
+                        onResult(formatted)
+                        onDismiss()
+                    }
+                }) {
+                    Text(if (showTimePicker) "Next" else "OK")
+                }
             },
             dismissButton = {
-                CustomButton(onClick = onDismiss, text = "Annulla")
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -67,41 +67,54 @@ fun DateTimePicker(
     if (showTimePickerState.value) {
         AlertDialog(
             onDismissRequest = {  },
-            title = { Text("Seleziona ora") },
+            title = { Text("Select time") },
             text = { TimePicker(state = timePickerState) },
             confirmButton = {
-                CustomButton(
-                    onClick = {
-                        selectedDateTime = selectDateTime(datePickerState, timePickerState)
-                        formattedDateTime = formatDateTime(selectedDateTime, true)
-                        onDateTimeSelected(selectedDateTime, formattedDateTime)
-                    },
-                    text = "OK"
-                )
+                TextButton(onClick = {
+                    val formatted = formatSelectedDateTime(
+                        datePickerState.selectedDateMillis,
+                        timePickerState
+                    )
+                    onResult(formatted)
+                    onDismiss()
+                }) {
+                    Text("OK")
+                }
             },
             dismissButton = {
-                CustomButton(onClick = onDismiss, text = "Annulla")
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
             }
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-private fun selectDateTime(datePickerState: DatePickerState, timePickerState: TimePickerState): LocalDateTime {
-    val selectedDateMillis = datePickerState.selectedDateMillis ?: 0L
-    val selectedDate = Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.systemDefault()).toLocalDate()
-    val selectedDateTime = LocalDateTime.of(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.dayOfMonth,
-        timePickerState.hour,
-        timePickerState.minute
-    )
+private fun formatSelectedDateTime(
+    dateMillis: Long?,
+    timeState: TimePickerState?
+): String {
+    val formatter = if (timeState != null) {
+        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+    } else {
+        DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    }
 
-    return selectedDateTime
-}
+    val localDate = Instant.ofEpochMilli(dateMillis ?: 0L)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
 
-private fun formatDateTime(dateTime: LocalDateTime, withTime: Boolean): String {
-    val pattern = if(withTime) "dd/MM/yyyy HH:mm" else "dd/MM/yyyy"
-    return dateTime.format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
+    return if (timeState != null) {
+        val dateTime = LocalDateTime.of(
+            localDate.year,
+            localDate.month,
+            localDate.dayOfMonth,
+            timeState.hour,
+            timeState.minute
+        )
+        dateTime.format(formatter)
+    } else {
+        localDate.format(formatter)
+    }
 }

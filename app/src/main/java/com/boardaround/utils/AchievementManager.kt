@@ -13,17 +13,16 @@ class AchievementManager(private val achievementDAO: AchievementDAO) {
 
     suspend fun initializeAchievements() {
         _achievementList.value = listOf(
-            Achievement(0, "Registrati a BoardAround!"),
-            Achievement(1, "Pubblica il tuo primo post!"),
-            Achievement(2, "Crea il tuo primo evento!"),
-            Achievement(3, "Attiva il tema scuro!"),
-            Achievement(4, "Invita un amico a un tuo evento!"),
-            Achievement(5, "Aggiungi un gioco nella libreria")
+            Achievement(0, "Register on BoardAround!"),
+            Achievement(1, "Publish your first post!"),
+            Achievement(2, "Create your first event!"),
+            Achievement(3, "Activate the dark theme!"),
+            Achievement(4, "Invite a friend to your event!"),
+            Achievement(5, "Add a game to the library")
         )
         _achievementList.value.forEach { achievement ->
             achievementDAO.insertAchievement(achievement)
         }
-        Log.d("AchievementManager", "achievement inseriti")
 //        getAllAchievements()
     }
 
@@ -32,16 +31,15 @@ class AchievementManager(private val achievementDAO: AchievementDAO) {
             achievementDAO.unlockAchievementById(achievementId)
             getAllAchievements()
         } catch (e: Exception) {
-            Log.e("AchievementManager", "Errore nello sbloccare l'obiettivo: ${e.message}", e)
+            Log.e("AchievementManager", "Error unlocking the achievement: ${e.message}", e)
         }
     }
 
     suspend fun getAllAchievements() {
         try {
             _achievementList.value = achievementDAO.getAchievements()
-            Log.d("achievementmanager", "achievement ottenuti: ${_achievementList.value}")
         } catch (e: Exception) {
-            Log.e("AchievementManager", "Errore nell'ottenere gli obiettivi: ${e.message}", e)
+            Log.e("AchievementManager", "Error getting achievements: ${e.message}", e)
         }
     }
 

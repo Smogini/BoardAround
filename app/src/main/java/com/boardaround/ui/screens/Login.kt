@@ -1,37 +1,40 @@
 package com.boardaround.ui.screens
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
+import com.boardaround.ui.components.CustomAlertDialog
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.AuthViewModel
 
 @Composable
-fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) {
-    val context = LocalContext.current
+fun ShowLoginScreen(
+    context: Context,
+    navController: NavController,
+    authViewModel: AuthViewModel
+) {
     val usernameState = remember { mutableStateOf(TextFieldValue()) }
     val passwordState = remember { mutableStateOf(TextFieldValue()) }
-    var loginError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
+    var showErrorAlert by remember { mutableStateOf(false) }
+    val errorMessage by authViewModel.registrationError.collectAsState()
 
     ScreenTemplate(
-        title = "Benvenuto su BoardAround!",
+        title = "Welcome to BoardAround!",
         currentRoute = Route.Login,
         navController,
         showBottomBar = false
@@ -54,46 +57,29 @@ fun ShowLoginScreen(navController: NavController, authViewModel: AuthViewModel) 
 
             CustomButton(
                 onClick = {
-                    when {
-                        usernameState.value.text.isBlank() -> {
-                            errorMessage = "Campo username vuoto"
-                            loginError = true
-                        }
-                        passwordState.value.text.isBlank() -> {
-                            errorMessage = "Campo password vuoto"
-                            loginError = true
-                        } else -> {
-                            authViewModel.login(usernameState.value.text, passwordState.value.text)
-                            { user ->
-                                if (user != null) {
-                                    authViewModel.setLoggedUser(user)
-                                    Toast.makeText(context, "Login effettuato con successo", Toast.LENGTH_SHORT).show()
-                                    navController.navigateSingleTop(Route.Homepage)
-                                }
-                            }
+                    authViewModel.login(usernameState.value.text, passwordState.value.text) { user ->
+                        if (user != null) {
+                            authViewModel.setLoggedUser(user)
+                            Toast.makeText(context, "Login successfully", Toast.LENGTH_SHORT).show()
+                            navController.navigateSingleTop(Route.Homepage)
                         }
                     }
                 },
-                text = "Accedi"
+                text = "Login"
             )
 
-            Text("Oppure", textAlign = TextAlign.Center, color = PrimaryBrown)
+            Text("Or", textAlign = TextAlign.Center, color = PrimaryBrown)
 
             CustomButton(
                 onClick = { navController.navigateSingleTop(Route.Register) },
-                text = "Registrati"
+                text = "Register"
             )
 
-            if (loginError) {
-                AlertDialog(
-                    onDismissRequest = { loginError = false },
-                    title = { Text("Errore di accesso") },
-                    text = { Text(errorMessage) },
-                    confirmButton = {
-                        TextButton(onClick = { loginError = false }) {
-                            Text("OK")
-                        }
-                    }
+            if (showErrorAlert) {
+                CustomAlertDialog(
+                    title = "Login error",
+                    description = errorMessage,
+                    onDismiss = { showErrorAlert = false },
                 )
             }
         }

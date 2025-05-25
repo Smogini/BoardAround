@@ -41,11 +41,11 @@ sealed class UtilTools(
     val name: String,
     val icon: ImageVector
 ) {
-    data object Dice: UtilTools("Lancia dadi", Icons.Filled.Casino)
-    data object CoinFlip: UtilTools("Testa o croce", Icons.Filled.QuestionMark)
+    data object Dice: UtilTools("Dice roll", Icons.Filled.Casino)
+    data object CoinFlip: UtilTools("Coin flip", Icons.Filled.QuestionMark)
     data object Token: UtilTools("Token", Icons.Filled.CardGiftcard)
-    data object Trivia: UtilTools("Quizzettone", Icons.Filled.Quiz)
-    data object ScoreBoard: UtilTools("Segna punti", Icons.Filled.Score)
+    data object Trivia: UtilTools("Quiz", Icons.Filled.Quiz)
+    data object ScoreBoard: UtilTools("Scoreboard", Icons.Filled.Score)
 
     companion object {
         val allTools = listOf(Dice, CoinFlip, Token, Trivia, ScoreBoard)

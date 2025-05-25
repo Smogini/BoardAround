@@ -2,17 +2,15 @@ package com.boardaround.network
 
 import com.tickaroo.tikxml.TikXml
 import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-private fun <T> createApi(baseUrl: String, serviceInterface: Class<T>, xmlResponse: Boolean): T {
-    val logging = HttpLoggingInterceptor()
-    logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-
+private fun <T> createApi(baseUrl: String, serviceInterface: Class<T>, xmlResponse: Boolean = false): T {
     val client = OkHttpClient.Builder()
-        .addInterceptor(logging)
+        .addInterceptor(UserAgentInterceptor())
         .build()
 
     val builder = Retrofit.Builder()
@@ -37,12 +35,24 @@ object ApiService {
     }
 
     val triviaApi: TriviaApiInterface by lazy {
-        createApi("https://opentdb.com/", TriviaApiInterface::class.java, false)
+        createApi("https://opentdb.com/", TriviaApiInterface::class.java)
     }
 
-    val eventApi: StreetMapApiInterface by lazy {
-        createApi("https://nominatim.openstreetmap.org/", StreetMapApiInterface::class.java, false)
+    val streetApi: StreetMapApiInterface by lazy {
+        createApi("https://nominatim.openstreetmap.org/", StreetMapApiInterface::class.java)
     }
 
+}
 
+class UserAgentInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originalRequest = chain.request()
+        val requestWithUserAgent = originalRequest.newBuilder()
+            .header(
+                "User-Agent",
+                "BoardAroundApp/1.0"
+            )
+            .build()
+        return chain.proceed(requestWithUserAgent)
+    }
 }

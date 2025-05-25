@@ -1,16 +1,16 @@
 package com.boardaround.ui.screens
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,135 +20,153 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.boardaround.data.entities.Event
+import com.boardaround.data.entities.SavedGame
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
+import com.boardaround.network.StreetMapApiResponse
+import com.boardaround.ui.components.CustomAlertDialog
 import com.boardaround.ui.components.CustomButton
+import com.boardaround.ui.components.CustomCarousel
+import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.components.CustomMapField
 import com.boardaround.ui.components.CustomSwitch
 import com.boardaround.ui.components.CustomTextField
+import com.boardaround.ui.components.CustomTitle
 import com.boardaround.ui.components.DateTimePicker
-import com.boardaround.ui.theme.PrimaryBrown
+import com.boardaround.ui.theme.Errors
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
-import com.google.firebase.auth.FirebaseAuth
-import org.osmdroid.util.GeoPoint
-import java.time.LocalDateTime
 
 @Composable
 fun ShowNewEventScreen(
+    context: Context,
     navController: NavController,
     eventViewModel: EventViewModel,
     gameViewModel: GameViewModel,
     userViewModel: UserViewModel
 ) {
-    val context = LocalContext.current
-    val eventNameState = remember { mutableStateOf(TextFieldValue()) }
-    val descriptionState = remember { mutableStateOf(TextFieldValue()) }
-    val addressState = remember { mutableStateOf(TextFieldValue()) }
+    var eventNameState by remember { mutableStateOf(TextFieldValue()) }
+    var descriptionState by remember { mutableStateOf(TextFieldValue()) }
     var isPrivateEvent by remember { mutableStateOf(false) }
-    var selectedLocation by remember { mutableStateOf<GeoPoint?>(null) }
-    var selectedGame by remember { mutableStateOf("") }
+    var selectedGame by remember { mutableStateOf<SavedGame?>(null) }
 
-    var selectedDateTime by remember { mutableStateOf("Seleziona data e ora") }
+    var selectedDateTime by remember { mutableStateOf("Select date and time") }
     var showDateTimePicker by remember { mutableStateOf(false) }
 
-    val firebaseUser = FirebaseAuth.getInstance().currentUser
-    val uid = firebaseUser?.uid ?: ""
     val username = userViewModel.getUsername()
     val userGames by gameViewModel.userGames.collectAsState(initial = emptyList())
 
-    var isDialogOpen by remember { mutableStateOf(false) }
+    var addressState by remember { mutableStateOf(TextFieldValue()) }
+    var selectedAddress by remember { mutableStateOf<StreetMapApiResponse?>(null) }
+    val suggestedAddresses by eventViewModel.addressSuggestions.collectAsState()
 
-    var selectedStreetMapApiResponse by remember { mutableStateOf<com.boardaround.network.StreetMapApiResponse?>(null) }
+    val eventErrorMessage by eventViewModel.errorMessage.collectAsState()
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var cancelAction by remember { mutableStateOf(false) }
 
     gameViewModel.getUserGames()
 
-    LaunchedEffect(selectedStreetMapApiResponse) {
-        selectedStreetMapApiResponse?.let {
-            selectedLocation = if (it.lat != null && it.lon != null) {
-                GeoPoint(it.lat.toDouble(), it.lon.toDouble())
-            } else {
-                null
-            }
-        }
+    LaunchedEffect(eventErrorMessage) {
+       showErrorDialog = eventErrorMessage.isNotBlank()
     }
 
     ScreenTemplate(
-        title = "Crea nuovo evento",
+        title = "Create new event",
         currentRoute = Route.NewEvent,
         navController,
     ) {
         item {
-            Text("Inserisci nome evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
-            CustomTextField(label = "Inserisci nome evento", value = eventNameState.value, onValueChange = { eventNameState.value = it })
-
-            Text("Inserisci descrizione", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
-            CustomTextField(label = "Inserisci descrizione", value = descriptionState.value, onValueChange = { descriptionState.value = it })
-
-            Text("Seleziona data e ora evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
-            CustomButton(onClick = { showDateTimePicker = true }, text = selectedDateTime)
-
-            if (showDateTimePicker) {
-                DateTimePicker(
-                    initialDateTime = LocalDateTime.now(),
-                    onDateTimeSelected = { _, formattedDateTime ->
-                        selectedDateTime = formattedDateTime
-                        showDateTimePicker = false
+            if (cancelAction) {
+                CustomAlertDialog(
+                    title = "Confirm action",
+                    description = "Are you sure you want to cancel?",
+                    onConfirm = {
+                        cancelAction = false
+                        Toast.makeText(context, "Event successfully canceled", Toast.LENGTH_SHORT).show()
+                        navController.navigateSingleTop(Route.Homepage)
                     },
-                    onDismiss = { showDateTimePicker = false }
+                    onDismiss = { cancelAction = false }
                 )
             }
 
-            Text("Inserisci indirizzo evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
-
-                CustomMapField(
-                    label = "Inserisci indirizzo",
-                    value = addressState.value,
-                    onValueChange = {
-                        addressState.value = it
-                        selectedStreetMapApiResponse = null
-                        selectedLocation = null
-                    },
-                    onSuggestionClick = { suggestion ->
-                        addressState.value = TextFieldValue(suggestion.displayName ?: "") // Aggiorna il testo del campo
-                        selectedStreetMapApiResponse = suggestion
-                    }
-                )
-
-
-            Text("Seleziona gioco per l'evento", textAlign = TextAlign.Center, color = PrimaryBrown, modifier = Modifier.fillMaxWidth())
-            CustomButton(onClick = { isDialogOpen = true }, text = if (selectedGame.isEmpty()) "A cosa si gioca?" else "Gioco selezionato: $selectedGame")
-
-            if (isDialogOpen) {
-                AlertDialog(
-                    onDismissRequest = { isDialogOpen = false },
-                    title = { Text("Seleziona un gioco") },
-                    text = {
-                        Column {
-                            userGames.forEach { game -> // Usa userGames invece di gamesList
-                                TextButton(onClick = {
-                                    selectedGame = game.name
-                                    isDialogOpen = false
-                                }) {
-                                    Text(game.name)
-                                }
-                            }
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { isDialogOpen = false }) {
-                            Text("Chiudi")
-                        }
+            if (showErrorDialog) {
+                CustomAlertDialog(
+                    title = "Error",
+                    description = eventErrorMessage,
+                    onDismiss = {
+                        showErrorDialog = false
+                        eventViewModel.clearErrorMessage()
                     }
                 )
             }
+
+            CustomTitle(text = "Enter the name of the event")
+            CustomTextField(
+                label = "Event name",
+                value = eventNameState,
+                onValueChange = { eventNameState = it }
+            )
+
+            CustomTitle(text = "Enter the description")
+            CustomTextField(
+                label = "Description",
+                value = descriptionState,
+                onValueChange = { descriptionState = it }
+            )
+
+            CustomTitle(text = "Select event date and time")
+            CustomButton(
+                onClick = { showDateTimePicker = true },
+                text = selectedDateTime
+            )
+
+            DateTimePicker(
+                isVisible = showDateTimePicker,
+                showTimePicker = true,
+                onResult = { formattedDate ->
+                    selectedDateTime = formattedDate
+                },
+                onDismiss = { showDateTimePicker = false }
+            )
+
+            CustomTitle(text = "Enter event address")
+            CustomMapField(
+                value = addressState,
+                onValueChange = {
+                    addressState = it
+                    eventViewModel.fetchAddressSuggestions(it.text)
+                },
+                label = "Address",
+                suggestions = suggestedAddresses,
+                onSuggestionClick = {
+                    selectedAddress = it
+                    addressState = TextFieldValue(it.displayName.toString())
+                },
+                trailingIcon = {
+                    if (addressState.text.isNotEmpty()) {
+                        CustomClickableIcon(
+                            title = "Clear",
+                            icon = Icons.Default.Clear,
+                            iconColor = Errors,
+                            onClick = { addressState = TextFieldValue("") }
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            CustomCarousel(
+                title = "Select a game for the event",
+                titleStyle = MaterialTheme.typography.titleSmall,
+                items = userGames,
+                onClick = { selectedGame = it },
+                imageUrlProvider = { it.imageUrl },
+                labelProvider = { it.name }
+            )
 
             Spacer(modifier = Modifier.height(50.dp))
 
@@ -159,7 +177,7 @@ fun ShowNewEventScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Evento privato", color = PrimaryBrown)
+                CustomTitle(text = "Private event")
                 CustomSwitch(
                     checked = isPrivateEvent,
                     onCheckedChange = { isPrivateEvent = it }
@@ -168,35 +186,26 @@ fun ShowNewEventScreen(
 
             CustomButton(
                 onClick = {
-                    val newEvent = Event(
-                        name = eventNameState.value.text,
-                        author = uid,
-                        description = descriptionState.value.text,
-                        address = addressState.value.text,
+                    eventViewModel.createEvent(
+                        name = eventNameState.text,
+                        author = username,
+                        description = descriptionState.text,
+                        address = selectedAddress?.displayName.toString(),
                         dateTime = selectedDateTime,
                         isPrivate = isPrivateEvent,
-                    )
-
-                    if (selectedLocation != null) {
-                        val message = if (isPrivateEvent) "Evento privato creato con successo" else "Evento pubblico creato con successo"
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-
-                        // Usa createEventWithGeocoding per gestire la geolocalizzazione
-                        eventViewModel.createEventWithGeocoding(newEvent)
-
+                        imageUrl = "No image",
+                        gameToPlay = selectedGame?.name.toString()
+                    ) {
                         navController.navigateSingleTop(Route.Homepage)
-                    } else {
-                        Toast.makeText(context, "Seleziona un indirizzo sulla mappa", Toast.LENGTH_SHORT).show()
                     }
                 },
-                text = "Crea evento"
+                text = "Create event"
             )
 
-
-            CustomButton(onClick = {
-                Toast.makeText(context, "Evento annullato con successo", Toast.LENGTH_SHORT).show()
-                navController.navigateSingleTop(Route.Homepage)
-            }, text = "Annulla")
+            CustomButton(
+                onClick = { cancelAction = true },
+                text = "Cancel"
+            )
         }
     }
 }

@@ -4,7 +4,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,7 +47,7 @@ fun GamificationScreen(navController: NavController, userViewModel: UserViewMode
     }
 
     ScreenTemplate(
-        title = "Obiettivi",
+        title = "Achievements",
         currentRoute = Route.Gamification,
         navController = navController,
         userViewModel = userViewModel
@@ -65,23 +63,16 @@ fun GamificationScreen(navController: NavController, userViewModel: UserViewMode
                 thickness = 10.dp,
                 color = MaterialTheme.colorScheme.surface,
             )
+        }
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 50.dp)
-            ) {
-                items(objectives.size) { objectiveIndex ->
-                    val currentAchievement = objectives[objectiveIndex]
+        items(objectives.size) { objectiveIndex ->
+            val currentAchievement = objectives[objectiveIndex]
 
-                    ObjectiveItem(
-                        title = currentAchievement.description,
-                        isUnlocked = currentAchievement.isUnlocked,
-                        onClick = {  }
-                    )
-                }
-            }
+            ObjectiveItem(
+                title = currentAchievement.description,
+                isUnlocked = currentAchievement.isUnlocked,
+                onClick = {  }
+            )
         }
     }
 }
@@ -95,13 +86,13 @@ fun ProgressBar(progress: Float, modifier: Modifier = Modifier) {
     )
     val percentage = (animatedProgress * 100).toInt()
     val progressColor = if (percentage == 100) {
-        Color(0xFF4CAF50) // Verde
+        Color(0xFF4CAF50)
     } else {
-        MaterialTheme.colorScheme.primary // Colore primario predefinito
+        MaterialTheme.colorScheme.primary
     }
-    Box( // Utilizza un Box per sovrapporre il testo all'indicatore
+    Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.size(200.dp) // Aumenta la dimensione
+        modifier = modifier.size(200.dp)
     ) {
         CircularProgressIndicator(
             progress = { animatedProgress },
@@ -113,15 +104,15 @@ fun ProgressBar(progress: Float, modifier: Modifier = Modifier) {
         if (percentage == 100) {
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
-                contentDescription = "Obiettivi completati",
+                contentDescription = "Achievements unlocked",
                 tint = progressColor,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(80.dp) // Regola la dimensione dell'icona
+                    .size(80.dp)
             )
         } else {
             Text(
-                text = "$percentage%", // Mostra la percentuale al centro
+                text = "$percentage%",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -145,9 +136,7 @@ fun ObjectiveItem(title: String, isUnlocked: Boolean, onClick: () -> Unit) {
             .padding(8.dp)
             .clickable { onClick() }
     ) {
-        // Se l'obiettivo è sbloccato, cambia l'icona
         val iconRes = if (isUnlocked) {
-            // Se l'obiettivo è sbloccato, mostra l'icona corrispondente gamification-1, gamification-2, etc.
             gamificationIcon.random()
         } else {
             R.drawable.lock

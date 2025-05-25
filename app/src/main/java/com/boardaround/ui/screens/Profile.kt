@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,43 +34,38 @@ import com.boardaround.viewmodel.UserViewModel
 fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel) {
     val userToShow by userViewModel.selectedUser.collectAsState()
     val currentUserUsername = userViewModel.getUsername()
-    val myFriends by userViewModel.getFriends(currentUserUsername).collectAsState(initial = emptyList())
-    val isFriend = remember(myFriends, userToShow) {
-        myFriends.any { it.username == userToShow?.username }
-    }
+    val myFriends by userViewModel.getFriends().collectAsState(initial = emptyList())
+    val isFriend = myFriends.any { it.username == userToShow?.username }
 
-    // Header della schermata
     ScreenTemplate(
-        title = "Profilo di ${userToShow?.username}",
+        title = "Profile of ${userToShow?.username}",
         currentRoute = Route.Profile,
         navController
     ) {
         item {
-            // Immagine profilo
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp), // Aggiungi un po' di padding attorno
+                    .padding(20.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(
                         ImageRequest.Builder(LocalContext.current)
-                            .data(userToShow?.profilePic) // URL dell'immagine
-                            .placeholder(R.drawable.default_profile) // Placeholder
-                            .error(R.drawable.default_profile) // Placeholder per errore
+                            .data(userToShow?.profilePic)
+                            .placeholder(R.drawable.default_profile)
+                            .error(R.drawable.default_profile)
                             .build()
                     ),
-                    contentDescription = "Foto profilo",
+                    contentDescription = "Profile picture",
                     modifier = Modifier
-                        .size(120.dp) // Dimensione dell'immagine
-                        .clip(CircleShape) // Forma circolare
-                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape), // Aggiungi bordo
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
                     contentScale = ContentScale.Crop
                 )
             }
 
-            // Card con informazioni principali
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,21 +77,21 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
                     horizontalAlignment = Alignment.Start,
                 ) {
                     Text(
-                        text = userToShow?.name ?: "Nome non disponibile",
+                        text = userToShow?.name ?: "Name not available",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = userToShow?.email ?: "Email non disponibile",
+                        text = userToShow?.email ?: "Email not available",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = userToShow?.dob ?: "Data di nascita non disponibile",
+                        text = userToShow?.dob ?: "Date of birth not available",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -106,21 +100,20 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Bottone per aggiungere o rimuovere amico
             if (userToShow != null && userToShow!!.username != currentUserUsername) {
                 if (isFriend) {
                     CustomButton(
                         onClick = {
-                            userViewModel.removeFriend(currentUserUsername, userToShow!!.username)
+                            userViewModel.removeFriend(currentUserUsername)
                         },
-                        text = "Rimuovi amico",
+                        text = "Remove friend",
                     )
                 } else {
                     CustomButton(
                         onClick = {
                             userViewModel.addFriend(currentUserUsername, userToShow!!.username)
                         },
-                        text = "Aggiungi amico",
+                        text = "Add friend",
                     )
                 }
             }

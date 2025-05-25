@@ -1,7 +1,7 @@
 [versions]
-agp = "8.7.0-alpha08"
+agp = "8.7.3"
 datastorePreferences = "1.0.0" # If updated PreferencesManager won't work
-firebaseBom = "33.13.0"
+firebaseBom = "33.14.0"
 firebaseMessaging = "24.1.1"
 googleServices = "4.4.2"
 kotlin = "2.0.21"
@@ -20,14 +20,14 @@ espressoCore = "3.6.1"
 ktorSerializationKotlinxJson = "2.3.8"
 lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
-composeBom = "2025.05.00"
+composeBom = "2025.05.01"
 navigationCompose = "2.9.0"
 roomCompiler = "2.7.1"
 roomKtx = "2.7.1"
 roomRuntime = "2.7.1"
 playServicesLocation = "21.3.0"
 firebaseFirestoreKtx = "25.1.4"
-firebaseAuthKtx = "23.2.0"
+firebaseAuthKtx = "23.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

@@ -10,7 +10,7 @@ class TriviaRepository {
     suspend fun getTriviaQuestions(amount: Int?, category: Int?, difficulty: String?): List<TriviaQuestion> {
         return try {
             val response = ApiService.triviaApi.getTriviaQuestions(amount, category, difficulty)
-            if (response.responseCode == 0) { // 0 indica successo in OTDB
+            if (response.responseCode == 0) {
                 return response.results.map { question ->
                     question.copy(
                         question = HtmlCompat.fromHtml(question.question, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()

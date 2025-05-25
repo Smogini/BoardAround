@@ -36,16 +36,14 @@ import kotlinx.coroutines.delay
 fun SplashScreen(navController: NavController) {
     var isLoading by remember { mutableStateOf(true) }
 
-    // Animazione per espandere il testo "Benvenuto su BoardAround"
     val textSize by animateFloatAsState(
-        targetValue = if (isLoading) 24f else 32f, // Usa float per animare
+        targetValue = if (isLoading) 24f else 32f,
         animationSpec = tween(durationMillis = 1000),
         label = "Text size"
     )
 
-    // Comincia il delay e successivamente naviga alla schermata successiva
     LaunchedEffect(isLoading) {
-        delay(3000) // Tempo di attesa di 3 secondi
+        delay(3000)
         isLoading = false
         navController.navigateSingleTop(Route.Login)
     }
@@ -67,11 +65,10 @@ fun SplashScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Testo di benvenuto con animazione di aumento dimensione
             Text(
                 text = "Benvenuto su BoardAround!",
                 style = MaterialTheme.typography.headlineMedium.copy(
-                    fontSize = textSize.sp, // Converti il float in sp
+                    fontSize = textSize.sp,
                     color = Color.White
                 )
             )

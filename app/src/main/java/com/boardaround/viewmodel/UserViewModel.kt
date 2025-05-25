@@ -1,6 +1,5 @@
 package com.boardaround.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.User
@@ -34,13 +33,19 @@ class UserViewModel(
     private val _unreadNotificationCount = MutableStateFlow(0)
     val unreadNotificationCount: StateFlow<Int> = _unreadNotificationCount
 
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage: StateFlow<String> = _errorMessage
+
+    fun clearErrorMessage() {
+        _errorMessage.value = ""
+    }
+
     fun selectUser(user: User) {
         this._selectedUser.value = user
     }
 
-    fun getFriends(userUsername: String): Flow<List<User>> {
-        return friendshipRepository.getFriends(userUsername)
-    }
+    fun getFriends(): Flow<List<User>> =
+        friendshipRepository.getFriends(getUsername())
 
     fun addFriend(userUsername: String, friendUsername: String) {
         viewModelScope.launch {
@@ -48,9 +53,9 @@ class UserViewModel(
         }
     }
 
-    fun removeFriend(userUsername: String, friendUsername: String) {
+    fun removeFriend(friendUsername: String) {
         viewModelScope.launch {
-            friendshipRepository.removeFriend(userUsername, friendUsername)
+            friendshipRepository.removeFriend(getUsername(), friendUsername)
         }
     }
 
@@ -59,7 +64,7 @@ class UserViewModel(
             try {
                 _usersFound.value = userRepository.searchUsersByUsername(query)
             } catch (e: Exception) {
-                Log.e("UserViewModel", "Errore nella ricerca utente: ${e.message}", e)
+                _errorMessage.value = "User search error: ${e.message}"
             }
         }
     }
@@ -70,7 +75,6 @@ class UserViewModel(
         }
     }
 
-    // funzione per aggiornare il numero (da chiamare quando ricevi notifiche)
     fun setUnreadNotificationCount(count: Int) {
         _unreadNotificationCount.value = count
     }

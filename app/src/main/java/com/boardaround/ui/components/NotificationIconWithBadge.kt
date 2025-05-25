@@ -35,14 +35,13 @@ fun NotificationIconWithBadge(
         }
 
         if (notificationCount > 0) {
-            // Badge rosso con numero notifiche
             Box(
                 modifier = Modifier
                     .size(16.dp)
                     .clip(CircleShape)
                     .background(Color.Red)
                     .align(Alignment.TopEnd)
-                    .offset(x = 6.dp, y = (-4).dp), // piccolo offset per posizionare meglio
+                    .offset(x = 6.dp, y = (-4).dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

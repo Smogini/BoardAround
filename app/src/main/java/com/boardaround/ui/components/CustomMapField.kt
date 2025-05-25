@@ -1,129 +1,92 @@
 package com.boardaround.ui.components
 
-import android.util.Log
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
-import com.boardaround.network.NominatimClient
 import com.boardaround.network.StreetMapApiResponse
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomMapField(
-    label: String,
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    label: String,
+    suggestions: List<StreetMapApiResponse>,
+    onSuggestionClick: (StreetMapApiResponse) -> Unit,
     modifier: Modifier = Modifier,
-    readOnly: Boolean = false,
-    onSuggestionClick: ((StreetMapApiResponse) -> Unit)? = null,
-    leadingIcon: (@Composable () -> Unit)? = null,
-    trailingIcon: (@Composable () -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
-    var suggestions by remember { mutableStateOf<List<StreetMapApiResponse>>(emptyList()) }
-    var showSuggestions by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier) {
-        OutlinedTextField(
+    ExposedDropdownMenuBox(
+        expanded = isExpanded && suggestions.isNotEmpty(),
+        onExpandedChange = {  }
+    ) {
+        CustomTextField(
+            label = label,
             value = value,
             onValueChange = {
+                isExpanded = it.text.isNotBlank() && suggestions.isNotEmpty()
                 onValueChange(it)
-
-                // Se il testo non è vuoto, esegui la ricerca
-                if (it.text.isNotEmpty()) {
-                    NominatimClient.instance.search(query = it.text, countryCodes = "it").enqueue(object : retrofit2.Callback<List<StreetMapApiResponse>> {
-                        override fun onResponse(call: retrofit2.Call<List<StreetMapApiResponse>>, response: retrofit2.Response<List<StreetMapApiResponse>>) {
-                            if (response.isSuccessful) {
-                                val responseBody = response.body() ?: emptyList()
-                                suggestions = responseBody
-                                showSuggestions = suggestions.isNotEmpty()
-
-                                responseBody.forEach { suggestion ->
-                                    Log.d("CustomMapField", "Lat: ${suggestion.lat}, Lon: ${suggestion.lon}")
-                                }
-
-                                Log.d("CustomMapField", "API Response: $responseBody")
-                            } else {
-                                suggestions = emptyList()
-                                showSuggestions = false
-                                Log.e("CustomMapField", "API Error: ${response.code()} - ${response.message()}")
-                            }
-                        }
-
-                        override fun onFailure(call: retrofit2.Call<List<StreetMapApiResponse>>, t: Throwable) {
-                            suggestions = emptyList()
-                            showSuggestions = false
-                            Log.e("CustomMapField", "API Failure: ${t.message}", t)
-                        }
-                    })
-                } else {
-                    suggestions = emptyList()
-                    showSuggestions = false
-                }
             },
-            label = { Text(label) },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = readOnly,
-            leadingIcon = leadingIcon,
+            modifier = modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                .fillMaxWidth(),
             trailingIcon = trailingIcon
         )
 
-        if (showSuggestions && onSuggestionClick != null) {
-            Popup(
-                alignment = Alignment.BottomEnd,
-                offset = IntOffset(0, 50),
-                properties = PopupProperties(focusable = false)
-            ) {
-                Surface(
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false },
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+                .padding(vertical = 4.dp)
+        ) {
+            suggestions.forEachIndexed { index, suggestion ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = suggestion.displayName.orEmpty(),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    onClick = {
+                        isExpanded = false
+                        onSuggestionClick(suggestion)
+                    },
                     modifier = Modifier
-                        .width(300.dp)
-                        .padding(top = 4.dp),
-                    shape = MaterialTheme.shapes.small,
-                    tonalElevation = 2.dp
-                ) {
-                    LazyColumn(modifier = Modifier.padding(8.dp)) {
-                        items(suggestions) { suggestion ->
-                            Text(
-                                text = suggestion.displayName ?: "",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        // Verifica se la latitudine e longitudine sono disponibili
-                                        val lat = suggestion.lat
-                                        val lon = suggestion.lon
-                                        Log.d("CustomMapField", "Latitudine selezionata: $lat, Longitudine selezionata: $lon")
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 8.dp)
+                )
 
-                                        if (lat != null && lon != null) {
-                                            // Passa latitudine e longitudine
-                                            onSuggestionClick(suggestion)
-                                        } else {
-                                            // Se latitudine e longitudine sono nulli, gestisci il caso
-                                            Log.e("CustomMapField", "Latitudine e longitudine non disponibili per questo suggerimento")
-                                        }
-                                        showSuggestions = false
-                                    }
-                                    .padding(vertical = 4.dp)
-                            )
-                        }
-                    }
+                if (index < suggestions.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(start = 8.dp, end = 8.dp)
+                            .height(1.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                    )
                 }
             }
         }

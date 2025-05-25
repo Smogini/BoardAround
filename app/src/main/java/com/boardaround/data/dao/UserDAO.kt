@@ -24,7 +24,7 @@ interface UserDAO {
     @Query("SELECT * FROM users WHERE username IN (SELECT friendUsername FROM friendships WHERE userUsername = :username)")
     fun getFriends(username: String): Flow<List<User>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE) // Ignora se l'amicizia esiste già
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addFriend(friendship: Friendship)
 
     @Query("DELETE FROM friendships WHERE userUsername = :userUsername AND friendUsername = :friendUsername")

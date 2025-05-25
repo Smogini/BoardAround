@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -68,12 +69,10 @@ fun GameDetailsTabbedView(game: Game, gameViewModel: GameViewModel, navControlle
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     val userGames by gameViewModel.userGames.collectAsState()
-    val isGameAdded = remember(userGames, game) {
-        userGames.any { it.gameId == game.id }
-    }
+    val isGameAdded = userGames.any { it.gameId == game.id }
 
     /* TODO: aggiungere le recensioni dall'api */
-    val tabTitles = listOf("Scheda del gioco", "Descrizione", "Recensioni")
+    val tabTitles = listOf("Game info", "Description", "Reviews")
 
     TabRow(selectedTabIndex = selectedTabIndex) {
         tabTitles.forEachIndexed { index, title ->
@@ -85,17 +84,19 @@ fun GameDetailsTabbedView(game: Game, gameViewModel: GameViewModel, navControlle
         }
     }
 
+    Spacer(modifier = Modifier.size(5.dp))
+
     when (selectedTabIndex) {
         0 -> GameCard(game, isGameAdded, gameViewModel, navController)
         1 -> {
             Text(
-                text = game.description ?: "Nessuna descrizione disponibile",
+                text = game.description ?: "No description available",
                 modifier = Modifier.padding(16.dp)
             )
         }
         2 -> {
             Text(
-                text = "Nessuna recensione disponibile",
+                text = "No review available",
                 modifier = Modifier
                     .padding(16.dp)
             )
@@ -114,7 +115,7 @@ private fun GameCard(
 
     CustomImageCard(
         item = game,
-        onClick = {  },
+        onClick = { },
         image = game.imageUrl.toString(),
         contentDescription = game.name,
         cardSize = 200
@@ -129,26 +130,26 @@ private fun GameCard(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            InfoRow(Icons.Default.Casino, "Editore", game.publisher)
-            InfoRow(Icons.Default.People, "Giocatori", "${game.minPlayers} - ${game.maxPlayers}")
-            InfoRow(Icons.Default.Timer, "Tempo di gioco", "${game.playingTime} min")
+            InfoRow(Icons.Default.Casino, "Editor", game.publisher)
+            InfoRow(Icons.Default.People, "N° of players", "${game.minPlayers} - ${game.maxPlayers}")
+            InfoRow(Icons.Default.Timer, "Game time", "${game.playingTime} min")
         }
     }
 
     Spacer(Modifier.height(16.dp))
 
     ExpandableSection(
-        title = "Espansioni",
+        title = "Expansions",
         icon = Icons.Default.GifBox,
         itemList = game.expansions ?: emptyList(),
         labelProvider = { it.title },
-        onCLick = { expansion ->
+        onItemClick = { expansion ->
             gameViewModel.getGameInfo(expansion.id)
             navController.navigateSingleTop(Route.GameInfo)
         }
     )
 
-    val text = remember { mutableStateOf("Aggiungi ai miei giochi") }
+    var text by remember { mutableStateOf("Add to your library") }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -157,21 +158,21 @@ private fun GameCard(
             .padding(10.dp)
             .clickable {
             if (isGameAdded) {
-                text.value = "Aggiungi ai miei giochi"
+                text = "Remove from your library"
                 gameViewModel.removeSavedGame(game.id)
-                Toast.makeText(context, "Gioco rimosso dai tuoi giochi", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Removed from your library", Toast.LENGTH_SHORT).show()
             } else {
-                text.value = "Rimuovi dai miei giochi"
-                gameViewModel.saveGame(game.id, game.name)
-                gameViewModel.unlockAchievement(5)
-                Toast.makeText(context, "Gioco aggiunto ai tuoi giochi", Toast.LENGTH_SHORT).show()
-                Toast.makeText(context, "Hai sbloccato un obiettivo", Toast.LENGTH_SHORT).show()
+                text = "Add to your library"
+                gameViewModel.saveGame(game.id, game.name, game.imageUrl.toString())
+//                gameViewModel.unlockAchievement(5)
+                Toast.makeText(context, "Game added to your library", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "You've unlocked an achievement", Toast.LENGTH_SHORT).show()
             }
         }
     ) {
-        Text(text.value)
+        Text(text)
         CustomClickableIcon(
-            title = text.value,
+            title = text,
             icon = Icons.Default.Add,
             iconColor = MaterialTheme.colorScheme.primary,
             onClick = {}

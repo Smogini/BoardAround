@@ -60,16 +60,13 @@ class MainActivity : ComponentActivity() {
                     isDarkMode.value = isDark
                 }
                 try {
-                    Log.d("mainactivity", "inizializzo achievements")
                     viewModelFactory.initializeAchievementManager()
-                    Log.d("mainactivity", "achievements inizializzati")
                 } catch(e: Exception) {
-                    Log.e("mainactivity", "ERRORE: ${e.message}", e)
+                    Log.e("main activity", "ERROR: ${e.message}", e)
                 }
             }
 
             BoardAroundTheme(isDarkMode = isDarkMode.value) {
-                // Gestione della barra di stato
                 SystemUiController(isDarkMode.value)
 
                 Surface(
@@ -78,6 +75,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     NavGraph(
+                        context = context,
                         navController = navController,
                         userViewModel = userViewModel,
                         authViewModel = authViewModel,

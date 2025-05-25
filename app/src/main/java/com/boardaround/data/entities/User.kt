@@ -18,13 +18,13 @@ data class User(
 
 @Entity(
     tableName = "friendships",
-    primaryKeys = ["userUsername", "friendUsername"], // Chiave primaria composta
+    primaryKeys = ["userUsername", "friendUsername"],
     foreignKeys = [
         ForeignKey(
             entity = User::class,
             parentColumns = ["username"],
             childColumns = ["userUsername"],
-            onDelete = ForeignKey.CASCADE // Se un utente viene cancellato, cancella anche le sue amicizie
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = User::class,
@@ -34,7 +34,7 @@ data class User(
         )
     ],
     indices = [
-        Index(value = ["friendUsername"]) // Indice per migliorare le performance delle query sugli amici
+        Index(value = ["friendUsername"])
     ]
 )
 data class Friendship(

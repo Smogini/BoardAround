@@ -26,7 +26,7 @@ class TriviaViewModel(private val repository: TriviaRepository) : ViewModel() {
                 val questions = repository.getTriviaQuestions(amount, category, difficulty)
                 _questions.value = questions
             } catch (e: Exception) {
-                Log.e("TriviaViewModel", "Errore durante il caricamento delle domande: ${e.message}", e)
+                Log.e("TriviaViewModel", "Error loading questions: ${e.message}", e)
                 _questions.value = emptyList()
             }
         }

@@ -60,23 +60,23 @@ fun ShowEventInfoScreen(
         } else {
             Toast.makeText(
                 currentContext,
-                "Permesso necessario per selezionare una foto",
+                "Permit needed to select a photo",
                 Toast.LENGTH_SHORT
             ).show()
         }
     }
 
     ScreenTemplate(
-        title = eventToShow?.name ?: "Dettagli Evento",
+        title = eventToShow?.name ?: "Event details",
         currentRoute = Route.EventInfo,
         navController = navController,
         userViewModel = userViewModel,
     ) {
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                EventDetailText("Nome Evento", eventToShow?.name)
-                EventDetailText("Descrizione", eventToShow?.description)
-                EventDetailText("Indirizzo", eventToShow?.address)
+                EventDetailText("Name of the event", eventToShow?.name)
+                EventDetailText("Description", eventToShow?.description)
+                EventDetailText("Where it will be held", eventToShow?.address)
 
                 eventToShow?.address?.let { address ->
                     Spacer(modifier = Modifier.height(8.dp))
@@ -92,17 +92,17 @@ fun ShowEventInfoScreen(
                             try {
                                 currentContext.startActivity(mapIntent)
                             } catch (e: Exception) {
-                                Toast.makeText(currentContext, "Impossibile aprire Google Maps", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(currentContext, "Unable to open Google Maps", Toast.LENGTH_SHORT).show()
                             }
                         },
-                        text = "Apri sulla mappa"
+                        text = "Open on the map"
                     )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                EventDetailText("Data e ora", eventToShow?.dateTime)
-                EventDetailText("Privato", if (eventToShow?.isPrivate == true) "Sì" else "No")
+                EventDetailText("Date and time", eventToShow?.dateTime)
+                EventDetailText("Private", if (eventToShow?.isPrivate == true) "Yes" else "No")
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -115,7 +115,7 @@ fun ShowEventInfoScreen(
                                 .build()
                         )
                     } ?: painterResource(id = R.drawable.default_profile),
-                    contentDescription = "Immagine Evento",
+                    contentDescription = "Event image",
                     modifier = Modifier
                         .size(140.dp)
                         .clickable { permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES) }
@@ -128,7 +128,7 @@ fun ShowEventInfoScreen(
                     onClick = {
                         // TODO: Azione per partecipare
                     },
-                    text = "Partecipa all'evento"
+                    text = "Participate in ${eventToShow?.name.toString()}"
                 )
             }
         }

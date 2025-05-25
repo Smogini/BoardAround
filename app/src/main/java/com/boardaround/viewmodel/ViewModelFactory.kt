@@ -13,7 +13,6 @@ import com.boardaround.data.repositories.NewsRepository
 import com.boardaround.data.repositories.TriviaRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.boardaround.utils.AchievementManager
-import com.boardaround.viewmodel.NewsViewModel
 import com.boardaround.network.NewsApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -44,12 +43,12 @@ class ViewModelFactory(context: Context) {
     private val achievementManager = AchievementManager(achievementDAO)
 
     private val newsApiBaseUrl = "https://newsapi.org/"
-    private val NEWS_API_KEY = "0eaaf73276024761bf5c7b2a63083ca6"
+    private val newsApiKey = "0eaaf73276024761bf5c7b2a63083ca6"
     private val newsLoggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY // O Level.BASIC, Level.HEADERS
+        level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private val newsOkHttpClient: OkHttpClient by lazy { // Usa by lazy se vuoi inizializzazione differita
+    private val newsOkHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(newsLoggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
@@ -71,17 +70,15 @@ class ViewModelFactory(context: Context) {
     }
 
     private val newsRepository: NewsRepository by lazy {
-        NewsRepository(newsApiService, NEWS_API_KEY) // Passa la apiKey qui
+        NewsRepository(newsApiService, newsApiKey)
     }
 
     fun provideAuthViewModel(): AuthViewModel =
         AuthViewModel(userRepository)
 
-    fun provideUserViewModel(): UserViewModel {
-        val userViewModel = UserViewModel(userRepository, notificationRepository, friendshipRepository, achievementManager)
-//        userViewModel.setFriendshipRepository(friendshipRepository)
-        return userViewModel
-    }
+    fun provideUserViewModel(): UserViewModel =
+        UserViewModel(userRepository, notificationRepository, friendshipRepository, achievementManager)
+
 
     fun providePostViewModel(): PostViewModel =
         PostViewModel(postRepository, sessionManager)

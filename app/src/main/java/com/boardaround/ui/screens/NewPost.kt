@@ -22,20 +22,17 @@ import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.viewmodel.PostViewModel
-import com.boardaround.viewmodel.UserViewModel
 
 @Composable
 fun ShowNewPostScreen(
     navController: NavController,
-    postViewModel: PostViewModel,
-    userViewModel: UserViewModel
+    postViewModel: PostViewModel
 ) {
 
     var title by remember { mutableStateOf(TextFieldValue("")) }
     var content by remember { mutableStateOf(TextFieldValue("")) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var hasImagePermission by remember { mutableStateOf(false) }
-    val username = userViewModel.getUsername()
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -52,20 +49,20 @@ fun ShowNewPostScreen(
                 imagePickerLauncher.launch("image/*")
             } else {
                 // TODO: Gestire il caso in cui il permesso non è concesso (es. mostrare un messaggio all'utente)
-                println("Permesso negato")
+                println("Permit denied")
             }
         }
     )
 
     ScreenTemplate(
-        title = "Nuovo Post",
+        title = "New Post",
         currentRoute = Route.NewPost,
         navController = navController,
         showBottomBar = false
     ) {
         item {
             CustomTextField(
-                label = "Titolo",
+                label = "Title",
                 value = title,
                 onValueChange = { title = it }
             )
@@ -73,12 +70,11 @@ fun ShowNewPostScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             CustomTextField(
-                label = "Contenuto",
+                label = "Description",
                 value = content,
                 onValueChange = { content = it }
             )
 
-            // Bottone per selezionare l'immagine
             CustomButton(
                 onClick = {
                     val permissionToRequest =
@@ -89,14 +85,13 @@ fun ShowNewPostScreen(
                         permissionLauncher.launch(permissionToRequest)
                     }
                 },
-                text = "Seleziona Immagine"
+                text = "Select image"
             )
 
-            // Visualizzazione dell'immagine selezionata
             if (selectedImageUri != null) {
                 AsyncImage(
                     model = selectedImageUri,
-                    contentDescription = "Immagine selezionata",
+                    contentDescription = "Selected image",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp),
@@ -115,7 +110,7 @@ fun ShowNewPostScreen(
                     )
                     navController.popBackStack()
                 },
-                text = "Pubblica"
+                text = "Post"
             )
         }
     }

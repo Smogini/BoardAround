@@ -1,8 +1,10 @@
 package com.boardaround.ui.screens
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
+import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomSwitch
 import com.boardaround.ui.theme.LocalIsDarkMode
 
@@ -60,18 +63,15 @@ fun ShowEditMyProfile(
         }
     }
 
-    // Stati per le autorizzazioni
     var cameraPermissionGranted by remember { mutableStateOf(true)}
     var contactsPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) }
     var locationPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) }
     var notificationsPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) }
     var photosPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) }
 
-    // Launcher per richiedere le autorizzazioni
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        // Aggiorna gli stati delle autorizzazioni in base ai risultati
         cameraPermissionGranted = permissions[Manifest.permission.CAMERA] ?: cameraPermissionGranted
         contactsPermissionGranted = permissions[Manifest.permission.READ_CONTACTS] ?: contactsPermissionGranted
         locationPermissionGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: locationPermissionGranted
@@ -80,7 +80,7 @@ fun ShowEditMyProfile(
     }
 
     ScreenTemplate(
-        title = "Modifica profilo",
+        title = "Edit profile",
         currentRoute = Route.EditMyProfile,
         navController = navController
     ) {
@@ -90,7 +90,7 @@ fun ShowEditMyProfile(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Tema scuro")
+                Text("Dark theme")
                 CustomSwitch(
                     checked = isDarkMode,
                     onCheckedChange = { newIsDarkMode ->
@@ -99,16 +99,15 @@ fun ShowEditMyProfile(
                 )
             }
 
-            Text("Autorizzazioni del dispositivo")
+            Text("Device permissions")
 
-            PermissionRow("Fotocamera", cameraPermissionGranted)
-            PermissionRow("Contatti", contactsPermissionGranted)
-            PermissionRow("Posizione", locationPermissionGranted)
-            PermissionRow("Notifiche", notificationsPermissionGranted)
-            PermissionRow("Foto", photosPermissionGranted)
+            PermissionRow("Camera", cameraPermissionGranted)
+            PermissionRow("Contacts", contactsPermissionGranted)
+            PermissionRow("Position", locationPermissionGranted)
+            PermissionRow("Notifications", notificationsPermissionGranted)
+            PermissionRow("Gallery", photosPermissionGranted)
 
             Button(onClick = {
-                // Avvia il launcher per richiedere le autorizzazioni
                 permissionLauncher.launch(
                     arrayOf(
                         Manifest.permission.CAMERA,
@@ -119,10 +118,9 @@ fun ShowEditMyProfile(
                     )
                 )
             }) {
-                Text("Richiedi autorizzazioni")
+                Text("Request authorization")
             }
 
-            // Mostra il messaggio e il pulsante per le impostazioni solo se almeno un'autorizzazione è negata
             if (!cameraPermissionGranted ||
                 !contactsPermissionGranted ||
                 !locationPermissionGranted ||
@@ -130,38 +128,41 @@ fun ShowEditMyProfile(
                 !photosPermissionGranted
             ) {
                 Text(
-                    text = "Alcune autorizzazioni sono state negate. Puoi modificarle manualmente nelle impostazioni dell'app.",
+                    text =
+                    "Some authorizations have been denied. You can manually edit them in the app settings.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
 
                 Button(onClick = {
-                    // Intento per aprire le impostazioni dell'app
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = android.net.Uri.fromParts("package", context.packageName, null)
+                        data = Uri.fromParts("package", context.packageName, null)
                     }
                     context.startActivity(intent)
                 }) {
-                    Text("Apri impostazioni app")
+                    Text("Open the app settings")
                 }
             }
-
 
             Button(
                 onClick = {
                     pickContactLauncher.launch(null)
                 }
             ) {
-                Text("Invita amici su BoardAround")
+                Text("Invite friends to BoardAround")
             }
-        }
 
+            CustomButton(
+                onClick = { /* TODO: delete account */ },
+                text = "Delete account"
+            )
+        }
     }
 }
 
-fun sendInviteMessage(context: android.content.Context, phoneNumber: String) {
-    val message = "Unisciti a BoardAround!"
+fun sendInviteMessage(context: Context, phoneNumber: String) {
+    val message = "Join BoardAround!"
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
         putExtra("address", phoneNumber)
@@ -179,6 +180,6 @@ fun PermissionRow(permissionName: String, isGranted: Boolean) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(permissionName)
-        Text(if (isGranted) "Concessa" else "Negata")
+        Text(if (isGranted) "Granted" else "Denied")
     }
 }

@@ -20,8 +20,8 @@ import com.boardaround.data.entities.User
     entities = [
         User::class, Event::class, Post::class,
         Friendship::class, SavedGame::class, Achievement::class
-        ],
-    version = 6)
+    ],
+    version = 2)
 abstract class AppDatabase: RoomDatabase() {
 
     abstract fun userDAO(): UserDAO

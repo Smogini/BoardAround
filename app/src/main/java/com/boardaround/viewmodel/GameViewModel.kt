@@ -1,6 +1,5 @@
 package com.boardaround.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.UserSessionManager
@@ -23,6 +22,9 @@ class GameViewModel(
     private val sessionManager: UserSessionManager
 ): ViewModel() {
 
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage: StateFlow<String> = _errorMessage
+
     private var _gamesFound = MutableStateFlow(GameSearchResult(0, emptyList()))
     val gamesFound: StateFlow<GameSearchResult> = _gamesFound
 
@@ -40,7 +42,7 @@ class GameViewModel(
             try {
                 _selectedGame.value = ApiService.gameApi.getGameInfo(gameID).game.toGame()
             } catch(e: Exception) {
-                Log.e("GameViewModel", "Errore nella chiamata API: ${e.message}", e)
+                _errorMessage.value = "Error in API call for searching games info ${e.message}"
             }
         }
     }
@@ -50,24 +52,24 @@ class GameViewModel(
             try {
                 _gamesFound.value = ApiService.gameApi.searchGames(query)
             } catch (e: Exception) {
-                Log.e("GameViewModel", "Errore nella chiamata API: ${e.message}", e)
+                _errorMessage.value = "Error in API call for searching games ${e.message}"
             }
         }
     }
 
-    fun saveGame(gameId: Int, gameName: String) {
+    fun saveGame(gameId: Int, gameName: String, imageUrl: String) {
         viewModelScope.launch {
             try {
                 val username = sessionManager.getCurrentUser()?.username.toString()
                 val savedGame = SavedGame(
                     user = username,
                     gameId = gameId,
-                    name = gameName
+                    name = gameName,
+                    imageUrl = imageUrl
                 )
-                Log.d("gameviewmodel", "gioco salvato: $gameName a $username")
                 gameRepository.addGame(savedGame)
             } catch (e: Exception) {
-                Log.e("GameViewModel", "Errore nel salvare il gioco: ${e.message}", e)
+                _errorMessage.value = "Error saving the game $gameName: ${e.message}"
             }
         }
     }
@@ -78,7 +80,7 @@ class GameViewModel(
                 val username = sessionManager.getCurrentUser()?.username.toString()
                 _userGames.value= gameRepository.getUserGames(username)
             } catch(e: Exception) {
-                Log.e("GameViewModel", "Errore nell'ottenere i giochi: ${e.message}", e)
+                _errorMessage.value = "Error getting the user games: ${e.message}"
             }
         }
     }
@@ -99,7 +101,7 @@ class GameViewModel(
                             val response = ApiService.gameApi.getGameInfo(id).game.toGame()
                             response
                         } catch (e: Exception) {
-                            Log.e("GameViewModel", "Errore per id $id: ${e.message}")
+                            _errorMessage.value = "Error for suggested game id $id: ${e.message}"
                             null
                         }
                     }

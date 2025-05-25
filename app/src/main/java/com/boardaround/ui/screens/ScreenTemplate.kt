@@ -52,7 +52,7 @@ fun ScreenTemplate(
     content: LazyListScope.() -> Unit,
 ) {
     var showExtraFab by remember { mutableStateOf(false) }
-    val verticalOffset by animateDpAsState(if (showExtraFab) 0.dp else (-10).dp, label = "fab animation")
+    val verticalOffset by animateDpAsState(if (showExtraFab) 0.dp else (-10).dp, label = "fabAnimation")
 
     Scaffold(
         topBar = { CustomTopAppBar(title, navController, userViewModel, currentRoute) },
@@ -119,7 +119,7 @@ fun ScreenTemplate(
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp),
-                contentPadding = PaddingValues(bottom = 150.dp)
+                contentPadding = PaddingValues(bottom = 100.dp)
             ) {
                 content()
             }

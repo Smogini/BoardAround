@@ -25,14 +25,12 @@ class NewsViewModel(private val newsRepository: NewsRepository) : ViewModel() {
         fetchBoardGameNews(language = "en")
     }
 
-    fun fetchBoardGameNews(language: String = "en") {
+    private fun fetchBoardGameNews(language: String = "en") {
         viewModelScope.launch {
             _newsUiState.value = NewsUiState(isLoading = true, error = null)
-            Log.d("NewsViewModel", "Inizio fetch notizie giochi da tavolo per lingua: $language")
             val result = newsRepository.getBoardGameNews(language = language)
             result.fold(
                 onSuccess = { fetchedArticles ->
-                    Log.d("NewsViewModel", "Recuperati ${fetchedArticles.size} articoli.")
                     _newsUiState.value = NewsUiState(articles = fetchedArticles)
                 },
                 onFailure = { exception ->
@@ -43,7 +41,6 @@ class NewsViewModel(private val newsRepository: NewsRepository) : ViewModel() {
         }
     }
     fun retryFetchBoardGameNews(language: String = "en") {
-        Log.d("NewsViewModel", "Tentativo di ricaricare le notizie per lingua: $language")
         fetchBoardGameNews(language)
     }
 }

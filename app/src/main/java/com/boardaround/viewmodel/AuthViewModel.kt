@@ -1,7 +1,6 @@
 package com.boardaround.viewmodel
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.User
@@ -13,16 +12,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDateTime
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-    private val _registrationError = MutableStateFlow<String?>(null)
-    val registrationError: StateFlow<String?> = _registrationError
+    private val _registrationError = MutableStateFlow("")
+    val registrationError: StateFlow<String> = _registrationError
+
+    fun cleanErrorMessage() {
+        _registrationError.value = ""
+    }
 
     fun login(username: String, password: String, onSuccess: (User?) -> Unit) {
+        if (username.isBlank() || password.isBlank()) {
+            _registrationError.value = "One of the fields is empty"
+        }
         viewModelScope.launch {
             onSuccess(userRepository.login(username, password))
         }
@@ -34,8 +41,8 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
     fun deleteUser(user: User) {
         viewModelScope.launch {
-            userRepository.deleteUser(user)
             logout()
+            userRepository.deleteUser(user)
         }
     }
 
@@ -44,9 +51,27 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         password: String,
         name: String,
         email: String,
-        dob: String,
-        profilePic: String
+        dob: LocalDateTime,
+        profilePic: String,
+        onSuccess: () -> Unit
     ) {
+        val today = LocalDateTime.now()
+        val minAllowedDate = today.minusYears(12)
+
+        if (username.isBlank() || password.isBlank() || name.isBlank()
+            || email.isBlank()) {
+            _registrationError.value = "Missing parameter(s)"
+            return
+        }
+        if (password.length < 6) {
+            _registrationError.value = "The password must be at least 6 characters long"
+            return
+        }
+        if (dob.isAfter(minAllowedDate)) {
+            _registrationError.value = "You must be at least 12 years old"
+            return
+        }
+
         viewModelScope.launch {
             try {
                 val uid = createFirebaseUser(email, password)
@@ -57,17 +82,16 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
                     uid = uid,
                     name = name,
                     email = email,
-                    dob = dob,
+                    dob = dob.toString(),
                     profilePic = profilePic,
                     fcmToken = token
                 )
 
                 FirebaseUtils.registerUser(newUser)
                 userRepository.registerUser(newUser)
-
+                onSuccess()
             } catch (e: Exception) {
-                Log.e("AuthViewModel", "Errore durante la registrazione: ${e.message}", e)
-                _registrationError.value = "Errore durante la registrazione: ${e.message}"
+                _registrationError.value = "Error during user registration: ${e.message}"
             }
         }
     }
@@ -75,13 +99,13 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
     suspend fun uploadProfilePicture(userId: String, imageUri: Uri): String? {
         return try {
             val storageRef = FirebaseStorage.getInstance().reference
-            val profilePicRef = storageRef.child("profile_pictures/$userId.jpg") // Usa l'UID come nome del file
+            val profilePicRef = storageRef.child("profile_pictures/$userId.jpg")
 
             val uploadTask = profilePicRef.putFile(imageUri).await()
             val downloadUrl = uploadTask.storage.downloadUrl.await()
             downloadUrl.toString()
         } catch (e: Exception) {
-            Log.e("AuthViewModel", "Errore nel caricare l'immagine del profilo", e)
+            _registrationError.value = "Error loading profile picture: ${e.message}"
             null
         }
     }
@@ -102,7 +126,9 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
                     if (uid != null) {
                         continuation.resume(uid)
                     } else {
-                        continuation.resumeWithException(Exception("FirebaseUser UID null"))
+                        val exceptionMsg = "FirebaseUser UID null"
+                        _registrationError.value = exceptionMsg
+                        continuation.resumeWithException(Exception(exceptionMsg))
                     }
                 }
                 .addOnFailureListener { e ->

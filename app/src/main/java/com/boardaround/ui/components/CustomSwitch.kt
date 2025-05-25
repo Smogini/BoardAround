@@ -10,17 +10,17 @@ import androidx.compose.ui.Modifier
 fun CustomSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier // Aggiungi un modificatore per flessibilità
+    modifier: Modifier = Modifier
 ) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         colors = SwitchDefaults.colors(
             checkedThumbColor = MaterialTheme.colorScheme.primary,
-            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer, // Usa primaryContainer per un effetto visivo migliore
+            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
             uncheckedThumbColor = MaterialTheme.colorScheme.secondary,
-            uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer // Usa secondaryContainer
+            uncheckedTrackColor = MaterialTheme.colorScheme.secondaryContainer
         ),
-        modifier = modifier // Applica il modificatore
+        modifier = modifier
     )
 }

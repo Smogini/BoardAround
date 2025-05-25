@@ -35,15 +35,14 @@ fun ShowDiceScreen(navController: NavController) {
     var results by remember { mutableStateOf(emptyList<Int>()) }
     var isRolling by remember { mutableStateOf(false) }
 
-    // Calcolare la somma dei risultati
     val sumOfDice = results.sum()
 
     ScreenTemplate(
-        title = "Lancio Dadi",
+        title = "Dice roll",
         navController = navController,
     ) {
         item {
-            Text("Numero di dadi: $numDice", color = PrimaryBrown)
+            Text("Number of dice: $numDice", color = PrimaryBrown)
             Slider(
                 value = numDice.toFloat(),
                 onValueChange = { numDice = it.toInt() },
@@ -55,9 +54,9 @@ fun ShowDiceScreen(navController: NavController) {
             CustomButton(
                 onClick = {
                     isRolling = true
-                    results = emptyList() // Reset dei risultati precedenti
+                    results = emptyList()
                 },
-                text = "Lancia i dadi"
+                text = "Roll the dice"
             )
 
             if (isRolling) {
@@ -65,15 +64,15 @@ fun ShowDiceScreen(navController: NavController) {
                     results = rollDiceWithAnimation(numDice)
                     isRolling = false
                 }
-                Text("Lancio in corso...", color = PrimaryBrown)
+                Text("Calculating...", color = PrimaryBrown)
             }
 
             if (results.isNotEmpty() && !isRolling) {
-                Text("Risultati:", color = PrimaryBrown)
+                Text("Result:", color = PrimaryBrown)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    results.forEachIndexed { _, result ->
+                    results.forEach { result ->
                         val rotation = remember { Animatable(0f) }
                         LaunchedEffect(result) {
                             rotation.animateTo(
@@ -83,19 +82,18 @@ fun ShowDiceScreen(navController: NavController) {
                                     easing = LinearEasing
                                 )
                             )
-                            rotation.snapTo(0f) // Reset della rotazione
+                            rotation.snapTo(0f)
                         }
                         Image(
                             painter = painterResource(id = getDiceImage(result)),
-                            contentDescription = "Dado con valore $result",
+                            contentDescription = "$result",
                             modifier = Modifier
                                 .size(64.dp)
                                 .rotate(rotation.value)
                         )
                     }
                 }
-                // Mostra la somma dei dadi
-                Text("Somma dei dadi: $sumOfDice", color = PrimaryBrown)
+                Text("Sum of the dice: $sumOfDice", color = PrimaryBrown)
             }
         }
     }
@@ -105,7 +103,6 @@ fun rollDice(numDice: Int): List<Int> {
     return List(numDice) { Random.nextInt(1, 7) }
 }
 
-// Funzione per ottenere l'ID della risorsa immagine del dado
 fun getDiceImage(result: Int): Int {
     return when (result) {
         1 -> R.drawable.dice_1
@@ -114,12 +111,11 @@ fun getDiceImage(result: Int): Int {
         4 -> R.drawable.dice_4
         5 -> R.drawable.dice_5
         6 -> R.drawable.dice_6
-        else -> R.drawable.dice_1 // Valore di default
+        else -> R.drawable.dice_1
     }
 }
 
-// Funzione per lanciare i dadi con animazione
 suspend fun rollDiceWithAnimation(numDice: Int): List<Int> {
-    delay(500) // Breve ritardo per simulare il lancio
+    delay(500)
     return rollDice(numDice)
 }

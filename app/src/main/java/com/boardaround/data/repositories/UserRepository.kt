@@ -37,19 +37,8 @@ class UserRepository(
                 snapshot.toObject(User::class.java)
             } else null
         } catch (e: Exception) {
-            Log.e("UserRepository", "Errore recupero utente Firebase", e)
+                Log.e("UserRepository", "Firebase user recovery error", e)
             null
-        }
-    }
-
-    suspend fun syncUserToRoomIfNeeded(username: String) {
-        val localUser = userDao.getUserByUsername(username)
-        if (localUser == null) {
-            val firebaseUser = getUserFromFirebase(username)
-            firebaseUser?.let {
-                userDao.insertUser(it)
-                Log.d("UserRepository", "Utente sincronizzato in Room: $username")
-            } ?: Log.w("UserRepository", "Utente non trovato su Firebase: $username")
         }
     }
 
@@ -73,17 +62,6 @@ class UserRepository(
             return userFromRoom
         }
         return null
-        // Recupera i dati utente da Firestore e aggiorna Room
-//            val userFromFirestore = firestore.collection("users")
-//                .document(firebaseUser.uid)
-//                .get()
-//                .await()
-//                .toObject(User::class.java)
-//
-//            userFromFirestore?.let {
-//                userDao.insertUser(it)  // Inserisce o aggiorna i dati utente in Room
-//                Log.d("UserRepository", "Dati utente aggiornati in Room per username: ${it.username}")
-//            }
     }
 
     fun logout() {

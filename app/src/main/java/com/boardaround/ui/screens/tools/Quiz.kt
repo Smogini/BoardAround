@@ -107,13 +107,13 @@ private fun ShowTriviaScreen(triviaViewModel: TriviaViewModel) {
                 },
                 enabled = selectedAnswer != null && !showResult
             ) {
-                Text(text = "Invia")
+                Text(text = "Send")
             }
 
             if (showResult) {
                 val isCorrect = selectedAnswer == currentQuestion.correctAnswer
                 Text(
-                    text = if (isCorrect) "Risposta corretta!" else "Risposta errata. La risposta corretta è: ${currentQuestion.correctAnswer}"
+                    text = if (isCorrect) "Correct answer!" else "Wrong answer. The correct answer is: ${currentQuestion.correctAnswer}"
                 )
 
                 Spacer(modifier = Modifier.size(10.dp))
@@ -126,14 +126,14 @@ private fun ShowTriviaScreen(triviaViewModel: TriviaViewModel) {
                             showResult = false
                         }
                     ) {
-                        Text(text = "Prossima domanda")
+                        Text(text = "Next question")
                     }
                 } else {
-                    Text(text = "Quiz completato!")
-                    Text("Punteggio finale $userPoints")
+                    Text(text = "Quiz completed!")
+                    Text("Final score $userPoints")
                     CustomButton(
                         onClick = { reloadQuiz.value = true },
-                        text = "Gioca di nuovo"
+                        text = "Play again"
                     )
                 }
             }
@@ -141,7 +141,6 @@ private fun ShowTriviaScreen(triviaViewModel: TriviaViewModel) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Visualizzazione dei pallini
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -197,7 +196,7 @@ fun SetupTriviaScreen(navController: NavController, triviaViewModel: TriviaViewM
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     CustomTextField(
-                        label = "Numero di domande",
+                        label = "Number of questions",
                         value = questionCount,
                         onValueChange = {  questionCount = it },
                         keyboardType = KeyboardType.Number,
@@ -205,14 +204,14 @@ fun SetupTriviaScreen(navController: NavController, triviaViewModel: TriviaViewM
                     )
 
                     DropdownSelector(
-                        label = "Categoria",
+                        label = "Category",
                         options = categories.map { it.first },
                         selectedOption = selectedCategory,
                         onOptionSelected = { selectedCategory = it }
                     )
 
                     DropdownSelector(
-                        label = "Difficoltà",
+                        label = "Difficulty",
                         options = difficulties,
                         selectedOption = selectedDifficulty,
                         onOptionSelected = { selectedDifficulty = it }
@@ -227,7 +226,7 @@ fun SetupTriviaScreen(navController: NavController, triviaViewModel: TriviaViewM
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
-                        Text("Avvia Quiz")
+                        Text("Start Quiz")
                     }
                 }
             } else {

@@ -4,7 +4,6 @@ import com.boardaround.data.dao.PostDao
 import com.boardaround.data.entities.Post
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import android.util.Log
 
 class PostRepository(private val postDao: PostDao, private val firestore: FirebaseFirestore) {
 
@@ -12,7 +11,6 @@ class PostRepository(private val postDao: PostDao, private val firestore: Fireba
         try {
 
         postDao.insertPost(post)
-        Log.d("PostRepository", "Post salvato nel database locale: ${post.title}")
 
         val postData = hashMapOf(
             "author" to post.author,
@@ -26,10 +24,7 @@ class PostRepository(private val postDao: PostDao, private val firestore: Fireba
             .add(postData)
             .await()
 
-        Log.d("PostRepository", "Post salvato su Firestore: ${post.title}")
-
     } catch (e: Exception) {
-        Log.e("PostRepository", "Errore durante l'inserimento del post", e)
         throw e
     }
 

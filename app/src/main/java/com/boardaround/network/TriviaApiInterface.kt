@@ -8,8 +8,8 @@ interface TriviaApiInterface {
     @GET("api.php")
     suspend fun getTriviaQuestions(
         @Query("amount") amount: Int? = 10,
-        @Query("category") category: Int? = 16, // Board games category
+        @Query("category") category: Int? = 16,
         @Query("difficulty") difficulty: String? = "medium",
-        @Query("type") type: String = "multiple" // Tipo di domanda (multiple choice)
+        @Query("type") type: String = "multiple"
     ): TriviaResponse
 }

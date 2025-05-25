@@ -46,15 +46,15 @@ fun ShowScoreBoard(navController: NavController) {
     val players = remember {
         mutableStateListOf(*List(6) { Player(name = mutableStateOf("Player ${it + 1}")) }.toTypedArray())
     }
-    var selectedPlayerIndex by remember { mutableIntStateOf(0) } // Indice del giocatore selezionato per rinominarlo
+    var selectedPlayerIndex by remember { mutableIntStateOf(0) }
     var playerName by remember { mutableStateOf(TextFieldValue(players[0].name.value)) }
 
     ScreenTemplate(
-        title = "Segna punti",
+        title = "Scoreboard",
         navController = navController
     ) {
         item {
-            Text("Numero di giocatori: $numPlayers", color = PrimaryBrown)
+            Text("Number of players: $numPlayers", color = PrimaryBrown)
             Slider(
                 value = numPlayers.toFloat(),
                 onValueChange = { numPlayers = it.toInt() },
@@ -64,7 +64,7 @@ fun ShowScoreBoard(navController: NavController) {
             )
 
             CustomTextField(
-                label = "Rinomina giocatore",
+                label = "Rename player",
                 value = playerName,
                 onValueChange = { playerName = it },
                 modifier = Modifier.fillMaxWidth(),
@@ -101,10 +101,9 @@ fun ShowScoreBoard(navController: NavController) {
                         players[selectedPlayerIndex].name.value = playerName.text
                     }
                 },
-                text = "Rinomina ${players[selectedPlayerIndex].name.value}"
+                text = "Rename ${players[selectedPlayerIndex].name.value}"
             )
 
-            // Mostra la lista di giocatori e i punteggi
             Column {
                 players.take(numPlayers).forEachIndexed { _, player ->
                     val maxPoints = players.take(numPlayers).maxOf { it.points.intValue }
@@ -127,17 +126,17 @@ fun ShowScoreBoard(navController: NavController) {
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "Punti: ${player.points.intValue}",
+                            text = "Points: ${player.points.intValue}",
                             color = textColor
                         )
                         CustomClickableIcon(
-                            title = "Aggiungi punti",
+                            title = "Add point",
                             icon = Icons.Default.Add,
                             iconColor = PrimaryBrown,
                             onClick = { player.points.intValue++ }
                         )
                         CustomClickableIcon(
-                            title = "Rimuovi punti",
+                            title = "Remove point",
                             icon = Icons.Default.Remove,
                             iconColor = PrimaryBrown,
                             onClick = { player.points.intValue-- }

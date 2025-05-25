@@ -20,5 +20,6 @@ import androidx.room.Index
 data class SavedGame(
     val user: String,
     val gameId: Int,
-    val name: String
+    val name: String,
+    val imageUrl: String = "No image available"
 )
