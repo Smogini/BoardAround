@@ -78,31 +78,30 @@ fun ShowNewEventScreen(
         title = "Create new event",
         currentRoute = Route.NewEvent,
         navController,
+        showBottomBar = false
     ) {
         item {
-            if (cancelAction) {
-                CustomAlertDialog(
-                    title = "Confirm action",
-                    description = "Are you sure you want to cancel?",
-                    onConfirm = {
-                        cancelAction = false
-                        Toast.makeText(context, "Event successfully canceled", Toast.LENGTH_SHORT).show()
-                        navController.navigateSingleTop(Route.Homepage)
-                    },
-                    onDismiss = { cancelAction = false }
-                )
-            }
+            CustomAlertDialog(
+                isVisible = cancelAction,
+                title = "Confirm action",
+                description = "Are you sure you want to cancel?",
+                onConfirm = {
+                    cancelAction = false
+                    Toast.makeText(context, "Event successfully canceled", Toast.LENGTH_SHORT).show()
+                    navController.navigateSingleTop(Route.Homepage)
+                },
+                onDismiss = { cancelAction = false }
+            )
 
-            if (showErrorDialog) {
-                CustomAlertDialog(
-                    title = "Error",
-                    description = eventErrorMessage,
-                    onDismiss = {
-                        showErrorDialog = false
-                        eventViewModel.clearErrorMessage()
-                    }
-                )
-            }
+            CustomAlertDialog(
+                isVisible = showErrorDialog,
+                title = "Error",
+                description = eventErrorMessage,
+                onDismiss = {
+                    showErrorDialog = false
+                    eventViewModel.clearErrorMessage()
+                }
+            )
 
             CustomTitle(text = "Enter the name of the event")
             CustomTextField(

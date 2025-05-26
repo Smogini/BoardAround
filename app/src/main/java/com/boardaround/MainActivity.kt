@@ -46,7 +46,6 @@ class MainActivity : ComponentActivity() {
         val eventViewModel = viewModelFactory.provideEventViewModel()
         val postViewModel = viewModelFactory.providePostViewModel()
         val triviaViewModel = viewModelFactory.provideTriviaViewModel()
-        val newsViewModel = viewModelFactory.provideNewsViewModel()
 
         setContent {
             val context = LocalContext.current
@@ -83,7 +82,6 @@ class MainActivity : ComponentActivity() {
                         postViewModel = postViewModel,
                         eventViewModel = eventViewModel,
                         triviaViewModel = triviaViewModel,
-                        newsViewModel = newsViewModel,
                         onThemeChange = { newIsDarkMode ->
                             isDarkMode.value = newIsDarkMode
                             lifecycleScope.launch {

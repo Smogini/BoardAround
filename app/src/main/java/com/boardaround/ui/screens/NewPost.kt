@@ -1,11 +1,7 @@
 package com.boardaround.ui.screens
 
-import android.Manifest
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,14 +9,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
+import com.boardaround.ui.components.CustomImagePicker
 import com.boardaround.ui.components.CustomTextField
+import com.boardaround.ui.components.CustomTitle
 import com.boardaround.viewmodel.PostViewModel
 
 @Composable
@@ -32,27 +28,6 @@ fun ShowNewPostScreen(
     var title by remember { mutableStateOf(TextFieldValue("")) }
     var content by remember { mutableStateOf(TextFieldValue("")) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var hasImagePermission by remember { mutableStateOf(false) }
-
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            selectedImageUri = uri
-        }
-    )
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted: Boolean ->
-            hasImagePermission = isGranted
-            if (isGranted) {
-                imagePickerLauncher.launch("image/*")
-            } else {
-                // TODO: Gestire il caso in cui il permesso non è concesso (es. mostrare un messaggio all'utente)
-                println("Permit denied")
-            }
-        }
-    )
 
     ScreenTemplate(
         title = "New Post",
@@ -75,31 +50,16 @@ fun ShowNewPostScreen(
                 onValueChange = { content = it }
             )
 
-            CustomButton(
-                onClick = {
-                    val permissionToRequest =
-                        Manifest.permission.READ_MEDIA_IMAGES
-                    if (hasImagePermission) {
-                        imagePickerLauncher.launch("image/*")
-                    } else {
-                        permissionLauncher.launch(permissionToRequest)
-                    }
-                },
-                text = "Select image"
+            Spacer(modifier = Modifier.height(10.dp))
+
+            CustomTitle(text = "Select an image")
+            CustomImagePicker(
+                onImageSelected = { selectedImageUri = it },
+                imageContentDescription = "Image of the post",
+                imageSize = 120
             )
 
-            if (selectedImageUri != null) {
-                AsyncImage(
-                    model = selectedImageUri,
-                    contentDescription = "Selected image",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            Spacer(modifier = Modifier.height(300.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             CustomButton(
                 onClick = {

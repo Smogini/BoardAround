@@ -38,8 +38,8 @@ import coil.compose.AsyncImage
 @Composable
 fun <T> CustomImageCard(
     item: T,
-    isSelected: Boolean = false,
-    onClick: (T) -> Unit,
+    isSelected: Boolean? = false,
+    onClick: ((T) -> Unit)? = null,
     image: String,
     imageCaption: String = "",
     contentDescription: String = "",
@@ -47,15 +47,15 @@ fun <T> CustomImageCard(
     cardShape: Shape = CutCornerShape(16.dp),
     modifier: Modifier = Modifier,
 ) {
-    var isPressed by remember { mutableStateOf(false) }
+    var isPressed by remember { mutableStateOf(isSelected ?: false) }
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
+        targetValue = if (isPressed && onClick != null) 0.95f else 1f,
         animationSpec = tween(durationMillis = 150),
         label = "imageSelection"
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(cardSize.dp)
             .graphicsLayer {
                 scaleX = scale
@@ -65,23 +65,23 @@ fun <T> CustomImageCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = {
-                    isPressed = !isPressed
-                    onClick(item)
+                    onClick?.invoke(item).let { isPressed = !isPressed }
                 }
             )
+            .fillMaxSize()
     ) {
         Card(
             shape = cardShape,
             border =
-                if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.onBackground)
+                if (isPressed && onClick != null) BorderStroke(2.dp, MaterialTheme.colorScheme.onBackground)
                 else null,
             elevation = CardDefaults.cardElevation(4.dp),
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .clip(cardShape)
         ) {
             Box(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxSize()
             ) {
                 AsyncImage(

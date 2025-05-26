@@ -13,19 +13,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.boardaround.R
 import com.boardaround.data.entities.Article
-
 
 @Composable
 fun NewsArticleItem(
@@ -33,94 +30,77 @@ fun NewsArticleItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var confirmAction by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier
             .width(200.dp)
             .height(280.dp)
             .padding(vertical = 4.dp)
-            .clickable(onClick = onClick),
+            .clickable { confirmAction = true },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column {
-            if (!article.urlToImage.isNullOrBlank()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(article.urlToImage)
-                        .crossfade(true)
-                        .error(R.drawable.placeholder_image)
-                        .fallback(R.drawable.placeholder_image)
-                        .build(),
-                    contentDescription = "News image: ${article.title}",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(16f / 9f)
+        CustomImageCard(
+            item = null,
+            image = article.urlToImage.toString(),
+            contentDescription = "${article.title} image",
+            cardShape = CardDefaults.shape,
+            modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+        )
+
+        Column(modifier = Modifier.padding(16.dp)) {
+            CustomTitle(
+                text = article.title.toString(),
+                textStyle = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            CustomTitle(
+                text = article.description.toString(),
+                textStyle = MaterialTheme.typography.bodySmall,
+                maxLines = 3,
+                alignment = TextAlign.Start
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                CustomTitle(
+                    text = article.source?.name.toString(),
+                    textStyle = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1f),
+                    alignment = TextAlign.Start
                 )
-            }
 
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = article.title ?: "No title available",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                val publicationDate = article.publishedAt?.substringBefore("T")
+                CustomTitle(
+                    text = publicationDate.toString(),
+                    textStyle = MaterialTheme.typography.bodySmall,
+                    alignment = TextAlign.Start,
+                    modifier = Modifier.weight(1f)
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = article.description ?: "No description available",
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    if (!article.source?.name.isNullOrBlank()) {
-                        Text(
-                            text = article.source!!.name!!,
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false)
-                        )
-                    } else {
-                        Spacer(Modifier.weight(1f, fill = false))
-                    }
-
-                    if (!article.publishedAt.isNullOrBlank()) {
-                        Text(
-                            text = formatDate(article.publishedAt),
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
             }
         }
-    }
-}
 
-@Composable
-private fun formatDate(publishedAt: String?): String {
-    if (publishedAt.isNullOrBlank()) return ""
-    return try {
-        publishedAt.substringBefore("T")
-        // val odt = OffsetDateTime.parse(publishedAt)
-        // val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) // o .ofPattern("dd MMM yyyy")
-        // odt.format(formatter)
-    } catch (e: Exception) {
-        publishedAt
+        CustomAlertDialog(
+            isVisible = confirmAction,
+            title = "Confirm action",
+            description = "Are you sure you want to abandon? You will be taken to a new screen",
+            onConfirm = {
+                confirmAction = false
+                onClick()
+            },
+            onDismiss = { confirmAction = false }
+        )
     }
 }

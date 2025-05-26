@@ -21,7 +21,8 @@
         android:immersive="true"
         android:windowTranslucentStatus="true"
         android:theme="@style/Theme.BoardAround"
-        android:networkSecurityConfig="@xml/network_security_config">
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:enableOnBackInvokedCallback="true">
 
         <meta-data
             android:name="android.app.lib_name"

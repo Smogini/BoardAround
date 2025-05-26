@@ -2,8 +2,10 @@ package com.boardaround.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.boardaround.data.entities.Article
 import com.boardaround.data.entities.User
 import com.boardaround.data.repositories.FriendshipRepository
+import com.boardaround.data.repositories.NewsRepository
 import com.boardaround.data.repositories.NotificationRepository
 import com.boardaround.data.repositories.UserRepository
 import com.boardaround.utils.AchievementManager
@@ -16,10 +18,14 @@ class UserViewModel(
     private val userRepository: UserRepository,
     private val notificationRepository: NotificationRepository,
     private val friendshipRepository: FriendshipRepository,
+    private val newsRepository: NewsRepository,
     private val achievementManager: AchievementManager
 ): ViewModel() {
 
     val achievementList = achievementManager.achievementList
+
+    private val _articleList = MutableStateFlow<List<Article>>(emptyList())
+    val articleList: StateFlow<List<Article>> = _articleList
 
     private val _hasNewNotifications = MutableStateFlow(false)
     val hasNewNotifications: StateFlow<Boolean> = _hasNewNotifications
@@ -81,6 +87,12 @@ class UserViewModel(
 
     fun getUsername(): String =
         userRepository.getCurrentUser()?.username ?: "No username"
+
+    fun fetchBoardGameNews(language: String = "en") {
+        viewModelScope.launch {
+            _articleList.value = newsRepository.getBoardGameNews(language = language)
+        }
+    }
 
 //    fun refreshNotificationStatus() {
 //        viewModelScope.launch {

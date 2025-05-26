@@ -29,7 +29,7 @@ fun DateTimePicker(
     if (!isVisible) return
 
     val showDatePicker = remember { mutableStateOf(true) }
-    val showTimePickerState = remember { mutableStateOf(showTimePicker) }
+    val showTimePickerState = remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState()
     val timePickerState = rememberTimePickerState(is24Hour = true)
@@ -95,11 +95,12 @@ private fun formatSelectedDateTime(
     dateMillis: Long?,
     timeState: TimePickerState?
 ): String {
-    val formatter = if (timeState != null) {
-        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-    } else {
-        DateTimeFormatter.ofPattern("dd/MM/yyyy")
-    }
+    val formatter =
+        if (timeState != null) {
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        } else {
+            DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        }
 
     val localDate = Instant.ofEpochMilli(dateMillis ?: 0L)
         .atZone(ZoneId.systemDefault())

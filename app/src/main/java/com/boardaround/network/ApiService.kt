@@ -42,6 +42,10 @@ object ApiService {
         createApi("https://nominatim.openstreetmap.org/", StreetMapApiInterface::class.java)
     }
 
+    val newsApi: NewsApiInterface by lazy {
+        createApi("https://newsapi.org/", NewsApiInterface::class.java)
+    }
+
 }
 
 class UserAgentInterceptor : Interceptor {

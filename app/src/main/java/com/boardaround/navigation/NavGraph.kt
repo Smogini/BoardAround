@@ -28,7 +28,6 @@ import com.boardaround.ui.screens.SplashScreen
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
-import com.boardaround.viewmodel.NewsViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.TriviaViewModel
 import com.boardaround.viewmodel.UserViewModel
@@ -43,7 +42,6 @@ fun NavGraph(
     postViewModel: PostViewModel,
     eventViewModel: EventViewModel,
     triviaViewModel: TriviaViewModel,
-    newsViewModel: NewsViewModel,
     onThemeChange: (Boolean) -> Unit
 ) {
     val startDest = if(authViewModel.isUserLoggedIn()) Route.Homepage else Route.Splash
@@ -67,13 +65,13 @@ fun NavGraph(
             SplashScreen(navController)
         }
         composable<Route.Homepage> {
-            ShowHomePageScreen(navController, userViewModel, gameViewModel, eventViewModel, newsViewModel)
+            ShowHomePageScreen(context, navController, userViewModel, gameViewModel, eventViewModel)
         }
         composable<Route.Login> {
             ShowLoginScreen(context, navController, authViewModel)
         }
         composable<Route.Register> {
-            ShowRegisterScreen(context, navController, authViewModel)
+            ShowRegisterScreen(navController, authViewModel)
         }
         composable<Route.Invite> {
             ShowInviteScreen(navController)
@@ -88,7 +86,7 @@ fun NavGraph(
             ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel, gameViewModel)
         }
         composable<Route.EditMyProfile> {
-            ShowEditMyProfile(navController, onThemeChange = onThemeChange)
+            ShowEditMyProfile(context, navController, authViewModel, onThemeChange)
         }
         composable<Route.GameInfo> {
             ShowGameInfo(navController, gameViewModel)
@@ -97,7 +95,7 @@ fun NavGraph(
             ShowNewPostScreen(navController, postViewModel)
         }
         composable<Route.EventInfo> {
-            ShowEventInfoScreen(navController, userViewModel, eventViewModel)
+            ShowEventInfoScreen(context, navController, userViewModel, eventViewModel)
         }
         composable<Route.Gamification> {
             GamificationScreen(navController, userViewModel)

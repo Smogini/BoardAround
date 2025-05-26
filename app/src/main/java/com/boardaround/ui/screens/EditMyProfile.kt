@@ -4,16 +4,15 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
-import android.provider.ContactsContract
-import android.provider.Settings
+import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.RequestPage
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,67 +21,60 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
+import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.components.CustomSwitch
+import com.boardaround.ui.components.ExpandableSection
 import com.boardaround.ui.theme.LocalIsDarkMode
+import com.boardaround.viewmodel.AuthViewModel
+
+private fun isPermissionGranted(context: Context, permission: String): Boolean {
+    return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+}
 
 @Composable
 fun ShowEditMyProfile(
+    context: Context,
     navController: NavController,
+    authViewModel: AuthViewModel,
     onThemeChange: (Boolean) -> Unit
 ) {
     val isDarkMode = LocalIsDarkMode.current
-    val context = LocalContext.current
 
-    val pickContactLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickContact()
-    ) { uri ->
-        uri?.let { contactUri ->
-            val cursor = context.contentResolver.query(
-                contactUri,
-                null,
-                null,
-                null,
-                null
-            )
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                    if (numberIndex >= 0) {
-                        val phoneNumber = it.getString(numberIndex)
-                        sendInviteMessage(context, phoneNumber)
-                    }
-                }
-            }
+    var currentPermission by remember { mutableStateOf<String?>(null) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
-    var cameraPermissionGranted by remember { mutableStateOf(true)}
-    var contactsPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) }
-    var locationPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) }
-    var notificationsPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) }
-    var photosPermissionGranted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) }
+    val permissionList = mutableListOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.POST_NOTIFICATIONS
+    )
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        cameraPermissionGranted = permissions[Manifest.permission.CAMERA] ?: cameraPermissionGranted
-        contactsPermissionGranted = permissions[Manifest.permission.READ_CONTACTS] ?: contactsPermissionGranted
-        locationPermissionGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: locationPermissionGranted
-        notificationsPermissionGranted = permissions[Manifest.permission.POST_NOTIFICATIONS] ?: notificationsPermissionGranted
-        photosPermissionGranted = permissions[Manifest.permission.READ_MEDIA_IMAGES] ?: photosPermissionGranted
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        permissionList.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+    } else {
+        permissionList.add(Manifest.permission.READ_MEDIA_IMAGES)
     }
 
     ScreenTemplate(
         title = "Edit profile",
         currentRoute = Route.EditMyProfile,
-        navController = navController
+        navController = navController,
+        showBottomBar = false
     ) {
 
         item {
@@ -93,68 +85,41 @@ fun ShowEditMyProfile(
                 Text("Dark theme")
                 CustomSwitch(
                     checked = isDarkMode,
-                    onCheckedChange = { newIsDarkMode ->
-                        onThemeChange(newIsDarkMode)
-                    }
+                    onCheckedChange = { onThemeChange(it) }
                 )
             }
 
-            Text("Device permissions")
-
-            PermissionRow("Camera", cameraPermissionGranted)
-            PermissionRow("Contacts", contactsPermissionGranted)
-            PermissionRow("Position", locationPermissionGranted)
-            PermissionRow("Notifications", notificationsPermissionGranted)
-            PermissionRow("Gallery", photosPermissionGranted)
-
-            Button(onClick = {
-                permissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_CONTACTS,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.POST_NOTIFICATIONS,
-                        Manifest.permission.READ_MEDIA_IMAGES
+            ExpandableSection(
+                title = "Device permissions",
+                icon = Icons.Default.Lock,
+                itemList = permissionList,
+                labelProvider = { it.replace("android.permission.", "") },
+                onItemClick = { currentPermission = it },
+                trailingIcon = {
+                    CustomClickableIcon(
+                        title = "Request",
+                        icon = Icons.Default.RequestPage,
+                        iconColor = MaterialTheme.colorScheme.onBackground,
+                        onClick = {
+                            if (isPermissionGranted(context, it)) {
+                                Toast.makeText(context, "Permission already granted", Toast.LENGTH_SHORT).show()
+                            } else {
+                                permissionLauncher.launch(it)
+                            }
+                        }
                     )
-                )
-            }) {
-                Text("Request authorization")
-            }
-
-            if (!cameraPermissionGranted ||
-                !contactsPermissionGranted ||
-                !locationPermissionGranted ||
-                !notificationsPermissionGranted ||
-                !photosPermissionGranted
-            ) {
-                Text(
-                    text =
-                    "Some authorizations have been denied. You can manually edit them in the app settings.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-
-                Button(onClick = {
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                    context.startActivity(intent)
-                }) {
-                    Text("Open the app settings")
                 }
-            }
-
-            Button(
-                onClick = {
-                    pickContactLauncher.launch(null)
-                }
-            ) {
-                Text("Invite friends to BoardAround")
-            }
+            )
 
             CustomButton(
-                onClick = { /* TODO: delete account */ },
+                onClick = {
+//                    pickContactLauncher.launch(null)
+                },
+                text = "Invite friends to BoardAround"
+            )
+
+            CustomButton(
+                onClick = { authViewModel.deleteCurrentUser() },
                 text = "Delete account"
             )
         }
@@ -170,16 +135,5 @@ fun sendInviteMessage(context: Context, phoneNumber: String) {
     }
     if (intent.resolveActivity(context.packageManager) != null) {
         context.startActivity(intent)
-    }
-}
-
-@Composable
-fun PermissionRow(permissionName: String, isGranted: Boolean) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(permissionName)
-        Text(if (isGranted) "Granted" else "Denied")
     }
 }

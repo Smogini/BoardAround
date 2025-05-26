@@ -1,6 +1,5 @@
 package com.boardaround.ui.screens
 
-import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -24,11 +23,9 @@ import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.CustomTitle
 import com.boardaround.ui.components.DateTimePicker
 import com.boardaround.viewmodel.AuthViewModel
-import java.time.LocalDateTime
 
 @Composable
 fun ShowRegisterScreen(
-    context: Context,
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
@@ -59,7 +56,6 @@ fun ShowRegisterScreen(
             /* TODO: chiedere permesso all'utente */
             CustomImagePicker(
                 onImageSelected = { selectedImageUri = it },
-                context = context,
                 imageContentDescription = "Profile picture"
             )
 
@@ -76,7 +72,7 @@ fun ShowRegisterScreen(
 
             CustomTitle(text = "Name")
             CustomTextField(
-                label = "Nome",
+                label = "Name",
                 value = nameState.value,
                 onValueChange = { nameState.value = it }
             )
@@ -115,7 +111,7 @@ fun ShowRegisterScreen(
                         password = passwordState.value.text,
                         name = nameState.value.text,
                         email = emailState.value.text,
-                        dob = LocalDateTime.parse(dobState.text),
+                        dob = dobState.text,
                         profilePic = selectedImageUri.toString()
                     ) {
                         navController.navigateSingleTop(Route.Login)
@@ -126,32 +122,29 @@ fun ShowRegisterScreen(
         }
     }
 
-    if (showPermissionRationale) {
-        CustomAlertDialog(
-            title = "Necessary permission",
-            description =
-                "To select a profile picture, you must grant access to the gallery.",
-            onDismiss = { showPermissionRationale = false }
-        )
-    }
+    CustomAlertDialog(
+        isVisible = showPermissionRationale,
+        title = "Necessary permission",
+        description =
+            "To select a profile picture, you must grant access to the gallery.",
+        onDismiss = { showPermissionRationale = false }
+    )
 
-    if (permissionDeniedPermanently) {
-        CustomAlertDialog(
-            title = "Permit permanently denied",
-            description =
-                "If you want to select a profile picture, enable permission in the settings.",
-            onDismiss = { permissionDeniedPermanently = false }
-        )
-    }
+    CustomAlertDialog(
+        isVisible = permissionDeniedPermanently,
+        title = "Permit permanently denied",
+        description =
+            "If you want to select a profile picture, enable permission in the settings.",
+        onDismiss = { permissionDeniedPermanently = false }
+    )
 
-    if (showErrorAlert) {
-        CustomAlertDialog(
-            title = "Error during registration",
-            description = registrationError,
-            onDismiss = {
-                showErrorAlert = false
-                authViewModel.cleanErrorMessage()
-            }
-        )
-    }
+    CustomAlertDialog(
+        isVisible = showErrorAlert,
+        title = "Error during registration",
+        description = registrationError,
+        onDismiss = {
+            showErrorAlert = false
+            authViewModel.cleanErrorMessage()
+        }
+    )
 }

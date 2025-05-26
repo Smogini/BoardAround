@@ -4,21 +4,15 @@ import android.content.Context
 import com.boardaround.data.UserSessionManager
 import com.boardaround.data.database.AppDatabase
 import com.boardaround.data.repositories.EventRepository
-import com.boardaround.data.repositories.NotificationRepository
-import com.boardaround.data.repositories.PostRepository
-import com.boardaround.data.repositories.UserRepository
 import com.boardaround.data.repositories.FriendshipRepository
 import com.boardaround.data.repositories.GameRepository
 import com.boardaround.data.repositories.NewsRepository
+import com.boardaround.data.repositories.NotificationRepository
+import com.boardaround.data.repositories.PostRepository
 import com.boardaround.data.repositories.TriviaRepository
-import com.google.firebase.firestore.FirebaseFirestore
+import com.boardaround.data.repositories.UserRepository
 import com.boardaround.utils.AchievementManager
-import com.boardaround.network.NewsApiService
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ViewModelFactory(context: Context) {
 
@@ -39,46 +33,19 @@ class ViewModelFactory(context: Context) {
     private val friendshipRepository = FriendshipRepository(userDao)
     private val gameRepository = GameRepository(gameDAO)
     private val triviaRepository = TriviaRepository()
+    private val newsRepository = NewsRepository()
 
     private val achievementManager = AchievementManager(achievementDAO)
-
-    private val newsApiBaseUrl = "https://newsapi.org/"
-    private val newsApiKey = "0eaaf73276024761bf5c7b2a63083ca6"
-    private val newsLoggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-
-    private val newsOkHttpClient: OkHttpClient by lazy {
-        OkHttpClient.Builder()
-            .addInterceptor(newsLoggingInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .build()
-    }
-
-    private val newsRetrofit: Retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl(newsApiBaseUrl)
-            .client(newsOkHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
-    private val newsApiService: NewsApiService by lazy {
-        newsRetrofit.create(NewsApiService::class.java)
-    }
-
-    private val newsRepository: NewsRepository by lazy {
-        NewsRepository(newsApiService, newsApiKey)
-    }
 
     fun provideAuthViewModel(): AuthViewModel =
         AuthViewModel(userRepository)
 
     fun provideUserViewModel(): UserViewModel =
-        UserViewModel(userRepository, notificationRepository, friendshipRepository, achievementManager)
-
+        UserViewModel(
+            userRepository, notificationRepository,
+            friendshipRepository, newsRepository,
+            achievementManager
+        )
 
     fun providePostViewModel(): PostViewModel =
         PostViewModel(postRepository, sessionManager)
@@ -91,9 +58,6 @@ class ViewModelFactory(context: Context) {
 
     fun provideTriviaViewModel(): TriviaViewModel =
         TriviaViewModel(triviaRepository)
-
-    fun provideNewsViewModel(): NewsViewModel =
-        NewsViewModel(newsRepository)
 
     suspend fun initializeAchievementManager() {
         achievementManager.initializeAchievements()

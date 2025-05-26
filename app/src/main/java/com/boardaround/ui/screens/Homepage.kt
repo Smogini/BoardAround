@@ -1,9 +1,6 @@
 package com.boardaround.ui.screens
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +14,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,79 +22,81 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import com.boardaround.data.entities.Article
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomCarousel
 import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.components.CustomTextField
+import com.boardaround.ui.components.CustomTitle
 import com.boardaround.ui.components.NewsArticleItem
 import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryBrown
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
-import com.boardaround.viewmodel.NewsViewModel
 import com.boardaround.viewmodel.UserViewModel
-import com.google.android.gms.location.LocationServices
 
 @Composable
 fun ShowHomePageScreen(
+    context: Context,
     navController: NavController,
     userViewModel: UserViewModel,
     gameViewModel: GameViewModel,
-    eventViewModel: EventViewModel,
-    newsViewModel: NewsViewModel
+    eventViewModel: EventViewModel
 ) {
     val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
     val searchGamesResult by gameViewModel.gamesFound.collectAsState()
-    val users by userViewModel.usersFound.collectAsState()
-    val events by eventViewModel.eventsFound.collectAsState()
+    val users by userViewModel.usersFound.collectAsState(initial = emptyList())
+    val events by eventViewModel.eventsFound.collectAsState(initial = emptyList())
     val focusManager = LocalFocusManager.current
 
-    val context = LocalContext.current
-
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+//    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
     val suggestedGames by gameViewModel.suggestedGames.collectAsState()
-    val searchEventsByAddress by eventViewModel.eventsFound.collectAsState()
 
-    val newsState by newsViewModel.newsUiState.collectAsState()
+    val articleList by userViewModel.articleList.collectAsState()
     val uriHandler = LocalUriHandler.current
 
-    val hasLocationPermission = remember {
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
+//    val hasLocationPermission = remember {
+//        ContextCompat.checkSelfPermission(
+//            context,
+//            Manifest.permission.ACCESS_FINE_LOCATION
+//        ) == PackageManager.PERMISSION_GRANTED
+//    }
 
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
+//    val requestPermissionLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.RequestPermission(),
+//        onResult = { isGranted ->
 //            if (isGranted) {
 //                getUserLocation(fusedLocationClient, eventViewModel)
 //            }
-        }
-    )
+//        }
+//    )
 
-    LaunchedEffect(Unit) {
-        if (!hasLocationPermission) {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+//    LaunchedEffect(Unit) {
+//        if (!hasLocationPermission) {
+//            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+//        }
 //        } else {
 //            getUserLocation(fusedLocationClient, eventViewModel)
 //        }
-    }
+//    }
 
     LaunchedEffect(Unit) {
         gameViewModel.getSuggestedGames(count = 5)
+        /*  since it receives the latest news,
+        *   it is useless to call up the function every time the page is updated
+        */
+        if (articleList.isEmpty()) {
+            userViewModel.fetchBoardGameNews()
+        }
     }
 
     ScreenTemplate(
@@ -170,20 +168,10 @@ fun ShowHomePageScreen(
                 labelProvider = { it.name.value },
             )
 
-            CustomCarousel(
-                title = "Suggested",
-                items = suggestedGames,
-                onClick = { game ->
-                    gameViewModel.getGameInfo(game.id)
-                    navController.navigateSingleTop(Route.GameInfo)
-                },
-                imageUrlProvider = { it.imageUrl.toString() },
-                labelProvider = { it.name }
-            )
-
+            /* TODO: inserire la lista degli eventi cercati tramite indirizzo con funzione apposita */
             CustomCarousel(
                 title = "Events nearby you",
-                items = searchEventsByAddress,
+                items = events,
                 onClick = { event ->
                     eventViewModel.selectEvent(event)
                     navController.navigateSingleTop(Route.EventInfo)
@@ -194,67 +182,68 @@ fun ShowHomePageScreen(
         }
 
         item {
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = "News",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-                when {
-                    newsState.isLoading -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 20.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
+            CustomCarousel(
+                title = "Suggested",
+                items = suggestedGames,
+                onClick = { game ->
+                    gameViewModel.getGameInfo(game.id)
+                    navController.navigateSingleTop(Route.GameInfo)
+                },
+                imageUrlProvider = { it.imageUrl.toString() },
+                labelProvider = { it.name }
+            )
+        }
 
-                    newsState.error != null -> {
-                        Text(
-                            text = "Error uploading news: ${newsState.error}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
-                    }
+        item {
+            NewsSection(
+                articles = articleList,
+                onClickArticle = {
+                    uriHandler.openUri(it.url.toString())
+                }
+            )
+        }
+    }
+}
 
-                    newsState.articles.isEmpty() -> {
-                        Text(
-                            text = "No news found.",
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
-                    }
+@Composable
+fun NewsSection(
+    articles: List<Article>,
+    onClickArticle: (Article) -> Unit = {}
+) {
+    Column {
+        CustomTitle(
+            text = "News",
+            textStyle = MaterialTheme.typography.headlineMedium,
+            alignment = TextAlign.Start,
+            modifier = Modifier.padding(start = 16.dp)
+        )
 
-                    else -> {
-                        LazyRow(
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(newsState.articles) { article ->
-                                NewsArticleItem(
-                                    article = article,
-                                    onClick = {
-                                        article.url?.let { url ->
-                                            try {
-                                                uriHandler.openUri(url)
-                                            } catch (e: Exception) {
-                                                throw e
-                                            }
-                                        }
-                                    }
-                                )
-
-                            }
-                        }
-                    }
+        if (articles.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(articles) { article ->
+                    NewsArticleItem(
+                        article = article,
+                        onClick = { onClickArticle(article) }
+                    )
                 }
             }
         }
     }
 }
 
+/* TODO: sistemare */
 //@SuppressLint("MissingPermission")
 //fun getUserLocation(
 //    fusedLocationClient: FusedLocationProviderClient,
@@ -290,4 +279,3 @@ fun ShowHomePageScreen(
 //        }
 //    }
 //}
-

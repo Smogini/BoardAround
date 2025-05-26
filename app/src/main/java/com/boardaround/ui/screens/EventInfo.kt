@@ -1,154 +1,107 @@
 package com.boardaround.ui.screens
 
-import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.boardaround.R
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
+import com.boardaround.ui.components.CustomImageCard
+import com.boardaround.ui.components.CustomTitle
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
 fun ShowEventInfoScreen(
+    context: Context,
     navController: NavController,
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel
 ) {
-
     val eventToShow by eventViewModel.selectedEvent.collectAsState()
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    val currentContext = LocalContext.current
-
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        selectedImageUri = uri
-    }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            pickImageLauncher.launch("image/*")
-        } else {
-            Toast.makeText(
-                currentContext,
-                "Permit needed to select a photo",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
+    val dateTime = eventToShow?.dateTime?.replace(" ", ", ")
 
     ScreenTemplate(
-        title = eventToShow?.name ?: "Event details",
+        title = eventToShow?.name ?: "Event's details",
         currentRoute = Route.EventInfo,
         navController = navController,
         userViewModel = userViewModel,
     ) {
+
         item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                EventDetailText("Name of the event", eventToShow?.name)
-                EventDetailText("Description", eventToShow?.description)
-                EventDetailText("Where it will be held", eventToShow?.address)
+            CustomImageCard(
+                item = null,
+                onClick = {},
+                image = eventToShow?.imageUrl.toString(),
+                cardSize = 150
+            )
 
-                eventToShow?.address?.let { address ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    CustomButton(
-                        onClick = {
-                            val mapIntent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(address)}")
-                            ).apply {
-                                setPackage("com.google.android.apps.maps")
-                            }
+            EventDetailText("Name of the event", eventToShow?.name)
+            EventDetailText("Description", eventToShow?.description)
+            EventDetailText("Where it will be held", eventToShow?.address)
 
-                            try {
-                                currentContext.startActivity(mapIntent)
-                            } catch (e: Exception) {
-                                Toast.makeText(currentContext, "Unable to open Google Maps", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                        text = "Open on the map"
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                EventDetailText("Date and time", eventToShow?.dateTime)
-                EventDetailText("Private", if (eventToShow?.isPrivate == true) "Yes" else "No")
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Image(
-                    painter = eventToShow?.imageUrl?.let {
-                        rememberAsyncImagePainter(
-                            ImageRequest.Builder(currentContext)
-                                .data(it)
-                                .crossfade(true)
-                                .build()
-                        )
-                    } ?: painterResource(id = R.drawable.default_profile),
-                    contentDescription = "Event image",
-                    modifier = Modifier
-                        .size(140.dp)
-                        .clickable { permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES) }
-                        .align(Alignment.CenterHorizontally)
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
+            eventToShow?.address?.let { address ->
+                Spacer(modifier = Modifier.height(8.dp))
                 CustomButton(
                     onClick = {
-                        // TODO: Azione per partecipare
+                        val mapIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(address)}")
+                        ).apply {
+                            setPackage("com.google.android.apps.maps")
+                        }
+
+                        try {
+                            context.startActivity(mapIntent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Unable to open Google Maps", Toast.LENGTH_SHORT).show()
+                        }
                     },
-                    text = "Participate in ${eventToShow?.name.toString()}"
+                    text = "Open on the map"
                 )
             }
+
+            EventDetailText("Will be held on the day, at hours:", dateTime)
+            EventDetailText("Is it private?", eventToShow?.isPrivate.toString())
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            CustomButton(
+                onClick = {
+                    // TODO: Azione per partecipare
+                },
+                text = "Participate in ${eventToShow?.name.toString()}"
+            )
         }
     }
 }
 
 @Composable
-fun EventDetailText(label: String, value: String?) {
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(
+private fun EventDetailText(label: String, value: String? = "No value") {
+    Column(modifier = Modifier.padding(start = 16.dp)) {
+        CustomTitle(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.secondary,
+            alignment = TextAlign.Start,
+            textStyle = MaterialTheme.typography.titleMedium
         )
         Text(
-            text = value ?: "-",
+            text = value.toString(),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(top = 2.dp)
         )
     }
 }
-

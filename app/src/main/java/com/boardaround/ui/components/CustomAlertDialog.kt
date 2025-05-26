@@ -7,11 +7,14 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun CustomAlertDialog(
+    isVisible: Boolean,
     title: String,
     description: String,
     onConfirm: (() -> Unit)? = null,
     onDismiss: () -> Unit
 ) {
+    if (!isVisible) return
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },

@@ -115,7 +115,6 @@ private fun GameCard(
 
     CustomImageCard(
         item = game,
-        onClick = { },
         image = game.imageUrl.toString(),
         contentDescription = game.name,
         cardSize = 200

@@ -28,8 +28,8 @@ fun ShowLoginScreen(
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
-    val usernameState = remember { mutableStateOf(TextFieldValue()) }
-    val passwordState = remember { mutableStateOf(TextFieldValue()) }
+    var emailState by remember { mutableStateOf(TextFieldValue()) }
+    var passwordState by remember { mutableStateOf(TextFieldValue()) }
     var showErrorAlert by remember { mutableStateOf(false) }
     val errorMessage by authViewModel.registrationError.collectAsState()
 
@@ -43,25 +43,27 @@ fun ShowLoginScreen(
             CustomTextField(
                 label = "Username",
                 modifier = Modifier.fillMaxWidth(),
-                value = usernameState.value,
-                onValueChange = { usernameState.value = it }
+                value = emailState,
+                onValueChange = { emailState = it }
             )
 
             CustomTextField(
                 label = "Password",
-                value = passwordState.value,
-                onValueChange = { passwordState.value = it },
+                value = passwordState,
+                onValueChange = { passwordState = it },
                 modifier = Modifier.fillMaxWidth(),
                 isPasswordField = true
             )
 
             CustomButton(
                 onClick = {
-                    authViewModel.login(usernameState.value.text, passwordState.value.text) { user ->
+                    authViewModel.login(emailState.text, passwordState.text) { user ->
                         if (user != null) {
                             authViewModel.setLoggedUser(user)
                             Toast.makeText(context, "Login successfully", Toast.LENGTH_SHORT).show()
                             navController.navigateSingleTop(Route.Homepage)
+                        } else {
+                            Toast.makeText(context, "Login error", Toast.LENGTH_SHORT).show()
                         }
                     }
                 },
@@ -75,13 +77,13 @@ fun ShowLoginScreen(
                 text = "Register"
             )
 
-            if (showErrorAlert) {
-                CustomAlertDialog(
-                    title = "Login error",
-                    description = errorMessage,
-                    onDismiss = { showErrorAlert = false },
-                )
-            }
+            CustomAlertDialog(
+                isVisible = showErrorAlert,
+                title = "Login error",
+                description = errorMessage,
+                onDismiss = { showErrorAlert = false },
+            )
+
         }
     }
 }

@@ -61,17 +61,16 @@ fun CustomTopAppBar(
             },
 
             actions = {
-                if (clearEdit) {
-                    CustomAlertDialog(
-                        title = "Cancel",
-                        description = "Are you sure?",
-                        onConfirm = {
-                            clearEdit = false
-                            navController.navigateSingleTop(Route.MyProfile)
-                        },
-                        onDismiss = { clearEdit = false }
-                    )
-                }
+                CustomAlertDialog(
+                    isVisible = clearEdit,
+                    title = "Cancel",
+                    description = "Are you sure?",
+                    onConfirm = {
+                        clearEdit = false
+                        navController.navigateSingleTop(Route.MyProfile)
+                    },
+                    onDismiss = { clearEdit = false }
+                )
                 if (currentRoute == Route.MyProfile) {
                     CustomClickableIcon(
                         title = "Edit profile",

@@ -1,21 +1,16 @@
 package com.boardaround.viewmodel
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.User
 import com.boardaround.data.repositories.UserRepository
 import com.boardaround.firebase.FirebaseUtils
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import java.time.format.DateTimeFormatter
 
 class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
@@ -26,12 +21,12 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         _registrationError.value = ""
     }
 
-    fun login(username: String, password: String, onSuccess: (User?) -> Unit) {
-        if (username.isBlank() || password.isBlank()) {
+    fun login(email: String, password: String, onSuccess: (User?) -> Unit) {
+        if (email.isBlank() || password.isBlank()) {
             _registrationError.value = "One of the fields is empty"
         }
         viewModelScope.launch {
-            onSuccess(userRepository.login(username, password))
+            onSuccess(userRepository.login(email, password))
         }
     }
 
@@ -39,10 +34,10 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         userRepository.setLoggedUser(user)
     }
 
-    fun deleteUser(user: User) {
+    fun deleteCurrentUser() {
         viewModelScope.launch {
             logout()
-            userRepository.deleteUser(user)
+            userRepository.deleteUser()
         }
     }
 
@@ -51,12 +46,12 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         password: String,
         name: String,
         email: String,
-        dob: LocalDateTime,
+        dob: String,
         profilePic: String,
         onSuccess: () -> Unit
     ) {
-        val today = LocalDateTime.now()
-        val minAllowedDate = today.minusYears(12)
+        val formattedDob = LocalDate.parse(dob, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        val minAllowedDate = LocalDateTime.now().minusYears(12).toLocalDate()
 
         if (username.isBlank() || password.isBlank() || name.isBlank()
             || email.isBlank()) {
@@ -67,14 +62,14 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
             _registrationError.value = "The password must be at least 6 characters long"
             return
         }
-        if (dob.isAfter(minAllowedDate)) {
+        if (formattedDob.isAfter(minAllowedDate)) {
             _registrationError.value = "You must be at least 12 years old"
             return
         }
 
         viewModelScope.launch {
             try {
-                val uid = createFirebaseUser(email, password)
+                val uid = userRepository.createFirebaseUser(email, password)
                 val token = FirebaseUtils.getFcmToken()
 
                 val newUser = User(
@@ -82,7 +77,7 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
                     uid = uid,
                     name = name,
                     email = email,
-                    dob = dob.toString(),
+                    dob = dob,
                     profilePic = profilePic,
                     fcmToken = token
                 )
@@ -96,20 +91,6 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-    suspend fun uploadProfilePicture(userId: String, imageUri: Uri): String? {
-        return try {
-            val storageRef = FirebaseStorage.getInstance().reference
-            val profilePicRef = storageRef.child("profile_pictures/$userId.jpg")
-
-            val uploadTask = profilePicRef.putFile(imageUri).await()
-            val downloadUrl = uploadTask.storage.downloadUrl.await()
-            downloadUrl.toString()
-        } catch (e: Exception) {
-            _registrationError.value = "Error loading profile picture: ${e.message}"
-            null
-        }
-    }
-
     fun logout() {
         viewModelScope.launch {
             userRepository.logout()
@@ -117,24 +98,5 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
     }
 
     fun isUserLoggedIn(): Boolean = userRepository.isUserLoggedIn()
-
-    private suspend fun createFirebaseUser(email: String, password: String): String {
-        return suspendCoroutine { continuation ->
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener { result ->
-                    val uid = result.user?.uid
-                    if (uid != null) {
-                        continuation.resume(uid)
-                    } else {
-                        val exceptionMsg = "FirebaseUser UID null"
-                        _registrationError.value = exceptionMsg
-                        continuation.resumeWithException(Exception(exceptionMsg))
-                    }
-                }
-                .addOnFailureListener { e ->
-                    continuation.resumeWithException(e)
-                }
-        }
-    }
 
 }
