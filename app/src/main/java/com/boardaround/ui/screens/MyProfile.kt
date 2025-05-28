@@ -1,5 +1,7 @@
 package com.boardaround.ui.screens
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.Delete
@@ -10,6 +12,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
 import com.boardaround.navigation.navigateSingleTop
@@ -48,6 +52,8 @@ fun ShowMyProfileScreen(
         showBottomBar = true
     ) {
         item {
+            Spacer(modifier = Modifier.height(10.dp))
+
             ExpandableSection(
                 title = "My posts",
                 icon = Icons.AutoMirrored.Default.Article,
@@ -66,6 +72,14 @@ fun ShowMyProfileScreen(
                 onItemClick = {
                     eventViewModel.selectEvent(it)
                     navController.navigateSingleTop(Route.EventInfo)
+                },
+                trailingIcon = {
+                    CustomClickableIcon(
+                        title = "Remove event",
+                        icon = Icons.Default.Delete,
+                        iconColor = MaterialTheme.colorScheme.error,
+                        onClick = { eventViewModel.deleteEvent(it) }
+                    )
                 }
             )
         }
@@ -79,7 +93,7 @@ fun ShowMyProfileScreen(
                 onItemClick = {
                     gameViewModel.getGameInfo(it.gameId)
                     navController.navigateSingleTop(Route.GameInfo)
-                }
+                },
             ) {
                 CustomClickableIcon(
                     title = "Remove game",

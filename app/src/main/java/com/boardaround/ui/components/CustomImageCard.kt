@@ -73,7 +73,7 @@ fun <T> CustomImageCard(
         Card(
             shape = cardShape,
             border =
-                if (isPressed && onClick != null) BorderStroke(2.dp, MaterialTheme.colorScheme.onBackground)
+                if (isPressed && onClick != null) BorderStroke(5.dp, MaterialTheme.colorScheme.onBackground)
                 else null,
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier

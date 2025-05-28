@@ -4,7 +4,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -13,8 +12,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,74 +46,78 @@ fun <T> ExpandableSection(
         animationSpec = tween(durationMillis = 500), label = "rotationAnimation"
     )
 
-    Column(
+    Card (
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .animateContentSize()
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = 20.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = LocalIndication.current,
-                    onClick = { isExpanded = !isExpanded }
+        Column(modifier = Modifier.animateContentSize()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = LocalIndication.current,
+                        onClick = { isExpanded = !isExpanded }
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground
-            )
 
-            Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-            CustomTitle(
-                text = title,
-                textStyle = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-                alignment = TextAlign.Start,
-                modifier = Modifier.weight(1f)
-            )
-            CustomClickableIcon(
-                title =
-                    if (isExpanded) "Collapse" else "Expand",
-                icon = Icons.Default.ExpandMore,
-                iconColor = MaterialTheme.colorScheme.onBackground,
-                onClick = {},
-                rotationAngle = rotationAngle
-            )
-        }
-
-        if (isExpanded) {
-            if (itemList.isEmpty()) {
                 CustomTitle(
-                    text = "No elements available",
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    alignment = TextAlign.Start
+                    text = title,
+                    textStyle = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    alignment = TextAlign.Start,
+                    modifier = Modifier.weight(1f)
                 )
-                return
+                CustomClickableIcon(
+                    title = if (isExpanded) "Collapse" else "Expand",
+                    icon = Icons.Default.ExpandMore,
+                    iconColor = MaterialTheme.colorScheme.onBackground,
+                    onClick = {},
+                    rotationAngle = rotationAngle
+                )
             }
-            itemList.forEach { item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onItemClick(item) }
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = labelProvider(item),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f)
+
+            if (isExpanded) {
+                if (itemList.isEmpty()) {
+                    CustomTitle(
+                        text = "No elements available",
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                        alignment = TextAlign.Start,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
-                    trailingIcon?.invoke(item)
+                } else {
+                    itemList.forEach { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onItemClick(item) }
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = labelProvider(item),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.weight(1f)
+                            )
+                            trailingIcon?.invoke(item)
+                        }
+                    }
                 }
             }
         }
     }
 }
+

@@ -206,7 +206,7 @@ fun ShowHomePageScreen(
 }
 
 @Composable
-fun NewsSection(
+private fun NewsSection(
     articles: List<Article>,
     onClickArticle: (Article) -> Unit = {}
 ) {

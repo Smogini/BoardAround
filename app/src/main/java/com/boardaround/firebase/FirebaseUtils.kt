@@ -14,8 +14,6 @@ import kotlin.coroutines.suspendCoroutine
 
 object FirebaseUtils {
 
-    private val firestore = FirebaseFirestore.getInstance()
-
     /**
      * Upload an image to Firebase Storage.
      *
@@ -77,7 +75,7 @@ object FirebaseUtils {
 
 
     fun registerUser(user: User) {
-        val userRef = firestore.collection("users").document(user.uid)
+        val userRef = FirebaseFirestore.getInstance().collection("users").document(user.uid)
 
         userRef.set(user).addOnSuccessListener {
         }.addOnFailureListener { e ->

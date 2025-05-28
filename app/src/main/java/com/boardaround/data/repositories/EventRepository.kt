@@ -11,43 +11,34 @@ class EventRepository(
 ) {
 
     suspend fun insertEvent(event: Event) {
+        val newEventDocRef = firestore.collection("events").document()
+
+        val eventData = hashMapOf(
+            "id" to event.id,
+            "name" to event.name,
+            "author" to event.author,
+            "authorUID" to event.authorUID,
+            "description" to event.description,
+            "address" to event.address,
+            "dateTime" to event.dateTime,
+            "gameToPlay" to event.gameName,
+            "isPrivate" to event.isPrivate,
+        )
+
         eventDao.insertEvent(event)
-        /* TODO: sistemare il caricamento su firebase */
-//        try {
-//
-//            val newEventDocRef = firestore.collection("events").document()
-//            val eventId = newEventDocRef.id
-//
-//            val eventData = hashMapOf(
-//                "id" to eventId,
-//                "name" to event.name,
-//                "author" to event.author,
-//                "description" to event.description,
-//                "address" to event.address,
-//                "dateTime" to event.dateTime,
-//                "isPrivate" to event.isPrivate,
-//                "createdAt" to System.currentTimeMillis()
-//            )
-//
-//            firestore.collection("events")
-//                .document(event.name)
-//                .set(eventData)
-//                .await()
-//
-//            val notificationTriggerData = hashMapOf(
-//                "eventId" to eventId,
-//                "eventName" to event.name,
-//                "eventAuthor" to event.author,
-//                "isPrivate" to event.isPrivate,
-//                "timestamp" to System.currentTimeMillis()
-//            )
-//            firestore.collection("newEventNotificationTriggers")
-//                .add(notificationTriggerData)
-//                .await()
-//
-//        } catch (e: Exception) {
-//            throw e
-//        }
+        newEventDocRef.set(eventData).await()
+
+        val notificationTriggerData = hashMapOf(
+            "eventId" to event.id,
+            "eventName" to event.name,
+            "eventAuthor" to event.author,
+            "isPrivate" to event.isPrivate,
+            "timestamp" to System.currentTimeMillis()
+        )
+
+        firestore.collection("newEventNotificationTriggers")
+            .add(notificationTriggerData)
+            .await()
     }
 
     suspend fun getEventsByUsername(username: String): List<Event> =
@@ -89,6 +80,20 @@ class EventRepository(
                 .add(notificationTriggerData)
                 .await()
 
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    suspend fun deleteEvent(toDelete: Event) {
+        try {
+            eventDao.deleteEvent(toDelete)
+
+            /* TODO: fix the elimination of the entries of the tables */
+            firestore.collection("events")
+                .document(toDelete.id.toString())
+                .delete()
+                .await()
         } catch (e: Exception) {
             throw e
         }

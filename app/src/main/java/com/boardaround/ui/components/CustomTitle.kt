@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 fun CustomTitle(
     text: String,
     textStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    fontWeight: FontWeight = FontWeight.Bold,
     color: Color = MaterialTheme.colorScheme.secondary,
     alignment: TextAlign = TextAlign.Center,
     modifier: Modifier = Modifier,
@@ -25,7 +26,7 @@ fun CustomTitle(
     Text(
         text = text,
         style = textStyle.copy(
-            fontWeight = FontWeight.Bold,
+            fontWeight = fontWeight,
             color = color,
             shadow = Shadow(
                 color = Color.Black.copy(alpha = 0.2f),

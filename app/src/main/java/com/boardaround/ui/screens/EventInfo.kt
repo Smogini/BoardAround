@@ -83,7 +83,7 @@ fun ShowEventInfoScreen(
                 onClick = {
                     // TODO: Azione per partecipare
                 },
-                text = "Participate in ${eventToShow?.name.toString()}"
+                text = "Participate in '${eventToShow?.name.toString()}'"
             )
         }
     }

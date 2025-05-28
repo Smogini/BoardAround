@@ -88,6 +88,9 @@ class UserViewModel(
     fun getUsername(): String =
         userRepository.getCurrentUser()?.username ?: "No username"
 
+    fun getCurrentUID(): String? =
+        userRepository.getCurrentUID()
+
     fun fetchBoardGameNews(language: String = "en") {
         viewModelScope.launch {
             _articleList.value = newsRepository.getBoardGameNews(language = language)

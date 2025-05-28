@@ -89,7 +89,7 @@ fun NavGraph(
             ShowEditMyProfile(context, navController, authViewModel, onThemeChange)
         }
         composable<Route.GameInfo> {
-            ShowGameInfo(navController, gameViewModel)
+            ShowGameInfo(navController, gameViewModel, context)
         }
         composable<Route.NewPost> {
             ShowNewPostScreen(navController, postViewModel)

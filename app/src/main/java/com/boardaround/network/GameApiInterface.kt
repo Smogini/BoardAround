@@ -21,5 +21,7 @@ interface GameApiInterface {
     @GET("xmlapi/game/{id}")
     suspend fun getGameInfo(
         @Path("id") gameID: Int,
+        @Query("comments") comments: Int = 1,
+        @Query("stats") statistics: Int = 1
     ): GameDetailsResult
 }

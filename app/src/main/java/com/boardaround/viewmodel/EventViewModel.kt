@@ -72,13 +72,14 @@ class EventViewModel(
     }
 
     fun createEvent(
-        name: String, author: String, description: String,
-        address: String, dateTime: String, isPrivate: Boolean,
-        imageUrl: String, gameToPlay: String, onSuccess: () -> Unit
+        name: String, author: String, authorUID: String,
+        description: String, address: String, dateTime: String,
+        isPrivate: Boolean, imageUrl: String, gameToPlay: String, onSuccess: () -> Unit
         ) {
         val newEvent = Event(
             name = name,
             author = author,
+            authorUID = authorUID,
             description = description,
             address = address,
             dateTime = dateTime,
@@ -97,6 +98,12 @@ class EventViewModel(
             } catch( e: Exception) {
                 _errorMessage.value = "Error creating the event: ${e.message}"
             }
+        }
+    }
+
+    fun deleteEvent(toDelete: Event) {
+        viewModelScope.launch {
+            repository.deleteEvent(toDelete)
         }
     }
 

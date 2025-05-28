@@ -89,4 +89,7 @@ class UserRepository(
     fun getCurrentUser(): User? =
         sessionManager.getCurrentUser()
 
+    fun getCurrentUID(): String? =
+        FirebaseAuth.getInstance().uid
+
 }

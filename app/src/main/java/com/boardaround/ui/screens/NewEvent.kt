@@ -57,7 +57,6 @@ fun ShowNewEventScreen(
     var selectedDateTime by remember { mutableStateOf("Select date and time") }
     var showDateTimePicker by remember { mutableStateOf(false) }
 
-    val username = userViewModel.getUsername()
     val userGames by gameViewModel.userGames.collectAsState(initial = emptyList())
 
     var addressState by remember { mutableStateOf(TextFieldValue()) }
@@ -185,9 +184,13 @@ fun ShowNewEventScreen(
 
             CustomButton(
                 onClick = {
+                    val uid = userViewModel.getCurrentUID() ?: "No UID"
+                    val username = userViewModel.getUsername()
+
                     eventViewModel.createEvent(
                         name = eventNameState.text,
                         author = username,
+                        authorUID = uid,
                         description = descriptionState.text,
                         address = selectedAddress?.displayName.toString(),
                         dateTime = selectedDateTime,
@@ -195,6 +198,7 @@ fun ShowNewEventScreen(
                         imageUrl = "No image",
                         gameToPlay = selectedGame?.name.toString()
                     ) {
+                        Toast.makeText(context, "Event created successfully", Toast.LENGTH_SHORT).show()
                         navController.navigateSingleTop(Route.Homepage)
                     }
                 },

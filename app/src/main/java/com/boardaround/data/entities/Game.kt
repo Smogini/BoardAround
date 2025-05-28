@@ -17,7 +17,9 @@ data class Game(
     val minPlayers: Int? = -1,
     val maxPlayers: Int? = -1,
     val playingTime: Int? = -1,
-    val expansions: List<BoardGameExpansion>? = emptyList()
+    val expansions: List<BoardGameExpansion>? = emptyList(),
+    val userComments: List<UserComment>? = emptyList(),
+    val userRatings: Statistics? = null
 )
 
 /*
@@ -86,7 +88,40 @@ data class GameDetails(
     val publisher: List<GamePublisher>? = emptyList(),
 
     @Element(name = "boardgameexpansion")
-    val expansions: List<BoardGameExpansion>? = emptyList()
+    val expansions: List<BoardGameExpansion>? = emptyList(),
+
+    @Element(name = "comment")
+    val comments: List<UserComment>? = emptyList(),
+
+    @Element(name = "statistics")
+    val statistics: Statistics? = null
+)
+
+@Xml(name = "comment")
+data class UserComment(
+    @Attribute(name = "username")
+    val username: String,
+
+    @Attribute(name = "rating")
+    val rating: String,
+
+    @TextContent
+    val description: String
+)
+
+@Xml(name = "ratings")
+data class UserRating(
+    @PropertyElement(name = "usersrated")
+    val usersRated: Int? = null,
+
+    @PropertyElement(name = "average")
+    val average: String? = null
+)
+
+@Xml(name = "statistics")
+data class Statistics(
+    @Element(name = "ratings")
+    val ratings: UserRating
 )
 
 @Xml(name = "boardgamepublisher")
@@ -132,7 +167,9 @@ fun GameDetails.toGame(): Game = Game(
     minPlayers = this.minPlayers,
     maxPlayers = this.maxPlayers,
     playingTime = this.playingTime,
-    expansions = this.expansions
+    expansions = this.expansions,
+    userComments = this.comments ?: emptyList(),
+    userRatings = this.statistics,
 )
 
 private fun decodeHtmlText(toConvert: String): String {
