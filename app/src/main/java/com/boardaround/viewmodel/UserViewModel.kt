@@ -17,7 +17,6 @@ import kotlinx.coroutines.launch
 class UserViewModel(
     private val userRepository: UserRepository,
     private val notificationRepository: NotificationRepository,
-    private val friendshipRepository: FriendshipRepository,
     private val newsRepository: NewsRepository,
     private val achievementManager: AchievementManager
 ): ViewModel() {
@@ -36,6 +35,11 @@ class UserViewModel(
     private val _usersFound = MutableStateFlow<List<User>>(emptyList())
     val usersFound: StateFlow<List<User>> = _usersFound
 
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser: StateFlow<User?> = _currentUser
+
+
+
     private val _unreadNotificationCount = MutableStateFlow(0)
     val unreadNotificationCount: StateFlow<Int> = _unreadNotificationCount
 
@@ -48,21 +52,6 @@ class UserViewModel(
 
     fun selectUser(user: User) {
         this._selectedUser.value = user
-    }
-
-    fun getFriends(): Flow<List<User>> =
-        friendshipRepository.getFriends(getUsername())
-
-    fun addFriend(userUsername: String, friendUsername: String) {
-        viewModelScope.launch {
-            friendshipRepository.addFriend(userUsername, friendUsername)
-        }
-    }
-
-    fun removeFriend(friendUsername: String) {
-        viewModelScope.launch {
-            friendshipRepository.removeFriend(getUsername(), friendUsername)
-        }
     }
 
     fun searchUsers(query: String) {
@@ -84,6 +73,20 @@ class UserViewModel(
     fun setUnreadNotificationCount(count: Int) {
         _unreadNotificationCount.value = count
     }
+
+    fun getUserId(): String {
+        return _currentUser.value?.uid ?: ""
+    }
+
+    init {
+        loadCurrentUser()
+    }
+
+    private fun loadCurrentUser() {
+        val user = userRepository.getCurrentUser()
+        _currentUser.value = user
+    }
+
 
     fun getUsername(): String =
         userRepository.getCurrentUser()?.username ?: "No username"

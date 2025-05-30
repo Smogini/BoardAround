@@ -30,7 +30,7 @@ class ViewModelFactory(context: Context) {
     private val eventRepository = EventRepository(eventDAO , firestoreInstance)
     private val notificationRepository = NotificationRepository()
     private val postRepository = PostRepository(postDAO, firestoreInstance)
-    private val friendshipRepository = FriendshipRepository(userDao)
+    private val friendshipRepository = FriendshipRepository()
     private val gameRepository = GameRepository(gameDAO)
     private val triviaRepository = TriviaRepository()
     private val newsRepository = NewsRepository()
@@ -43,8 +43,7 @@ class ViewModelFactory(context: Context) {
     fun provideUserViewModel(): UserViewModel =
         UserViewModel(
             userRepository, notificationRepository,
-            friendshipRepository, newsRepository,
-            achievementManager
+            newsRepository, achievementManager
         )
 
     fun providePostViewModel(): PostViewModel =
@@ -56,8 +55,14 @@ class ViewModelFactory(context: Context) {
     fun provideGameViewModel(): GameViewModel =
         GameViewModel(gameRepository, achievementManager, sessionManager)
 
+    fun provideFriendsViewModel(): FriendsViewModel =
+        FriendsViewModel(friendshipRepository)
+
     fun provideTriviaViewModel(): TriviaViewModel =
         TriviaViewModel(triviaRepository)
+
+    fun provideNotificationViewModel(): NotificationViewModel =
+        NotificationViewModel(notificationRepository)
 
     suspend fun initializeAchievementManager() {
         achievementManager.initializeAchievements()

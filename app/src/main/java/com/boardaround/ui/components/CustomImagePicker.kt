@@ -1,5 +1,6 @@
 package com.boardaround.ui.components
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -8,33 +9,52 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.boardaround.R
+import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 
 @Composable
 fun CustomImagePicker(
-    onImageSelected: (Uri) -> Unit,
+    onImageSelected: (String) -> Unit, // ora restituisce il path locale
     imageContentDescription: String,
     imageSize: Int = 80
 ) {
-    var showPermissionRationale by remember { mutableStateOf(false) }
-    var permissionDeniedPermanently by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
+    val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         uri?.let {
             selectedImageUri = it
+
+            // Salva nel file system interno
+            val savedPath = try {
+                val inputStream: InputStream? = context.contentResolver.openInputStream(it)
+                val fileName = "profile_${System.currentTimeMillis()}.jpg"
+                val file = File(context.filesDir, fileName)
+                val outputStream: OutputStream = file.outputStream()
+
+                inputStream?.copyTo(outputStream)
+
+                inputStream?.close()
+                outputStream.close()
+
+                file.absolutePath
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+
+            savedPath?.let { onImageSelected(it) }
         }
     }
 
@@ -47,27 +67,9 @@ fun CustomImagePicker(
             .size(imageSize.dp)
             .clip(CircleShape)
             .clickable {
-                permissionLauncher.launch(
+                launcher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
-                selectedImageUri?.let(onImageSelected)
             }
     )
-
-    CustomAlertDialog(
-        isVisible = permissionDeniedPermanently,
-        title = "Permit permanently denied",
-        description =
-        "If you want to select a profile picture, enable permission in the settings.",
-        onDismiss = { permissionDeniedPermanently = false }
-    )
-
-    CustomAlertDialog(
-        isVisible = showPermissionRationale,
-        title = "Permit needed",
-        description =
-        "To select a profile picture, you must grant access to the gallery.",
-        onDismiss = { showPermissionRationale = false }
-    )
-
 }

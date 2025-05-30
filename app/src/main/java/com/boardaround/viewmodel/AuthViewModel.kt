@@ -5,12 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.User
 import com.boardaround.data.repositories.UserRepository
 import com.boardaround.firebase.FirebaseUtils
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
@@ -96,6 +100,7 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
             userRepository.logout()
         }
     }
+
 
     fun isUserLoggedIn(): Boolean = userRepository.isUserLoggedIn()
 

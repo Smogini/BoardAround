@@ -15,29 +15,3 @@ data class User(
     val profilePic: String = "",
     val fcmToken: String? = null,
 )
-
-@Entity(
-    tableName = "friendships",
-    primaryKeys = ["userUsername", "friendUsername"],
-    foreignKeys = [
-        ForeignKey(
-            entity = User::class,
-            parentColumns = ["username"],
-            childColumns = ["userUsername"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = User::class,
-            parentColumns = ["username"],
-            childColumns = ["friendUsername"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [
-        Index(value = ["friendUsername"])
-    ]
-)
-data class Friendship(
-    val userUsername: String,
-    val friendUsername: String
-)

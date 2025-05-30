@@ -54,9 +54,10 @@ fun ShowNewPostScreen(
 
             CustomTitle(text = "Select an image")
             CustomImagePicker(
-                onImageSelected = { selectedImageUri = it },
-                imageContentDescription = "Image of the post",
-                imageSize = 120
+                onImageSelected = { path ->
+                    selectedImageUri = Uri.parse(path)
+                },
+                imageContentDescription = "User profile picture"
             )
 
             Spacer(modifier = Modifier.height(20.dp))

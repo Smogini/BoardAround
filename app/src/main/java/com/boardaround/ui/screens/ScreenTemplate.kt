@@ -40,6 +40,7 @@ import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.BottomBar
 import com.boardaround.ui.components.CustomFloatingActionButton
 import com.boardaround.ui.components.CustomTopAppBar
+import com.boardaround.viewmodel.NotificationViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable

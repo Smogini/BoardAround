@@ -28,14 +28,17 @@ import coil.request.ImageRequest
 import com.boardaround.R
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
+import com.boardaround.viewmodel.FriendsViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel) {
+fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel, friendsViewModel: FriendsViewModel) {
     val userToShow by userViewModel.selectedUser.collectAsState()
     val currentUserUsername = userViewModel.getUsername()
-    val myFriends by userViewModel.getFriends().collectAsState(initial = emptyList())
-    val isFriend = myFriends.any { it.username == userToShow?.username }
+    val myFriends by friendsViewModel.friends.collectAsState(initial = emptyList())
+    val isFriend = userToShow?.username?.let { uname -> myFriends.any { it.username == uname } } ?: false
+
+
 
     ScreenTemplate(
         title = "Profile of ${userToShow?.username}",
@@ -104,17 +107,20 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
                 if (isFriend) {
                     CustomButton(
                         onClick = {
-                            userViewModel.removeFriend(currentUserUsername)
+                            friendsViewModel.removeFriend(currentUserUsername, userToShow!!.uid)
                         },
                         text = "Remove friend",
                     )
                 } else {
                     CustomButton(
                         onClick = {
-                            userViewModel.addFriend(currentUserUsername, userToShow!!.username)
+                            val fromUsername = currentUserUsername
+                            val toUsername = userToShow!!.username
+                            friendsViewModel.sendRequest(fromUsername, toUsername)
                         },
                         text = "Add friend",
                     )
+
                 }
             }
         }

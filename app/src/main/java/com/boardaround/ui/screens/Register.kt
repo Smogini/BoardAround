@@ -55,7 +55,9 @@ fun ShowRegisterScreen(
         item {
             /* TODO: chiedere permesso all'utente */
             CustomImagePicker(
-                onImageSelected = { selectedImageUri = it },
+                onImageSelected = { path ->
+                    selectedImageUri = Uri.parse(path)
+                },
                 imageContentDescription = "Profile picture"
             )
 

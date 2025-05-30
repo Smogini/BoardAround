@@ -19,7 +19,7 @@ import com.boardaround.data.entities.User
 @Database(
     entities = [
         User::class, Event::class, Post::class,
-        Friendship::class, SavedGame::class, Achievement::class
+        SavedGame::class, Achievement::class
     ],
     version = 2)
 abstract class AppDatabase: RoomDatabase() {

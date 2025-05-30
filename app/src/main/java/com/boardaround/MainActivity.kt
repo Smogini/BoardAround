@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.boardaround.data.preferences.AppPreferences
 import com.boardaround.navigation.NavGraph
 import com.boardaround.ui.theme.BoardAroundTheme
+import com.boardaround.viewmodel.FriendsViewModel
 import com.boardaround.viewmodel.ViewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
@@ -46,6 +47,8 @@ class MainActivity : ComponentActivity() {
         val eventViewModel = viewModelFactory.provideEventViewModel()
         val postViewModel = viewModelFactory.providePostViewModel()
         val triviaViewModel = viewModelFactory.provideTriviaViewModel()
+        val friendsViewModel = viewModelFactory.provideFriendsViewModel()
+        val notificationViewModel = viewModelFactory.provideNotificationViewModel()
 
         setContent {
             val context = LocalContext.current
@@ -82,6 +85,8 @@ class MainActivity : ComponentActivity() {
                         postViewModel = postViewModel,
                         eventViewModel = eventViewModel,
                         triviaViewModel = triviaViewModel,
+                        friendsViewModel = friendsViewModel,
+                        notificationViewModel = notificationViewModel,
                         onThemeChange = { newIsDarkMode ->
                             isDarkMode.value = newIsDarkMode
                             lifecycleScope.launch {

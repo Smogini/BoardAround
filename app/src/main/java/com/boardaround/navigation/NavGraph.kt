@@ -27,7 +27,9 @@ import com.boardaround.ui.screens.ShowToolScreen
 import com.boardaround.ui.screens.SplashScreen
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
+import com.boardaround.viewmodel.FriendsViewModel
 import com.boardaround.viewmodel.GameViewModel
+import com.boardaround.viewmodel.NotificationViewModel
 import com.boardaround.viewmodel.PostViewModel
 import com.boardaround.viewmodel.TriviaViewModel
 import com.boardaround.viewmodel.UserViewModel
@@ -42,6 +44,8 @@ fun NavGraph(
     postViewModel: PostViewModel,
     eventViewModel: EventViewModel,
     triviaViewModel: TriviaViewModel,
+    notificationViewModel: NotificationViewModel,
+    friendsViewModel: FriendsViewModel,
     onThemeChange: (Boolean) -> Unit
 ) {
     val startDest = if(authViewModel.isUserLoggedIn()) Route.Homepage else Route.Splash
@@ -80,10 +84,10 @@ fun NavGraph(
             ShowNewEventScreen(context, navController, eventViewModel, gameViewModel, userViewModel)
         }
         composable<Route.Profile> {
-            ShowProfileScreen(navController, userViewModel)
+            ShowProfileScreen(navController, userViewModel, friendsViewModel)
         }
         composable<Route.MyProfile> {
-            ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel, gameViewModel)
+            ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel, friendsViewModel, gameViewModel)
         }
         composable<Route.EditMyProfile> {
             ShowEditMyProfile(context, navController, authViewModel, onThemeChange)
@@ -104,7 +108,7 @@ fun NavGraph(
             ShowToolScreen(navController, triviaViewModel)
         }
         composable<Route.NotificationCenter> {
-            ShowNotificationScreen(navController)
+            ShowNotificationScreen(navController, notificationViewModel)
         }
     }
 }

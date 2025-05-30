@@ -80,6 +80,8 @@ class UserRepository(
         FirebaseAuth.getInstance().signOut()
     }
 
+
+
     fun isUserLoggedIn(): Boolean =
         sessionManager.isUserLoggedIn()
 
