@@ -3,6 +3,7 @@ package com.boardaround.data.repositories
 import com.boardaround.data.dao.EventDAO
 import com.boardaround.data.entities.Event
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
 class EventRepository(
@@ -11,13 +12,13 @@ class EventRepository(
 ) {
 
     suspend fun insertEvent(event: Event) {
-        val newEventDocRef = firestore.collection("events").document()
+        val newEventDocRef = firestore.collection("events").document(event.timestamp)
 
         val eventData = hashMapOf(
-            "id" to event.id,
+            "timestamp" to event.timestamp,
             "name" to event.name,
             "author" to event.author,
-            "authorUID" to event.authorUID,
+            "authorUID" to event.authorId,
             "description" to event.description,
             "address" to event.address,
             "dateTime" to event.dateTime,
@@ -29,7 +30,7 @@ class EventRepository(
         newEventDocRef.set(eventData).await()
 
         val notificationTriggerData = hashMapOf(
-            "eventId" to event.id,
+            "eventId" to event.timestamp,
             "eventName" to event.name,
             "eventAuthor" to event.author,
             "isPrivate" to event.isPrivate,
@@ -41,7 +42,7 @@ class EventRepository(
             .await()
     }
 
-    suspend fun getEventsByUsername(username: String): List<Event> =
+    fun fetchUserEvents(username: String): Flow<List<Event>> =
         eventDao.getEventsByUsername(username)
 
     suspend fun searchEventsByName(name: String): List<Event> =
@@ -89,9 +90,8 @@ class EventRepository(
         try {
             eventDao.deleteEvent(toDelete)
 
-            /* TODO: fix the elimination of the entries of the tables */
             firestore.collection("events")
-                .document(toDelete.id.toString())
+                .document(toDelete.timestamp)
                 .delete()
                 .await()
         } catch (e: Exception) {

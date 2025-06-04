@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -25,18 +27,17 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.data.entities.SavedGame
 import com.boardaround.navigation.Route
-import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.network.StreetMapApiResponse
 import com.boardaround.ui.components.CustomAlertDialog
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomCarousel
 import com.boardaround.ui.components.CustomClickableIcon
+import com.boardaround.ui.components.CustomImagePicker
 import com.boardaround.ui.components.CustomMapField
 import com.boardaround.ui.components.CustomSwitch
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.components.CustomTitle
 import com.boardaround.ui.components.DateTimePicker
-import com.boardaround.ui.theme.Errors
 import com.boardaround.viewmodel.EventViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.UserViewModel
@@ -53,6 +54,7 @@ fun ShowNewEventScreen(
     var descriptionState by remember { mutableStateOf(TextFieldValue()) }
     var isPrivateEvent by remember { mutableStateOf(false) }
     var selectedGame by remember { mutableStateOf<SavedGame?>(null) }
+    var selectedImage by remember { mutableStateOf<String?>("No image") }
 
     var selectedDateTime by remember { mutableStateOf("Select date and time") }
     var showDateTimePicker by remember { mutableStateOf(false) }
@@ -67,76 +69,101 @@ fun ShowNewEventScreen(
     var showErrorDialog by remember { mutableStateOf(false) }
     var cancelAction by remember { mutableStateOf(false) }
 
-    gameViewModel.getUserGames()
+    LaunchedEffect(Unit) {
+        gameViewModel.getUserGames()
+    }
 
     LaunchedEffect(eventErrorMessage) {
        showErrorDialog = eventErrorMessage.isNotBlank()
     }
 
+    CustomAlertDialog(
+        isVisible = cancelAction,
+        title = "Confirm action",
+        description = "Are you sure you want to cancel?",
+        onConfirm = {
+            cancelAction = false
+            Toast.makeText(context, "Event successfully canceled", Toast.LENGTH_SHORT).show()
+            navController.navigate(Route.Homepage)
+        },
+        onDismiss = { cancelAction = false }
+    )
+
+    CustomAlertDialog(
+        isVisible = showErrorDialog,
+        title = "Error",
+        description = eventErrorMessage,
+        onDismiss = {
+            showErrorDialog = false
+            eventViewModel.clearErrorMessage()
+        }
+    )
+
+    DateTimePicker(
+        isVisible = showDateTimePicker,
+        showTimePicker = true,
+        onResult = { formattedDate ->
+            selectedDateTime = formattedDate
+        },
+        onDismiss = { showDateTimePicker = false }
+    )
+
     ScreenTemplate(
         title = "Create new event",
         currentRoute = Route.NewEvent,
-        navController,
+        navController = navController,
         showBottomBar = false
     ) {
         item {
-            CustomAlertDialog(
-                isVisible = cancelAction,
-                title = "Confirm action",
-                description = "Are you sure you want to cancel?",
-                onConfirm = {
-                    cancelAction = false
-                    Toast.makeText(context, "Event successfully canceled", Toast.LENGTH_SHORT).show()
-                    navController.navigateSingleTop(Route.Homepage)
-                },
-                onDismiss = { cancelAction = false }
-            )
+            Spacer(modifier = Modifier.height(10.dp))
 
-            CustomAlertDialog(
-                isVisible = showErrorDialog,
-                title = "Error",
-                description = eventErrorMessage,
-                onDismiss = {
-                    showErrorDialog = false
-                    eventViewModel.clearErrorMessage()
-                }
+            CustomImagePicker(
+                onImageSelected = { selectedImage = it },
+                imageContentDescription = "Enter the image of the event"
             )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(10.dp))
 
             CustomTitle(text = "Enter the name of the event")
             CustomTextField(
                 label = "Event name",
-                value = eventNameState,
-                onValueChange = { eventNameState = it }
+                value = eventNameState.text,
+                onValueChange = { eventNameState = TextFieldValue(it) }
             )
+        }
 
+        item {
             CustomTitle(text = "Enter the description")
             CustomTextField(
                 label = "Description",
-                value = descriptionState,
-                onValueChange = { descriptionState = it }
+                value = descriptionState.text,
+                onValueChange = { descriptionState = TextFieldValue(it) }
             )
+        }
 
+        item {
             CustomTitle(text = "Select event date and time")
             CustomButton(
                 onClick = { showDateTimePicker = true },
-                text = selectedDateTime
+                text = selectedDateTime,
+                leadingIcon = {
+                    CustomClickableIcon(
+                        title = "Select date and time",
+                        icon = Icons.Default.AccessTime,
+                    )
+                }
             )
+        }
 
-            DateTimePicker(
-                isVisible = showDateTimePicker,
-                showTimePicker = true,
-                onResult = { formattedDate ->
-                    selectedDateTime = formattedDate
-                },
-                onDismiss = { showDateTimePicker = false }
-            )
-
+        item {
             CustomTitle(text = "Enter event address")
             CustomMapField(
                 value = addressState,
                 onValueChange = {
                     addressState = it
-                    eventViewModel.fetchAddressSuggestions(it.text)
+                    eventViewModel.onQueryChange(it.text)
                 },
                 label = "Address",
                 suggestions = suggestedAddresses,
@@ -149,25 +176,27 @@ fun ShowNewEventScreen(
                         CustomClickableIcon(
                             title = "Clear",
                             icon = Icons.Default.Clear,
-                            iconColor = Errors,
+                            iconColor = MaterialTheme.colorScheme.error,
                             onClick = { addressState = TextFieldValue("") }
                         )
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+        }
 
+        item {
             CustomCarousel(
                 title = "Select a game for the event",
                 titleStyle = MaterialTheme.typography.titleSmall,
                 items = userGames,
                 onClick = { selectedGame = it },
                 imageUrlProvider = { it.imageUrl },
-                labelProvider = { it.name }
+                cardShape = CircleShape
             )
+        }
 
-            Spacer(modifier = Modifier.height(50.dp))
-
+        item {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -181,11 +210,14 @@ fun ShowNewEventScreen(
                     onCheckedChange = { isPrivateEvent = it }
                 )
             }
+        }
 
+        item {
             CustomButton(
                 onClick = {
-                    val uid = userViewModel.getCurrentUID() ?: "No UID"
-                    val username = userViewModel.getUsername()
+                    val currentUser = userViewModel.currentUser.value
+                    val uid = currentUser?.uid .orEmpty()
+                    val username = currentUser?.username.orEmpty()
 
                     eventViewModel.createEvent(
                         name = eventNameState.text,
@@ -195,15 +227,17 @@ fun ShowNewEventScreen(
                         address = selectedAddress?.displayName.toString(),
                         dateTime = selectedDateTime,
                         isPrivate = isPrivateEvent,
-                        imageUrl = "No image",
+                        imageUrl = selectedImage.toString(),
                         gameToPlay = selectedGame?.name.toString()
                     ) {
                         Toast.makeText(context, "Event created successfully", Toast.LENGTH_SHORT).show()
-                        navController.navigateSingleTop(Route.Homepage)
+                        navController.navigate(Route.Homepage)
                     }
                 },
                 text = "Create event"
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             CustomButton(
                 onClick = { cancelAction = true },

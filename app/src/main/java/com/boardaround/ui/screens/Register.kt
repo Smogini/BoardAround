@@ -11,11 +11,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomAlertDialog
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomImagePicker
@@ -49,10 +49,13 @@ fun ShowRegisterScreen(
     ScreenTemplate(
         title = "Create a new profile",
         currentRoute = Route.Register,
-        navController,
+        navController = navController,
         showBottomBar = false
     ) {
         item {
+            Spacer(Modifier.height(10.dp))
+
+            CustomTitle(text = "Click on the image to edit it")
             /* TODO: chiedere permesso all'utente */
             CustomImagePicker(
                 onImageSelected = { path ->
@@ -60,32 +63,37 @@ fun ShowRegisterScreen(
                 },
                 imageContentDescription = "Profile picture"
             )
+        }
 
-            CustomTitle(text = "Click on the image to edit it")
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+        item {
             CustomTitle(text = "Username")
             CustomTextField(
                 label = "Username",
-                value = usernameState.value,
-                onValueChange = { usernameState.value = it }
+                value = usernameState.value.text,
+                onValueChange = { usernameState.value = TextFieldValue(it) }
             )
+        }
 
+        item {
             CustomTitle(text = "Name")
             CustomTextField(
                 label = "Name",
-                value = nameState.value,
-                onValueChange = { nameState.value = it }
+                value = nameState.value.text,
+                onValueChange = { nameState.value = TextFieldValue(it) }
             )
+        }
 
+        item {
             CustomTitle(text = "Email")
             CustomTextField(
                 label = "Email",
-                value = emailState.value,
-                onValueChange = { emailState.value = it }
+                value = emailState.value.text,
+                onValueChange = { emailState.value = TextFieldValue(it) },
+                keyboardType = KeyboardType.Email
             )
+        }
 
+        item {
             CustomTitle(text = "Date of birth")
             CustomButton(onClick = { showDatePicker.value = true }, text = dobState.text)
 
@@ -97,15 +105,19 @@ fun ShowRegisterScreen(
                 },
                 onDismiss = { showDatePicker.value = false }
             )
+        }
 
+        item {
             CustomTitle(text = "Password")
             CustomTextField(
                 label = "Password",
-                value = passwordState.value,
-                isPasswordField = true,
-                onValueChange = { passwordState.value = it }
+                value = passwordState.value.text,
+                onValueChange = { passwordState.value = TextFieldValue(it) },
+                keyboardType = KeyboardType.Password
             )
+        }
 
+        item {
             CustomButton(
                 onClick = {
                     authViewModel.registerUser(
@@ -116,7 +128,7 @@ fun ShowRegisterScreen(
                         dob = dobState.text,
                         profilePic = selectedImageUri.toString()
                     ) {
-                        navController.navigateSingleTop(Route.Login)
+                        navController.navigate(Route.Login)
                     }
                 },
                 text = "Register"
@@ -142,7 +154,7 @@ fun ShowRegisterScreen(
 
     CustomAlertDialog(
         isVisible = showErrorAlert,
-        title = "Error during registration",
+        title = "Registration error",
         description = registrationError,
         onDismiss = {
             showErrorAlert = false

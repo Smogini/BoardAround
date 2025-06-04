@@ -36,11 +36,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.BottomBar
 import com.boardaround.ui.components.CustomFloatingActionButton
 import com.boardaround.ui.components.CustomTopAppBar
-import com.boardaround.viewmodel.NotificationViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
@@ -81,7 +79,7 @@ fun ScreenTemplate(
                             CustomFloatingActionButton(
                                 onClick = {
                                     showExtraFab = false
-                                    navController.navigateSingleTop(Route.NewEvent)
+                                    navController.navigate(Route.NewEvent)
                                 },
                                 modifier = Modifier.size(50.dp),
                                 icon = Icons.Filled.Create
@@ -89,7 +87,7 @@ fun ScreenTemplate(
                             CustomFloatingActionButton(
                                 onClick = {
                                     showExtraFab = false
-                                    navController.navigateSingleTop(Route.NewPost)
+                                    navController.navigate(Route.NewPost)
                                 },
                                 modifier = Modifier.size(50.dp),
                                 icon = Icons.Filled.PostAdd
@@ -116,8 +114,7 @@ fun ScreenTemplate(
                 .padding(contentPadding)
         ) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 contentPadding = PaddingValues(bottom = 100.dp)

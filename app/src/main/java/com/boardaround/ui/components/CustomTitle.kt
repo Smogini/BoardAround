@@ -1,6 +1,5 @@
 package com.boardaround.ui.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,9 +33,9 @@ fun CustomTitle(
                 blurRadius = 2f
             )
         ),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         textAlign = alignment,
         maxLines = maxLines,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
     )
 }

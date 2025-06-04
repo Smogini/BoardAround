@@ -42,10 +42,10 @@ fun CustomMapField(
     ) {
         CustomTextField(
             label = label,
-            value = value,
+            value = value.text,
             onValueChange = {
-                isExpanded = it.text.isNotBlank() && suggestions.isNotEmpty()
-                onValueChange(it)
+                isExpanded = it.isNotBlank() && suggestions.isNotEmpty()
+                onValueChange(TextFieldValue(it))
             },
             modifier = modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)

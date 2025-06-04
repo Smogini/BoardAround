@@ -19,7 +19,7 @@ fun CustomFloatingActionButton(
     FloatingActionButton(
         onClick = onClick,
         containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = Color.White,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier
     ) {
         Icon(

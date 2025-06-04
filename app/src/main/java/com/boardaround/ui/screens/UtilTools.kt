@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.screens.tools.SetupTriviaScreen
 import com.boardaround.ui.screens.tools.ShowCoinFlip
@@ -111,7 +110,7 @@ fun ToolsMenu(navController: NavController) {
                     },
                     onClick = {
                         UtilTools.selectTool(utilTools)
-                        navController.navigateSingleTop(Route.UtilTools)
+                        navController.navigate(Route.UtilTools)
                     }
                 )
             }

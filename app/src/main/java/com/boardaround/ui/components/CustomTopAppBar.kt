@@ -3,11 +3,14 @@ package com.boardaround.ui.components
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.ManageAccounts
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -23,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +38,11 @@ fun CustomTopAppBar(
 ) {
     val hasNotifications = userViewModel?.hasNewNotifications?.collectAsState()?.value ?: false
     var clearEdit by remember { mutableStateOf(false) }
+    val iconColor = MaterialTheme.colorScheme.primary
+    val excludeRoute = listOf(
+        Route.Login,
+        Route.Register
+    )
 
     Column {
         CenterAlignedTopAppBar(
@@ -50,53 +57,61 @@ fun CustomTopAppBar(
                     )
                 )
             },
-
             navigationIcon = {
-                CustomClickableIcon(
-                    title = "Gamification",
-                    icon = Icons.Filled.EmojiEvents,
-                    iconColor = MaterialTheme.colorScheme.onBackground,
-                    onClick = { navController.navigateSingleTop(Route.Gamification) }
-                )
+                if (!excludeRoute.contains(currentRoute)) {
+                    CustomClickableIcon(
+                        title = "Gamification",
+                        icon = Icons.Filled.EmojiEvents,
+                        iconColor = iconColor,
+                        onClick = { navController.navigate(Route.Gamification) }
+                    )
+                }
             },
-
             actions = {
-                CustomAlertDialog(
-                    isVisible = clearEdit,
-                    title = "Cancel",
-                    description = "Are you sure?",
-                    onConfirm = {
-                        clearEdit = false
-                        navController.navigateSingleTop(Route.MyProfile)
-                    },
-                    onDismiss = { clearEdit = false }
-                )
-                if (currentRoute == Route.MyProfile) {
-                    CustomClickableIcon(
-                        title = "Edit profile",
-                        icon = Icons.Default.ManageAccounts,
-                        iconColor = MaterialTheme.colorScheme.onBackground,
-                        onClick = { navController.navigateSingleTop(Route.EditMyProfile) }
-                    )
-                }
-                if (currentRoute == Route.EditMyProfile) {
-                    CustomClickableIcon(
+                if (!excludeRoute.contains(currentRoute)) {
+                    CustomAlertDialog(
+                        isVisible = clearEdit,
                         title = "Cancel",
-                        icon = Icons.Default.Cancel,
-                        iconColor = MaterialTheme.colorScheme.tertiary,
-                        onClick = { clearEdit = true }
+                        description = "Are you sure?",
+                        onConfirm = {
+                            clearEdit = false
+                            navController.navigate(Route.MyProfile)
+                        },
+                        onDismiss = { clearEdit = false }
+                    )
+                    if (currentRoute == Route.MyProfile) {
+                        CustomClickableIcon(
+                            title = "Edit profile",
+                            icon = Icons.Default.ManageAccounts,
+                            iconColor = iconColor,
+                            onClick = { navController.navigate(Route.EditMyProfile) },
+                            modifier = Modifier.padding(end = 5.dp)
+                        )
+                    }
+                    if (currentRoute == Route.EditMyProfile) {
+                        CustomClickableIcon(
+                            title = "Cancel",
+                            icon = Icons.Default.Cancel,
+                            iconColor = MaterialTheme.colorScheme.error,
+                            onClick = { clearEdit = true },
+                            modifier = Modifier.padding(end = 5.dp)
+                        )
+                    }
+                    CustomClickableIcon(
+                        title = "Notification",
+                        icon =
+                        if (hasNotifications) Icons.Default.Notifications
+                        else Icons.Default.NotificationsNone,
+                        iconColor = iconColor,
+                        onClick = { navController.navigate(Route.NotificationCenter) },
                     )
                 }
-                val notificationCount = userViewModel?.unreadNotificationCount?.collectAsState()?.value ?: 0
-                NotificationIconWithBadge(
-                    notificationCount = notificationCount,
-                    onClick = { navController.navigateSingleTop(Route.NotificationCenter) }
-                )
-
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
-                actionIconContentColor = MaterialTheme.colorScheme.background
+                titleContentColor = MaterialTheme.colorScheme.primary,
+                navigationIconContentColor = MaterialTheme.colorScheme.secondary,
+                actionIconContentColor = MaterialTheme.colorScheme.secondary
             ),
             modifier = Modifier
                 .wrapContentHeight()
@@ -104,7 +119,7 @@ fun CustomTopAppBar(
         )
         HorizontalDivider(
             color = MaterialTheme.colorScheme.secondary,
-            thickness = 4.dp
+            thickness = 2.dp
         )
     }
 }

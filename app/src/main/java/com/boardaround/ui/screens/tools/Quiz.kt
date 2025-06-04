@@ -197,8 +197,8 @@ fun SetupTriviaScreen(navController: NavController, triviaViewModel: TriviaViewM
                 ) {
                     CustomTextField(
                         label = "Number of questions",
-                        value = questionCount,
-                        onValueChange = {  questionCount = it },
+                        value = questionCount.text,
+                        onValueChange = {  questionCount = TextFieldValue(it) },
                         keyboardType = KeyboardType.Number,
                         modifier = Modifier.fillMaxWidth()
                     )

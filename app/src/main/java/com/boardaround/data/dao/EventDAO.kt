@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.boardaround.data.entities.Event
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EventDAO {
@@ -22,7 +23,7 @@ interface EventDAO {
     suspend fun getAllEvents(): List<Event>
 
     @Query("SELECT * FROM event WHERE author = :username")
-    suspend fun getEventsByUsername(username: String): List<Event>
+    fun getEventsByUsername(username: String): Flow<List<Event>>
 
     @Query("SELECT * FROM event WHERE address LIKE '%' || :address || '%'")
     suspend fun searchEventsByAddress(address: String): List<Event>

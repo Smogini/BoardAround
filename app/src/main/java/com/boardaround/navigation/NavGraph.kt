@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,7 +26,6 @@ import com.boardaround.ui.screens.ShowToolScreen
 import com.boardaround.ui.screens.SplashScreen
 import com.boardaround.viewmodel.AuthViewModel
 import com.boardaround.viewmodel.EventViewModel
-import com.boardaround.viewmodel.FriendsViewModel
 import com.boardaround.viewmodel.GameViewModel
 import com.boardaround.viewmodel.NotificationViewModel
 import com.boardaround.viewmodel.PostViewModel
@@ -45,7 +43,6 @@ fun NavGraph(
     eventViewModel: EventViewModel,
     triviaViewModel: TriviaViewModel,
     notificationViewModel: NotificationViewModel,
-    friendsViewModel: FriendsViewModel,
     onThemeChange: (Boolean) -> Unit
 ) {
     val startDest = if(authViewModel.isUserLoggedIn()) Route.Homepage else Route.Splash
@@ -69,7 +66,7 @@ fun NavGraph(
             SplashScreen(navController)
         }
         composable<Route.Homepage> {
-            ShowHomePageScreen(context, navController, userViewModel, gameViewModel, eventViewModel)
+            ShowHomePageScreen(navController, userViewModel, gameViewModel, eventViewModel)
         }
         composable<Route.Login> {
             ShowLoginScreen(context, navController, authViewModel)
@@ -84,10 +81,13 @@ fun NavGraph(
             ShowNewEventScreen(context, navController, eventViewModel, gameViewModel, userViewModel)
         }
         composable<Route.Profile> {
-            ShowProfileScreen(navController, userViewModel, friendsViewModel)
+            ShowProfileScreen(context, navController, userViewModel)
         }
         composable<Route.MyProfile> {
-            ShowMyProfileScreen(navController, authViewModel, postViewModel, userViewModel, eventViewModel, friendsViewModel, gameViewModel)
+            ShowMyProfileScreen(
+                navController, authViewModel, postViewModel,
+                userViewModel, eventViewModel, gameViewModel
+            )
         }
         composable<Route.EditMyProfile> {
             ShowEditMyProfile(context, navController, authViewModel, onThemeChange)
@@ -109,16 +109,6 @@ fun NavGraph(
         }
         composable<Route.NotificationCenter> {
             ShowNotificationScreen(navController, notificationViewModel)
-        }
-    }
-}
-
-fun NavController.navigateSingleTop(route: Route) {
-    this.navigate(route) {
-        launchSingleTop = true
-        restoreState = true
-        popUpTo(this@navigateSingleTop.graph.startDestinationId) {
-            saveState = true
         }
     }
 }

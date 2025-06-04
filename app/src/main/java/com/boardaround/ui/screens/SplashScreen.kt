@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.boardaround.R
 import com.boardaround.navigation.Route
-import com.boardaround.navigation.navigateSingleTop
 import kotlinx.coroutines.delay
 
 @Composable
@@ -45,7 +44,7 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(isLoading) {
         delay(3000)
         isLoading = false
-        navController.navigateSingleTop(Route.Login)
+        navController.navigate(Route.Login)
     }
 
     Surface(

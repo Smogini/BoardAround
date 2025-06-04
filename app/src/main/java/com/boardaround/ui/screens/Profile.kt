@@ -1,5 +1,7 @@
 package com.boardaround.ui.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -28,17 +30,19 @@ import coil.request.ImageRequest
 import com.boardaround.R
 import com.boardaround.navigation.Route
 import com.boardaround.ui.components.CustomButton
-import com.boardaround.viewmodel.FriendsViewModel
 import com.boardaround.viewmodel.UserViewModel
 
 @Composable
-fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel, friendsViewModel: FriendsViewModel) {
+fun ShowProfileScreen(
+    context: Context,
+    navController: NavController,
+    userViewModel: UserViewModel
+) {
     val userToShow by userViewModel.selectedUser.collectAsState()
-    val currentUserUsername = userViewModel.getUsername()
-    val myFriends by friendsViewModel.friends.collectAsState(initial = emptyList())
-    val isFriend = userToShow?.username?.let { uname -> myFriends.any { it.username == uname } } ?: false
+    val currentUser by userViewModel.currentUser.collectAsState()
 
-
+    val myFriends by userViewModel.userFriends.collectAsState(initial = emptyList())
+    val isFriend = myFriends.any { it.username == userToShow?.username }
 
     ScreenTemplate(
         title = "Profile of ${userToShow?.username}",
@@ -103,24 +107,21 @@ fun ShowProfileScreen(navController: NavController, userViewModel: UserViewModel
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (userToShow != null && userToShow!!.username != currentUserUsername) {
+            if (userToShow != null && userToShow != currentUser) {
                 if (isFriend) {
                     CustomButton(
-                        onClick = {
-                            friendsViewModel.removeFriend(currentUserUsername, userToShow!!.uid)
-                        },
+                        onClick = { userViewModel.removeFriend(userToShow!!.uid) },
                         text = "Remove friend",
                     )
                 } else {
                     CustomButton(
                         onClick = {
-                            val fromUsername = currentUserUsername
-                            val toUsername = userToShow!!.username
-                            friendsViewModel.sendRequest(fromUsername, toUsername)
+                            val toUserUID = userToShow!!.uid
+                            userViewModel.sendFriendshipRequest(currentUser!!.uid, toUserUID)
+                            Toast.makeText(context, "Friend request sent", Toast.LENGTH_SHORT).show()
                         },
                         text = "Add friend",
                     )
-
                 }
             }
         }

@@ -20,6 +20,7 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = PrimaryBrown,
     onSurface = White,
     surfaceVariant = News,
+    error = Errors
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -34,6 +35,7 @@ private val LightColorScheme = lightColorScheme(
     onBackground = PrimaryBrown,
     onSurface = BlackBrown,
     surfaceVariant = News,
+    error = Errors
 )
 
 val LocalIsDarkMode = staticCompositionLocalOf { false }

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.RequestPage
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
+import com.boardaround.ui.components.CustomAlertDialog
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.components.CustomSwitch
@@ -46,7 +46,6 @@ fun ShowEditMyProfile(
     val isDarkMode = LocalIsDarkMode.current
 
     var currentPermission by remember { mutableStateOf<String?>(null) }
-
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -64,11 +63,25 @@ fun ShowEditMyProfile(
         Manifest.permission.POST_NOTIFICATIONS
     )
 
+    var confirmAction by remember { mutableStateOf(false) }
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
         permissionList.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
     } else {
         permissionList.add(Manifest.permission.READ_MEDIA_IMAGES)
     }
+
+    CustomAlertDialog(
+        isVisible = confirmAction,
+        title = "Delete account",
+        description =
+            "Are you sure you want to delete the profile? Once confirmed, you can no longer go back",
+        onConfirm = {
+            confirmAction = false
+            authViewModel.deleteCurrentUser()
+        },
+        onDismiss = { confirmAction = false }
+    )
 
     ScreenTemplate(
         title = "Edit profile",
@@ -99,7 +112,6 @@ fun ShowEditMyProfile(
                     CustomClickableIcon(
                         title = "Request",
                         icon = Icons.Default.RequestPage,
-                        iconColor = MaterialTheme.colorScheme.onBackground,
                         onClick = {
                             if (isPermissionGranted(context, it)) {
                                 Toast.makeText(context, "Permission already granted", Toast.LENGTH_SHORT).show()
@@ -119,7 +131,7 @@ fun ShowEditMyProfile(
             )
 
             CustomButton(
-                onClick = { authViewModel.deleteCurrentUser() },
+                onClick = { confirmAction = true },
                 text = "Delete account"
             )
         }

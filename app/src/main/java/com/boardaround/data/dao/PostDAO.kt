@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.boardaround.data.entities.Post
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PostDao {
@@ -14,6 +15,6 @@ interface PostDao {
     suspend fun getAllPosts(): List<Post>
 
     @Query("SELECT * FROM posts WHERE author = :username")
-    suspend fun getPostsByUsername(username: String): List<Post>
+    fun getPostsByUsername(username: String): Flow<List<Post>>
 
 }

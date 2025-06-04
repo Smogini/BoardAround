@@ -6,19 +6,19 @@ import androidx.room.Index
 
 @Entity(
     tableName = "saved_game",
-    primaryKeys = ["gameId", "user"],
+    primaryKeys = ["gameId", "userId"],
     foreignKeys = [
         ForeignKey(
             entity = User::class,
-            parentColumns = ["username"],
-            childColumns = ["user"],
+            parentColumns = ["uid"],
+            childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("user")]
+    indices = [Index("userId")]
 )
 data class SavedGame(
-    val user: String,
+    val userId: String,
     val gameId: Int,
     val name: String,
     val imageUrl: String = "No image available"

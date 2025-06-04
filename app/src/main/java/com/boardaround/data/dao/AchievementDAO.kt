@@ -17,8 +17,11 @@ interface AchievementDAO {
     suspend fun deleteAchievement(toDelete: Achievement)
 
     @Query("UPDATE achievement SET id = id, description = description, isUnlocked = true WHERE id = :achievementId")
-    suspend fun unlockAchievementById(achievementId: Int)
+    suspend fun unlockAchievementById(achievementId: String)
 
     @Query("SELECT * FROM achievement")
     suspend fun getAchievements(): List<Achievement>
+
+    @Query("SELECT COUNT(*) FROM achievement")
+    suspend fun checkEntriesCount(): Int
 }

@@ -2,7 +2,6 @@ package com.boardaround
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -25,11 +24,8 @@ import androidx.navigation.compose.rememberNavController
 import com.boardaround.data.preferences.AppPreferences
 import com.boardaround.navigation.NavGraph
 import com.boardaround.ui.theme.BoardAroundTheme
-import com.boardaround.viewmodel.FriendsViewModel
 import com.boardaround.viewmodel.ViewModelFactory
-import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
-import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -38,7 +34,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-        Firebase.analytics.logEvent("test_event", null)
 
         val viewModelFactory = ViewModelFactory(this)
         val userViewModel = viewModelFactory.provideUserViewModel()
@@ -47,7 +42,6 @@ class MainActivity : ComponentActivity() {
         val eventViewModel = viewModelFactory.provideEventViewModel()
         val postViewModel = viewModelFactory.providePostViewModel()
         val triviaViewModel = viewModelFactory.provideTriviaViewModel()
-        val friendsViewModel = viewModelFactory.provideFriendsViewModel()
         val notificationViewModel = viewModelFactory.provideNotificationViewModel()
 
         setContent {
@@ -56,15 +50,9 @@ class MainActivity : ComponentActivity() {
             val isSystemDark = isSystemInDarkTheme()
             val isDarkMode = remember { mutableStateOf(isSystemDark) }
 
-            /* TODO: non inizializza correttamente la tabella nel db */
             LaunchedEffect(Unit) {
                 appPreferences.isDarkMode.collectLatest { isDark ->
                     isDarkMode.value = isDark
-                }
-                try {
-                    viewModelFactory.initializeAchievementManager()
-                } catch(e: Exception) {
-                    Log.e("main activity", "ERROR: ${e.message}", e)
                 }
             }
 
@@ -85,7 +73,6 @@ class MainActivity : ComponentActivity() {
                         postViewModel = postViewModel,
                         eventViewModel = eventViewModel,
                         triviaViewModel = triviaViewModel,
-                        friendsViewModel = friendsViewModel,
                         notificationViewModel = notificationViewModel,
                         onThemeChange = { newIsDarkMode ->
                             isDarkMode.value = newIsDarkMode

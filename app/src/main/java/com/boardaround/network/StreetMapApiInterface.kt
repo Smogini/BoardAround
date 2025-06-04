@@ -11,7 +11,7 @@ interface StreetMapApiInterface {
         @Query("format") format: String = "jsonv2",
         @Query("limit") limit: Int = 5,
         @Query("accept-language") language: String = "it",
-        @Query("countrycodes") countryCodes: String? = null,
+        @Query("countrycodes") countryCodes: String = "it",
     ): List<StreetMapApiResponse>
 }
 

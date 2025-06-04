@@ -2,16 +2,14 @@ package com.boardaround.data.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.ForeignKey
-import androidx.room.Index
 
 @Entity(tableName = "users")
 data class User(
-    @PrimaryKey val username: String = "",
-    val uid: String = "",
+    @PrimaryKey val uid: String = "",
+    val username: String = "",
     val name: String = "",
     val email: String = "",
     val dob: String = "",
-    val profilePic: String = "",
+    val profilePic: String? = null,
     val fcmToken: String? = null,
 )

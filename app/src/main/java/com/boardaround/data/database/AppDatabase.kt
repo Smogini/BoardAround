@@ -11,7 +11,6 @@ import com.boardaround.data.dao.PostDao
 import com.boardaround.data.dao.UserDAO
 import com.boardaround.data.entities.Achievement
 import com.boardaround.data.entities.Event
-import com.boardaround.data.entities.Friendship
 import com.boardaround.data.entities.Post
 import com.boardaround.data.entities.SavedGame
 import com.boardaround.data.entities.User

@@ -3,6 +3,7 @@ package com.boardaround.data.repositories
 import com.boardaround.data.dao.PostDao
 import com.boardaround.data.entities.Post
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
 class PostRepository(private val postDao: PostDao, private val firestore: FirebaseFirestore) {
@@ -31,7 +32,7 @@ class PostRepository(private val postDao: PostDao, private val firestore: Fireba
 
     }
 
-    suspend fun getPostsByUsername(username: String): List<Post> =
+    fun getPostsByUsername(username: String): Flow<List<Post>> =
         postDao.getPostsByUsername(username)
 
 }

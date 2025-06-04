@@ -1,6 +1,5 @@
 package com.boardaround.ui.components
 
-import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -9,7 +8,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -23,7 +26,7 @@ import java.io.OutputStream
 
 @Composable
 fun CustomImagePicker(
-    onImageSelected: (String) -> Unit, // ora restituisce il path locale
+    onImageSelected: (String) -> Unit,
     imageContentDescription: String,
     imageSize: Int = 80
 ) {
@@ -33,10 +36,9 @@ fun CustomImagePicker(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        uri?.let {
+        uri?.let { it ->
             selectedImageUri = it
 
-            // Salva nel file system interno
             val savedPath = try {
                 val inputStream: InputStream? = context.contentResolver.openInputStream(it)
                 val fileName = "profile_${System.currentTimeMillis()}.jpg"

@@ -12,6 +12,7 @@ import com.boardaround.data.repositories.PostRepository
 import com.boardaround.data.repositories.TriviaRepository
 import com.boardaround.data.repositories.UserRepository
 import com.boardaround.utils.AchievementManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ViewModelFactory(context: Context) {
@@ -23,49 +24,44 @@ class ViewModelFactory(context: Context) {
     private val gameDAO = database.gameDAO()
     private val achievementDAO = database.achievementDAO()
 
-    private val firestoreInstance = FirebaseFirestore.getInstance()
+    private val firestoreDB = FirebaseFirestore.getInstance()
+    private val firebaseAuth = FirebaseAuth.getInstance()
     private val sessionManager = UserSessionManager(context)
-
-    private val userRepository = UserRepository(sessionManager, userDao, firestoreInstance)
-    private val eventRepository = EventRepository(eventDAO , firestoreInstance)
-    private val notificationRepository = NotificationRepository()
-    private val postRepository = PostRepository(postDAO, firestoreInstance)
-    private val friendshipRepository = FriendshipRepository()
-    private val gameRepository = GameRepository(gameDAO)
-    private val triviaRepository = TriviaRepository()
-    private val newsRepository = NewsRepository()
 
     private val achievementManager = AchievementManager(achievementDAO)
 
+    private val userRepository =
+        UserRepository(sessionManager, userDao, firestoreDB, firebaseAuth)
+    private val eventRepository = EventRepository(eventDAO , firestoreDB)
+    private val notificationRepository = NotificationRepository(firestoreDB)
+    private val postRepository = PostRepository(postDAO, firestoreDB)
+    private val friendshipRepository = FriendshipRepository(firestoreDB)
+    private val gameRepository = GameRepository(gameDAO, achievementManager)
+    private val triviaRepository = TriviaRepository()
+    private val newsRepository = NewsRepository()
+
     fun provideAuthViewModel(): AuthViewModel =
-        AuthViewModel(userRepository)
+        AuthViewModel(userRepository, achievementManager)
 
     fun provideUserViewModel(): UserViewModel =
         UserViewModel(
-            userRepository, notificationRepository,
+            userRepository, friendshipRepository,
             newsRepository, achievementManager
         )
 
     fun providePostViewModel(): PostViewModel =
-        PostViewModel(postRepository, sessionManager)
+        PostViewModel(postRepository, userRepository)
 
     fun provideEventViewModel(): EventViewModel =
-        EventViewModel(eventRepository, sessionManager)
+        EventViewModel(eventRepository, userRepository, achievementManager)
 
     fun provideGameViewModel(): GameViewModel =
-        GameViewModel(gameRepository, achievementManager, sessionManager)
-
-    fun provideFriendsViewModel(): FriendsViewModel =
-        FriendsViewModel(friendshipRepository)
+        GameViewModel(gameRepository, userRepository)
 
     fun provideTriviaViewModel(): TriviaViewModel =
         TriviaViewModel(triviaRepository)
 
     fun provideNotificationViewModel(): NotificationViewModel =
-        NotificationViewModel(notificationRepository)
-
-    suspend fun initializeAchievementManager() {
-        achievementManager.initializeAchievements()
-    }
+        NotificationViewModel(notificationRepository, firestoreDB)
 
 }

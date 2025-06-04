@@ -2,28 +2,27 @@ package com.boardaround.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boardaround.data.UserSessionManager
 import com.boardaround.data.entities.Game
 import com.boardaround.data.entities.GameSearchResult
 import com.boardaround.data.entities.SavedGame
 import com.boardaround.data.entities.toGame
 import com.boardaround.data.repositories.GameRepository
+import com.boardaround.data.repositories.UserRepository
 import com.boardaround.network.ApiService
-import com.boardaround.utils.AchievementManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class GameViewModel(
     private val gameRepository: GameRepository,
-    private val achievementManager: AchievementManager,
-    private val sessionManager: UserSessionManager
+    userRepository: UserRepository
 ): ViewModel() {
 
     private val _errorMessage = MutableStateFlow("")
-    val errorMessage: StateFlow<String> = _errorMessage
 
     private var _gamesFound = MutableStateFlow(GameSearchResult(0, emptyList()))
     val gamesFound: StateFlow<GameSearchResult> = _gamesFound
@@ -37,6 +36,12 @@ class GameViewModel(
     private val _suggestedGames = MutableStateFlow<List<Game>>(mutableListOf())
     val suggestedGames: StateFlow<List<Game>> = _suggestedGames
 
+    private val currentUser = userRepository.currentUser
+
+    init {
+        getSuggestedGames(10)
+    }
+
     fun getGameInfo(gameID: Int) {
         viewModelScope.launch {
             try {
@@ -48,6 +53,8 @@ class GameViewModel(
     }
 
     fun searchGames(query: String) {
+        if (query.isBlank()) return
+
         viewModelScope.launch {
             try {
                 _gamesFound.value = ApiService.gameApi.searchGames(query)
@@ -60,9 +67,8 @@ class GameViewModel(
     fun saveGame(gameId: Int, gameName: String, imageUrl: String) {
         viewModelScope.launch {
             try {
-                val username = sessionManager.getCurrentUser()?.username.toString()
                 val savedGame = SavedGame(
-                    user = username,
+                    userId = currentUser.firstOrNull()?.uid.orEmpty(),
                     gameId = gameId,
                     name = gameName,
                     imageUrl = imageUrl
@@ -77,8 +83,8 @@ class GameViewModel(
     fun getUserGames() {
         viewModelScope.launch {
             try {
-                val username = sessionManager.getCurrentUser()?.username.toString()
-                _userGames.value= gameRepository.getUserGames(username)
+                val userId = currentUser.value?.uid.orEmpty()
+                gameRepository.getUserGames(userId).collectLatest { _userGames.value = it }
             } catch(e: Exception) {
                 _errorMessage.value = "Error getting the user games: ${e.message}"
             }
@@ -111,12 +117,6 @@ class GameViewModel(
                 game -> game.name.isNotEmpty()
             }
 
-        }
-    }
-
-    fun unlockAchievement(id: Int) {
-        viewModelScope.launch {
-            achievementManager.unlockAchievementById(id)
         }
     }
 

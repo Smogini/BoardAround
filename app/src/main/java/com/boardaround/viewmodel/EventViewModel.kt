@@ -2,18 +2,32 @@ package com.boardaround.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.boardaround.data.UserSessionManager
+import com.boardaround.data.entities.AchievementType
 import com.boardaround.data.entities.Event
 import com.boardaround.data.repositories.EventRepository
+import com.boardaround.data.repositories.UserRepository
 import com.boardaround.network.ApiService
 import com.boardaround.network.StreetMapApiResponse
+import com.boardaround.utils.AchievementManager
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class EventViewModel(
     private val repository: EventRepository,
-    private val sessionManager: UserSessionManager
+    userRepository: UserRepository,
+    private val achievementManager: AchievementManager
 ) : ViewModel() {
 
     private val _eventsFound = MutableStateFlow<List<Event>>(emptyList())
@@ -25,14 +39,37 @@ class EventViewModel(
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> = _errorMessage
 
-    private val _addressSuggestions = MutableStateFlow<List<StreetMapApiResponse>>(emptyList())
-    val addressSuggestions: StateFlow<List<StreetMapApiResponse>> = _addressSuggestions
+    private val _searchQuery = MutableStateFlow("")
+
+    private val currentUser = userRepository.currentUser
+
+    /* Wait N seconds before continuing the flow.
+     * Also, if the call to the API is identical to the previous one, it ignores it.
+     * Finally transforms the flow into an observable state (lazily)
+     * with the list of suggestions inside (otherwise empty).
+    */
+    val addressSuggestions: StateFlow<List<StreetMapApiResponse>> =
+        _searchQuery.debounce(500)
+            .distinctUntilChanged()
+            .flatMapLatest { q ->
+                flow {
+                    val res = ApiService.streetApi.search(query = q)
+                    emit(res)
+                }.catch { emit(emptyList()) }
+            }
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun onQueryChange(newQuery: String) {
+        _searchQuery.value = newQuery
+    }
 
     fun selectEvent(event: Event) {
         this._selectedEvent.value = event
     }
 
     fun searchEvents(query: String) {
+        if (query.isBlank()) return
+
         viewModelScope.launch {
             try {
                 _eventsFound.value = repository.searchEventsByName(query)
@@ -42,31 +79,14 @@ class EventViewModel(
         }
     }
 
-    fun searchEventsByUsername() {
+    fun fetchUserEvents() {
         viewModelScope.launch {
             try {
-                val username = sessionManager.getCurrentUser()?.username.toString()
-                _eventsFound.value = repository.getEventsByUsername(username)
+                var username = ""
+                currentUser.collectLatest { username = it?.username.orEmpty() }
+                repository.fetchUserEvents(username).collectLatest { _eventsFound.value = it }
             } catch (e: Exception) {
                 _errorMessage.value = "Error searching for events: ${e.message}"
-            }
-        }
-    }
-
-    fun fetchAddressSuggestions(query: String) {
-        if (query.isBlank()) {
-            _errorMessage.value = "Address not valid"
-            return
-        }
-        viewModelScope.launch {
-            try {
-                val response = ApiService.streetApi.search(query = query, countryCodes = "it")
-
-                if (response.isNotEmpty()) {
-                    _addressSuggestions.value = response
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "API Failure: ${e.message}"
             }
         }
     }
@@ -77,9 +97,10 @@ class EventViewModel(
         isPrivate: Boolean, imageUrl: String, gameToPlay: String, onSuccess: () -> Unit
         ) {
         val newEvent = Event(
+            timestamp = System.currentTimeMillis().toString(),
             name = name,
             author = author,
-            authorUID = authorUID,
+            authorId = authorUID,
             description = description,
             address = address,
             dateTime = dateTime,
@@ -94,6 +115,7 @@ class EventViewModel(
         viewModelScope.launch {
             try {
                 repository.insertEvent(newEvent)
+                achievementManager.unlockAchievement(AchievementType.FirstEvent)
                 onSuccess()
             } catch( e: Exception) {
                 _errorMessage.value = "Error creating the event: ${e.message}"
@@ -128,4 +150,3 @@ class EventViewModel(
     }
 
 }
-

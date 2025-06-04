@@ -3,20 +3,19 @@ package com.boardaround.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.boardaround.data.entities.Article
+import com.boardaround.data.entities.Friendship
 import com.boardaround.data.entities.User
 import com.boardaround.data.repositories.FriendshipRepository
 import com.boardaround.data.repositories.NewsRepository
-import com.boardaround.data.repositories.NotificationRepository
 import com.boardaround.data.repositories.UserRepository
 import com.boardaround.utils.AchievementManager
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class UserViewModel(
     private val userRepository: UserRepository,
-    private val notificationRepository: NotificationRepository,
+    private val friendshipRepository: FriendshipRepository,
     private val newsRepository: NewsRepository,
     private val achievementManager: AchievementManager
 ): ViewModel() {
@@ -35,31 +34,26 @@ class UserViewModel(
     private val _usersFound = MutableStateFlow<List<User>>(emptyList())
     val usersFound: StateFlow<List<User>> = _usersFound
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser: StateFlow<User?> = _currentUser
+    val currentUser = userRepository.currentUser
 
+    private val _userFriends = MutableStateFlow<List<User>>(emptyList())
+    val userFriends: StateFlow<List<User>> = _userFriends
 
-
-    private val _unreadNotificationCount = MutableStateFlow(0)
-    val unreadNotificationCount: StateFlow<Int> = _unreadNotificationCount
+    val pendingFriendships = MutableStateFlow<List<Friendship>>(emptyList())
 
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> = _errorMessage
 
-    fun clearErrorMessage() {
-        _errorMessage.value = ""
+    init {
+        fetchBoardGameNews()
+        initializeAchievements()
     }
 
-    fun selectUser(user: User) {
-        this._selectedUser.value = user
-    }
-
-    fun searchUsers(query: String) {
+    /* TODO: fix the user id (is currently null) */
+    private fun initializeAchievements() {
         viewModelScope.launch {
-            try {
-                _usersFound.value = userRepository.searchUsersByUsername(query)
-            } catch (e: Exception) {
-                _errorMessage.value = "User search error: ${e.message}"
+            if (!achievementManager.isAlreadyInitialized()) {
+                achievementManager.initializeAchievements(currentUser.value?.uid.orEmpty())
             }
         }
     }
@@ -70,41 +64,81 @@ class UserViewModel(
         }
     }
 
-    fun setUnreadNotificationCount(count: Int) {
-        _unreadNotificationCount.value = count
+    fun clearErrorMessage() {
+        _errorMessage.value = ""
     }
 
-    fun getUserId(): String {
-        return _currentUser.value?.uid ?: ""
+    fun selectUser(user: User) {
+        this._selectedUser.value = user
     }
 
-    init {
-        loadCurrentUser()
+    fun loadFriends() {
+        viewModelScope.launch {
+            try {
+                val currentUserUID = currentUser.value?.uid.orEmpty()
+                val friendUsernames = friendshipRepository.getAcceptedFriendUsernames(currentUserUID)
+                val users = friendshipRepository.getUsersByUsernames(friendUsernames)
+                _userFriends.value = users
+
+                val pending = friendshipRepository.getPendingFriendships(currentUserUID)
+                pendingFriendships.value = pending
+            } catch (e: Exception) {
+                _errorMessage.value = "Error loading friends: ${e.message}"
+                _userFriends.value = emptyList()
+                pendingFriendships.value = emptyList()
+            }
+        }
     }
 
-    private fun loadCurrentUser() {
-        val user = userRepository.getCurrentUser()
-        _currentUser.value = user
+    fun sendFriendshipRequest(fromUserUID: String, toUserUID: String) {
+        viewModelScope.launch {
+            friendshipRepository.sendFriendRequest(fromUserUID, toUserUID)
+        }
     }
 
+    fun acceptFriendRequest(friendship: Friendship) {
+        viewModelScope.launch {
+            friendshipRepository.acceptFriend(friendship)
+            loadFriends()
+        }
+    }
 
-    fun getUsername(): String =
-        userRepository.getCurrentUser()?.username ?: "No username"
+    fun declineFriendRequest(friendship: Friendship) {
+        viewModelScope.launch {
+            friendshipRepository.declineFriend(friendship)
+            loadFriends()
+        }
+    }
 
-    fun getCurrentUID(): String? =
-        userRepository.getCurrentUID()
+    fun removeFriend(friendUserId: String) {
+        val currUserUID = currentUser.value?.username
+        if (currUserUID.isNullOrEmpty()){
+            _errorMessage.value = "Error deleting friend: the current user uid is null or empty"
+            return
+        }
+
+        viewModelScope.launch {
+            friendshipRepository.removeFriend(currUserUID, friendUserId)
+            loadFriends()
+        }
+    }
+
+    fun searchUsers(query: String) {
+        if (query.isBlank()) return
+
+        viewModelScope.launch {
+            try {
+                _usersFound.value = userRepository.searchUsersByUsername(query)
+            } catch (e: Exception) {
+                _errorMessage.value = "User search error: ${e.message}"
+            }
+        }
+    }
 
     fun fetchBoardGameNews(language: String = "en") {
         viewModelScope.launch {
             _articleList.value = newsRepository.getBoardGameNews(language = language)
         }
     }
-
-//    fun refreshNotificationStatus() {
-//        viewModelScope.launch {
-//            val newNotifications = notificationRepository.hasUnread()
-//            _hasNewNotifications.value = newNotifications
-//        }
-//    }
 
 }

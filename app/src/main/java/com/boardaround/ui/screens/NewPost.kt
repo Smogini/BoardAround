@@ -38,16 +38,16 @@ fun ShowNewPostScreen(
         item {
             CustomTextField(
                 label = "Title",
-                value = title,
-                onValueChange = { title = it }
+                value = title.text,
+                onValueChange = { title = TextFieldValue(it) }
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             CustomTextField(
                 label = "Description",
-                value = content,
-                onValueChange = { content = it }
+                value = content.text,
+                onValueChange = { content = TextFieldValue(it) }
             )
 
             Spacer(modifier = Modifier.height(10.dp))

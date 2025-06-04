@@ -3,7 +3,6 @@ package com.boardaround.ui.screens
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomTitle
 
@@ -23,14 +22,14 @@ fun ShowInviteScreen(navController: NavController) {
 
             CustomButton(
                 onClick = {
-                    navController.navigateSingleTop(Route.Homepage)
+                    navController.navigate(Route.Homepage)
                 },
                 text = "Accept the invite"
             )
 
             CustomButton(
                 onClick = {
-                    navController.navigateSingleTop(Route.Homepage)
+                    navController.navigate(Route.Homepage)
                 },
                 text = "Reject invite"
             )

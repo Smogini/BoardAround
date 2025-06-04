@@ -1,37 +1,52 @@
 package com.boardaround.utils
 
-import android.util.Log
 import com.boardaround.data.dao.AchievementDAO
 import com.boardaround.data.entities.Achievement
+import com.boardaround.data.entities.AchievementType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class AchievementManager(private val achievementDAO: AchievementDAO) {
+class AchievementManager(
+    private val achievementDAO: AchievementDAO
+) {
 
     private val _achievementList = MutableStateFlow<List<Achievement>>(emptyList())
     val achievementList: StateFlow<List<Achievement>> = _achievementList
 
-    suspend fun initializeAchievements() {
-        _achievementList.value = listOf(
-            Achievement(0, "Register on BoardAround!"),
-            Achievement(1, "Publish your first post!"),
-            Achievement(2, "Create your first event!"),
-            Achievement(3, "Activate the dark theme!"),
-            Achievement(4, "Invite a friend to your event!"),
-            Achievement(5, "Add a game to the library")
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage: StateFlow<String> = _errorMessage
+
+    suspend fun isAlreadyInitialized(): Boolean =
+        achievementDAO.checkEntriesCount() > 0
+
+    suspend fun initializeAchievements(userId: String) {
+        val achievementTypeList = listOf(
+            AchievementType.Register,
+            AchievementType.FirstLogin,
+            AchievementType.FirstPost,
+            AchievementType.FirstEvent,
+            AchievementType.DarkTheme,
+            AchievementType.InviteToEvent,
+            AchievementType.AddGame
         )
-        _achievementList.value.forEach { achievement ->
-            achievementDAO.insertAchievement(achievement)
+        achievementTypeList.forEach { achievement ->
+            val toInsert = Achievement(
+                id = achievement.id,
+                description = achievement.description,
+                isUnlocked = false,
+                userId = userId
+            )
+            achievementDAO.insertAchievement(toInsert)
         }
-//        getAllAchievements()
+        getAllAchievements()
     }
 
-    suspend fun unlockAchievementById(achievementId: Int) {
+    suspend fun unlockAchievement(achievement: AchievementType) {
         try {
-            achievementDAO.unlockAchievementById(achievementId)
+            achievementDAO.unlockAchievementById(achievement.id)
             getAllAchievements()
         } catch (e: Exception) {
-            Log.e("AchievementManager", "Error unlocking the achievement: ${e.message}", e)
+            _errorMessage.value = "Error unlocking the achievement: ${e.message}"
         }
     }
 
@@ -39,7 +54,7 @@ class AchievementManager(private val achievementDAO: AchievementDAO) {
         try {
             _achievementList.value = achievementDAO.getAchievements()
         } catch (e: Exception) {
-            Log.e("AchievementManager", "Error getting achievements: ${e.message}", e)
+            _errorMessage.value = "Error getting achievements: ${e.message}"
         }
     }
 

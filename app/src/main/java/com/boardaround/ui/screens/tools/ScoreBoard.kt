@@ -32,7 +32,6 @@ import com.boardaround.ui.components.CustomButton
 import com.boardaround.ui.components.CustomClickableIcon
 import com.boardaround.ui.components.CustomTextField
 import com.boardaround.ui.screens.ScreenTemplate
-import com.boardaround.ui.theme.Errors
 import com.boardaround.ui.theme.PrimaryBrown
 
 data class Player(
@@ -65,15 +64,14 @@ fun ShowScoreBoard(navController: NavController) {
 
             CustomTextField(
                 label = "Rename player",
-                value = playerName,
-                onValueChange = { playerName = it },
+                value = playerName.text,
+                onValueChange = { playerName = TextFieldValue(it) },
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
                     if (playerName.text.isNotEmpty()) {
                         CustomClickableIcon(
                             title = "Clear",
                             icon = Icons.Default.Clear,
-                            iconColor = Errors,
                             onClick = { playerName = TextFieldValue("") }
                         )
                     }
@@ -132,13 +130,13 @@ fun ShowScoreBoard(navController: NavController) {
                         CustomClickableIcon(
                             title = "Add point",
                             icon = Icons.Default.Add,
-                            iconColor = PrimaryBrown,
+//                            iconColor = PrimaryBrown,
                             onClick = { player.points.intValue++ }
                         )
                         CustomClickableIcon(
                             title = "Remove point",
                             icon = Icons.Default.Remove,
-                            iconColor = PrimaryBrown,
+//                            iconColor = PrimaryBrown,
                             onClick = { player.points.intValue-- }
                         )
                     }

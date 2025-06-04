@@ -18,29 +18,35 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.boardaround.navigation.Route
-import com.boardaround.navigation.navigateSingleTop
 import com.boardaround.ui.screens.ToolsMenu
 
 @Composable
 fun BottomBar(navController: NavController) {
+    val iconColor = MaterialTheme.colorScheme.primary
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         BottomAppBar(
-            containerColor = MaterialTheme.colorScheme.onBackground,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            tonalElevation = 6.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(15.dp)
-                .padding(bottom = 15.dp)
+                .padding(horizontal = 20.dp, vertical = 10.dp)
                 .align(Alignment.BottomCenter)
-                .shadow(elevation = 10.dp, shape = RoundedCornerShape(60.dp)),
+                .shadow(
+                    elevation = 12.dp,
+                    shape = RoundedCornerShape(60.dp),
+                    ambientColor = iconColor.copy(alpha = 0.3f),
+                    spotColor = iconColor.copy(alpha = 0.2f)
+                ),
             actions = {
                 CustomClickableIcon(
                     "Homepage",
                     icon = Icons.Filled.Home,
-                    iconColor = MaterialTheme.colorScheme.primary,
-                    onClick = { navController.navigateSingleTop(Route.Homepage) },
+                    iconColor = iconColor,
+                    onClick = { navController.navigate(Route.Homepage) },
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -52,8 +58,8 @@ fun BottomBar(navController: NavController) {
                 CustomClickableIcon(
                     title = "Account",
                     icon = Icons.Filled.AccountCircle,
-                    iconColor = MaterialTheme.colorScheme.primary,
-                    onClick = { navController.navigateSingleTop(Route.MyProfile) }
+                    iconColor = iconColor,
+                    onClick = { navController.navigate(Route.MyProfile) }
                 )
             }
         )

@@ -5,19 +5,17 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.boardaround.data.repositories.NotificationRepository
 import com.boardaround.ui.screens.NotificationItem
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
-import java.time.LocalDateTime
+import com.google.firebase.firestore.FirebaseFirestore
 import java.time.ZoneId
 
 class NotificationViewModel(
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    private val firestore: FirebaseFirestore
 ) : ViewModel() {
 
     private val _notifications = mutableStateListOf<NotificationItem>()
     val notifications: List<NotificationItem> = _notifications
-
-    private val firestore = FirebaseFirestore.getInstance()
 
     private fun startListeningForRequests(currentUserId: String) {
         firestore.collection("friends")
